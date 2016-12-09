@@ -1,0 +1,27 @@
+# Common patterns to ignore
+._*
+build/
+classes/
+*.class
+.DS_Store
+*.[ew]ar
+.gradle/
+.idea/
+out/
+contiperf-report/
+*.iml
+*.ipr
+*.iws
+*.log
+*.py[cdo]
+*.swp
+.tags
+target/
+settings.json
+node_modules/
+*.config.json
+
+#
+#   Ignore version file that is created.
+#
+src/nginx/configuration.version
