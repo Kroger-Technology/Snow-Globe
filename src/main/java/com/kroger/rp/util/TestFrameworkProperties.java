@@ -31,9 +31,9 @@ public class TestFrameworkProperties {
     @SuppressWarnings("unchecked")
     static void initProperties() {
         try {
-            properties = (Map<String, Object>) new Yaml().load(new FileInputStream("nginx-testing-config.yaml"));
+            properties = (Map<String, Object>) new Yaml().load(new FileInputStream("snow-globe.yaml"));
         } catch (FileNotFoundException e) {
-            System.err.println("Unable to find 'nginx-testing-config.yaml'.  This is needed to run.");
+            System.err.println("Unable to find 'snow-globe.yaml'.  This is needed to run.");
             throw new RuntimeException(e);
         }
     }
