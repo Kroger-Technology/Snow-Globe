@@ -2,6 +2,8 @@ package com.kroger.rp.util;
 
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +30,12 @@ public class TestFrameworkProperties {
 
     @SuppressWarnings("unchecked")
     static void initProperties() {
-        properties = (Map<String, Object>) new Yaml().load(currentThread().getContextClassLoader().getResourceAsStream("test.yaml"));
+        try {
+            properties = (Map<String, Object>) new Yaml().load(new FileInputStream("nginx-testing-config.yaml"));
+        } catch (FileNotFoundException e) {
+            System.err.println("Unable to find 'nginx-testing-config.yaml'.  This is needed to run.");
+            throw new RuntimeException(e);
+        }
     }
 
     static String getFakeUpstreamImage() {
