@@ -100,27 +100,6 @@ public class AppServiceCluster {
         return this;
     }
 
-    public List<Integer> getRunningPorts() {
-        return ports;
-    }
-
-    public void stop() {
-        String stopCommand = System.getProperty("user.dir") + "/src/test/resources/stopService.sh";
-        String commandPath = System.getProperty("user.dir") + "/src/test/resources/";
-        IntStream.range(0, instances).parallel().forEach(instance -> {
-            try {
-                ProcessBuilder processBuilder = new ProcessBuilder(stopCommand,
-                        buildContainerId(instance));
-                processBuilder.directory(new File(commandPath));
-                processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-                Process process = processBuilder.start();
-                process.waitFor();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-    }
-
     private String buildContainerId(int instance) {
         return "CLUSTER-" + randomNamePrefix + "-" + clusterName + "-" + Integer.toString(instance);
     }

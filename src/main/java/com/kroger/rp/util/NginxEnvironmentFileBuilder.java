@@ -2,7 +2,10 @@ package com.kroger.rp.util;
 
 import com.kroger.rp.util.environment.UpstreamAppInfo;
 
+import java.io.File;
 import java.util.List;
+
+import static java.util.Arrays.stream;
 
 public class NginxEnvironmentFileBuilder extends BaseEnvironmentUtil{
 
@@ -11,8 +14,17 @@ public class NginxEnvironmentFileBuilder extends BaseEnvironmentUtil{
         readNginxConfFile(nginxConfFile, "proxy_pass");
     }
 
-    public void readOverridesFile(String overridesConfFile) {
-        readNginxConfFile(overridesConfFile, "proxy_pass");
+    public void readEnvConfig(String envConfig) {
+        File envConfigFile = new File(envConfig);
+        if(envConfigFile.exists()) {
+            if(envConfigFile.isDirectory() && envConfigFile.listFiles() != null) {
+                stream(envConfigFile.listFiles())
+                        .map(File::getAbsolutePath)
+                        .forEach(this::readEnvConfig);
+            } else {
+                readNginxConfFile(envConfig, "proxy_pass");
+            }
+        }
     }
 
     String buildUpstreamServerEntry(String serverName, List<UpstreamAppInfo> infos) {

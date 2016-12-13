@@ -133,16 +133,16 @@ public class CallUtility {
      */
     private static CloseableHttpResponse makeRequest(TestRequest testRequest, CloseableHttpClient httpclient) {
         switch(testRequest.getMethod()) {
-            case POST:
+            case "POST":
                 return makePostRequest(testRequest, httpclient);
-            case GET:
+            case "GET":
                 return makeGetRequest(testRequest, httpclient);
-            case PUT:
+            case "PUT":
                 return makePutRequest(testRequest, httpclient);
-            case DELETE:
+            case "DELETE":
                 return makeDeleteRequest(testRequest, httpclient);
             default:
-                throw new RuntimeException("Unable to make request with action: " + testRequest.getMethod().name());
+                throw new RuntimeException("Unable to make request with action: " + testRequest.getMethod());
         }
 
     }

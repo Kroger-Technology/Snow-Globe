@@ -31,32 +31,6 @@ public abstract class BaseEnvironmentUtil {
 
     abstract String buildUpstreamServerEntry(String serverName, List<UpstreamAppInfo> infos);
 
-    protected String getHostIp() {
-        try (DatagramSocket s = new DatagramSocket())
-        {
-            s.connect(InetAddress.getByAddress(new byte[]{1, 1, 1, 1}), 0);
-            String ifName = NetworkInterface.getByInetAddress(s.getLocalAddress()).getDisplayName();
-
-            NetworkInterface iFace = list(getNetworkInterfaces()).stream()
-                    .filter(networkInterface -> networkInterface.getDisplayName().equals(ifName))
-                    .findFirst()
-                    .orElse(null);
-
-            return list(iFace.getInetAddresses()).stream()
-                    .filter(inetAddress -> inetAddress instanceof Inet4Address)
-                    .map(InetAddress::getHostAddress)
-                    .findFirst()
-                    .orElse("127.0.0.1");
-        } catch (Exception e) {
-            try {
-                return InetAddress.getLocalHost().getHostAddress();
-            } catch (UnknownHostException e1) {
-                e1.printStackTrace();
-            }
-            throw new RuntimeException(e);
-        }
-    }
-
     protected void readNginxConfFile(String confFile, String prefix) {
         try {
             String baseDirectory = confFile.substring(0, confFile.lastIndexOf("/nginx/") + 6);

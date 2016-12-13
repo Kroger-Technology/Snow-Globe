@@ -11,6 +11,14 @@ nginx.url.port.mapping:
   - http:
       pattern: "http:.*"
       port: 80
+nginx.start.command:
+  default: ["nginx", "-g", "'daemon off;'"]
+nginx.base.config.file: "/src/nginx/nginx.conf"
+nginx.env.additional.files:
+  test:
+    - "/src/nginx/test-routing.conf"
+  dev:
+    - "/src/nginx/dev/"
 upstream.fake.container:
   "docker.kroger.com/nginx/fake-upstream-service:1.0"
 framework.log.output:

@@ -11,6 +11,7 @@ import java.util.Properties;
 
 import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.joining;
 
 public class TestFrameworkProperties {
 
@@ -63,5 +64,28 @@ public class TestFrameworkProperties {
     @SuppressWarnings("unchecked")
     static List<Map<String, Object>> getNginxPortMapping() {
         return (List<Map<String, Object>>) properties.get("nginx.url.port.mapping");
+    }
+
+    @SuppressWarnings("unchecked")
+    public static List<String> getAdditionalFilesToScan(String environmentOverride) {
+        try {
+            Map<String, Object> additionalFiles = (Map<String, Object>) properties.get("nginx.env.additional.files");
+            return (List<String>) additionalFiles.get(environmentOverride);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static String getBaseConfigFile() {
+        return getStringValue("nginx.base.config.file");
+    }
+
+    @SuppressWarnings("unchecked")
+    public static String getStartCommand(String environment) {
+        Map<String, List<String>> startCommands = (Map<String, List<String>>) properties.get("nginx.start.command");
+        if(!startCommands.containsKey(environment)) {
+            environment = "default";
+        }
+        return startCommands.get(environment).stream().collect(joining(" "));
     }
 }

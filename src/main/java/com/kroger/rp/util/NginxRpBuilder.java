@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
+import static com.kroger.rp.util.TestFrameworkProperties.getAdditionalFilesToScan;
+import static com.kroger.rp.util.TestFrameworkProperties.getBaseConfigFile;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
@@ -15,7 +17,7 @@ public class NginxRpBuilder {
     private AppServiceCluster[] clusters;
     private final File environmentFile;
     private final int randomNamePrefix = Math.abs(new Random(System.currentTimeMillis()).nextInt());
-    private String environmentOverride = "";
+    private String environmentOverride = "default";
     private ComposeBuilder composeBuilder;
     private PortMapper portMapper = new PortMapper();
 
@@ -73,12 +75,19 @@ public class NginxRpBuilder {
     }
 
     private String buildFileContents() {
-        NginxEnvironmentFileBuilder builder = new NginxEnvironmentFileBuilder(System.getProperty("user.dir") + "/src/nginx/nginx.conf");
-        if(environmentOverride.length() > 0) {
-            builder.readOverridesFile(System.getProperty("user.dir") + "/src/nginx/env-overrides/" + environmentOverride + "_route_overrides.conf");
+        NginxEnvironmentFileBuilder builder =
+                new NginxEnvironmentFileBuilder(System.getProperty("user.dir") + getBaseConfigFile());
+        if(hasAdditionalFilesToScan()) {
+            getAdditionalFilesToScan(environmentOverride).stream()
+                    .forEach(additionalFile ->
+                            builder.readEnvConfig(System.getProperty("user.dir") + additionalFile));
         }
         stream(clusters).forEach(builder::addUpstreamServer);
         return builder.buildClusterFileContents();
+    }
+
+    private boolean hasAdditionalFilesToScan() {
+        return getAdditionalFilesToScan(environmentOverride) != null;
     }
 
     public void stop() {
@@ -111,6 +120,7 @@ public class NginxRpBuilder {
         argsMap.put("volumes", buildComposeVolumes());
         argsMap.put("ports", buildComposePorts());
         argsMap.put("links", getServiceContainerNames(serviceClusters));
+        argsMap.put("command", getStartCommand());
         return composeMap;
     }
 
@@ -140,5 +150,9 @@ public class NginxRpBuilder {
 
     public Integer getPortForUrl(String url) {
         return portMapper.getMappedPortForUrl(url);
+    }
+
+    public String getStartCommand() {
+        return TestFrameworkProperties.getStartCommand(environmentOverride);
     }
 }

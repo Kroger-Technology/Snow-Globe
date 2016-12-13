@@ -11,32 +11,32 @@ public class TestRequest {
 
     private Map<String, String> headers = new HashMap<>();
     private String url;
-    private HttpMethod method;
+    private String method;
     private String body;
     private NginxRpBuilder reverseProxy;
     private String userAgent;
 
     public static TestRequest getRequest(String url) {
-        return new TestRequest(HttpMethod.GET, url);
+        return new TestRequest("GET", url);
     }
 
     public static TestRequest postRequest(String url) {
-        return new TestRequest(HttpMethod.POST, url);
+        return new TestRequest("POST", url);
     }
 
     public static TestRequest putRequest(String url) {
-        return new TestRequest(HttpMethod.PUT, url);
+        return new TestRequest("PUT", url);
     }
 
     public static TestRequest deleteRequest(String url) {
-        return new TestRequest(HttpMethod.DELETE, url);
+        return new TestRequest("DELETE", url);
     }
 
     public static TestRequest headRequest(String url) {
-        return new TestRequest(HttpMethod.HEAD, url);
+        return new TestRequest("HEAD", url);
     }
 
-    public TestRequest(HttpMethod method, String url) {
+    public TestRequest(String method, String url) {
         this.method = method;
         this.url = url;
     }
@@ -83,7 +83,7 @@ public class TestRequest {
         return url;
     }
 
-    public HttpMethod getMethod() {
+    public String getMethod() {
         return method;
     }
 

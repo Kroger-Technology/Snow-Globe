@@ -18,7 +18,7 @@ public class ExampleTest {
 
     @BeforeClass
     public static void setup() {
-        nginxReverseProxy = NginxRpBuilder.startNginxRpWithCluster(loginUpstreamApp, contentUpstreamApp, cartUpstreamApp);
+        nginxReverseProxy = NginxRpBuilder.startNginxRpInEnvWithCluster("test", loginUpstreamApp, contentUpstreamApp, cartUpstreamApp);
     }
 
     @AfterClass
