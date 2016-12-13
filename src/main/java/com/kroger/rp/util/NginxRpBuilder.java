@@ -6,9 +6,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.kroger.rp.util.TestFrameworkProperties.getAdditionalFilesToScan;
 import static com.kroger.rp.util.TestFrameworkProperties.getBaseConfigFile;
+import static com.kroger.rp.util.TestFrameworkProperties.getNginxVolumes;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
@@ -126,11 +128,40 @@ public class NginxRpBuilder {
 
     private List<String> buildComposeVolumes() {
         List<String> nginxVolumes = new ArrayList<>();
-        nginxVolumes.addAll(TestFrameworkProperties.getNginxVolumes());
+        nginxVolumes.addAll(buildNginxVolumeMounts());
         nginxVolumes.add(buildEnvironmentFileMapping());
         return nginxVolumes.stream()
                 .map(volume -> System.getProperty("user.dir") + (volume.startsWith("/") ? "" : "/") + volume)
                 .collect(toList());
+    }
+
+    private List<String> buildNginxVolumeMounts() {
+        List<String> allVolumeMounts = new ArrayList<>();
+        allVolumeMounts.addAll(getNginxVolumes().stream().filter(s -> !s.contains("*")).collect(toList()));
+        getNginxVolumes().stream()
+                .filter(s -> s.contains("*"))
+                .map(this::processMountWildCard)
+                .forEach(allVolumeMounts::addAll);
+        return allVolumeMounts;
+    }
+
+    private List<String> processMountWildCard(String wildCardMount) {
+        String destinationDirectoy = wildCardMount.split(":")[1];
+        String wildCardDirectory = wildCardMount.split(":")[0].replaceAll("\\*", "");
+        try {
+            return stream(new File(wildCardDirectory).listFiles())
+                    .filter(file -> !file.isDirectory())
+                    .map(file -> file.getPath())
+                    .map(filePath -> buildDynamicVolumeMount(destinationDirectoy, filePath))
+                    .collect(toList());
+        } catch(Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    private String buildDynamicVolumeMount(String destinationDirectoy, String filePath) {
+        String rawMount = filePath + ":" + destinationDirectoy + filePath.substring(filePath.lastIndexOf("/"));
+        return rawMount.replaceAll("//", "/");
     }
 
     private String buildEnvironmentFileMapping() {
