@@ -1,4 +1,4 @@
-package com.kroger.rp.tests;
+package com.kroger.snowGlobe.integration.tests;
 
 import com.kroger.rp.util.AppServiceCluster;
 import com.kroger.rp.util.NginxRpBuilder;
@@ -29,22 +29,22 @@ public class ExampleTest {
     @Test
     public void should_301_http_to_https() {
         make(getRequest("http://www.nginx-test.com").to(nginxReverseProxy))
-                .andHasResponseHeader("Location", "https://www.nginx-test.com/")
-                .expectResponseCode(301);
+                .andExpectResponseHeader("Location", "https://www.nginx-test.com/")
+                .andExpectResponseCode(301);
     }
 
     @Test
     public void should_properly_route_homepage() {
         make(getRequest("https://www.nginx-test.com").to(nginxReverseProxy))
                 .andExpectClusterName("Content_Cluster")
-                .expectResponseCode(200);
+                .andExpectResponseCode(200);
     }
 
     @Test
     public void should_properly_route_login() {
         make(getRequest("https://www.nginx-test.com/login").to(nginxReverseProxy))
                 .andExpectClusterName("Login_Cluster")
-                .expectResponseCode(200);
+                .andExpectResponseCode(200);
     }
 
     @Test
@@ -52,6 +52,6 @@ public class ExampleTest {
         make(getRequest("https://www.nginx-test.com/checkout").to(nginxReverseProxy))
                 .andExpectClusterName("Cart_Cluster")
                 .andExpectAppPath("/cart/checkout")
-                .expectResponseCode(200);
+                .andExpectResponseCode(200);
     }
 }

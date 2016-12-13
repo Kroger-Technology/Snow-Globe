@@ -23,10 +23,17 @@ public class AppServiceCluster {
     private String matchingPaths = "*";
     private Map<String, String> responseHeaders = new HashMap<>();
     private final boolean useHttps;
-    private List<UpstreamAppInfo> appInstanceInfos;
+
+    public static AppServiceCluster makeHttpWebService(String clusterName) {
+        return new AppServiceCluster(clusterName, 1, false);
+    }
 
     public static AppServiceCluster makeHttpWebService(String clusterName, int instances) {
         return new AppServiceCluster(clusterName, instances, false);
+    }
+
+    public static AppServiceCluster makeHttpsWebService(String clusterName) {
+        return new AppServiceCluster(clusterName, 1, true);
     }
 
     public static AppServiceCluster makeHttpsWebService(String clusterName, int instances) {
@@ -37,10 +44,6 @@ public class AppServiceCluster {
         this.clusterName = clusterName;
         this.instances = instances;
         this.useHttps = useHttps;
-    }
-
-    public AppServiceCluster withLatencyMinAndMax(int minLatencyInMillis, int maxLatencyInMillis) {
-        return this;
     }
 
     public AppServiceCluster withHttpResponses(int httpResponseCode) {

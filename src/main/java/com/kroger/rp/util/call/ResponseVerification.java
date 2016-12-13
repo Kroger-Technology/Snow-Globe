@@ -91,32 +91,44 @@ public class ResponseVerification {
         return this;
     }
 
+    @Deprecated
     public ResponseVerification andHasResponseHeader(String headerKey) {
-        return hasResponseHeader(headerKey);
+        return andExpectResponseHeader(headerKey);
     }
 
+    @Deprecated
     public ResponseVerification hasResponseHeader(String headerKey) {
+        return andExpectResponseHeader(headerKey);
+    }
+
+    public ResponseVerification andExpectResponseHeader(String headerKey) {
         assertThat("Call from Reverse Proxy to: " +  this.serviceResponseBody.getRequest().getUrlToApplication()
-                + " originating from: " + this.testRequest.getPrettyUrl()
-                + " did not contain the header in the response sent from the application.",
+                        + " originating from: " + this.testRequest.getPrettyUrl()
+                        + " did not contain the header in the response sent from the application.",
                 this.responseHeaders, hasKey(headerKey));
         return this;
     }
 
+    @Deprecated
     public ResponseVerification hasRequestHeaderToApplication(String headerKey) {
-        assertThat("Call from Reverse Proxy to: " +  this.serviceResponseBody.getRequest().getUrlToApplication()
-                + " originating from: " + this.testRequest.getPrettyUrl()
-                + " did not contain the header in the request sent to the application.",
-                this.serviceResponseBody.getRequest().getHeaders(), hasKey(headerKey));
-        return this;
+        return andExpectRequestHeaderToApplication(headerKey);
     }
 
-    public ResponseVerification hasRequestHeaderToApplicationMatching(String headerKey, String matchingRegex) {
+    public ResponseVerification andExpectRequestHeaderToApplication(String headerKey) {
         assertThat("Call from Reverse Proxy to: " +  this.serviceResponseBody.getRequest().getUrlToApplication()
                         + " originating from: " + this.testRequest.getPrettyUrl()
                         + " did not contain the header in the request sent to the application.",
                 this.serviceResponseBody.getRequest().getHeaders(), hasKey(headerKey));
+        return this;
+    }
 
+    @Deprecated
+    public ResponseVerification hasRequestHeaderToApplicationMatching(String headerKey, String matchingRegex) {
+        return andExpectRequestHeaderToApplicationMatching(headerKey, matchingRegex);
+    }
+
+    public ResponseVerification andExpectRequestHeaderToApplicationMatching(String headerKey, String matchingRegex) {
+        andExpectRequestHeaderToApplication(headerKey);
         assertThat("Call from Reverse Proxy to: " +  this.serviceResponseBody.getRequest().getUrlToApplication()
                         + " originating from: " + this.testRequest.getPrettyUrl()
                         + " has a value '" + this.serviceResponseBody.getRequest().getHeaders().get(headerKey)
@@ -125,8 +137,9 @@ public class ResponseVerification {
         return this;
     }
 
+    @Deprecated
     public ResponseVerification andHasRequestHeaderToApplication(String headerKey) {
-        return hasRequestHeaderToApplication(headerKey);
+        return andExpectRequestHeaderToApplication(headerKey);
     }
 
     public ResponseVerification hasRequestHeaderToApplication(String headerKey, String headerValue) {
@@ -157,17 +170,34 @@ public class ResponseVerification {
         return roundTripTimeMillis;
     }
 
+    @Deprecated
     public ResponseVerification andHasResponseHeader(String key, String value) {
-        return hasResponseHeader(key, value);
+        return expectResponseHeader(key, value);
     }
 
+    public ResponseVerification andExpectResponseHeader(String key, String value) {
+        return expectResponseHeader(key, value);
+    }
+
+    @Deprecated
     public ResponseVerification hasResponseHeader(String key, String value) {
         assertThat("Call to " + this.testRequest.getPrettyUrl() + " did not have the matching response header.",
                 this.responseHeaders, hasEntry(key, value));
         return this;
     }
 
+    public ResponseVerification expectResponseHeader(String key, String value) {
+        assertThat("Call to " + this.testRequest.getPrettyUrl() + " did not have the matching response header.",
+                this.responseHeaders, hasEntry(key, value));
+        return this;
+    }
+
+    @Deprecated
     public ResponseVerification andResponseBodyMatchesFileContents(String expectedBodyPath) {
+        return andExpectResponseBodyContent(removeNewLines(readFile(System.getProperty("user.dir") + "/" + expectedBodyPath)));
+    }
+
+    public ResponseVerification andExpectResponseBodyMatchesFileContents(String expectedBodyPath) {
         return andExpectResponseBodyContent(removeNewLines(readFile(System.getProperty("user.dir") + "/" + expectedBodyPath)));
     }
 
@@ -185,7 +215,13 @@ public class ResponseVerification {
         return new String(encoded);
     }
 
+    @Deprecated
     public ResponseVerification andDoesNotHaveResponseHeader(String key) {
+        assertThat(this.responseHeaders, not(hasKey(key)));
+        return this;
+    }
+
+    public ResponseVerification andExpectMissingResponseHeader(String key) {
         assertThat(this.responseHeaders, not(hasKey(key)));
         return this;
     }

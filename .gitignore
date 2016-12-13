@@ -20,8 +20,3 @@ target/
 settings.json
 node_modules/
 *.config.json
-
-#
-#   Ignore version file that is created.
-#
-src/nginx/configuration.version
