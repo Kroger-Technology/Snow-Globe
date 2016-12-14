@@ -3,11 +3,14 @@ package com.kroger.rp.util.call;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
+import org.apache.http.NoHttpResponseException;
+import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.*;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -15,6 +18,7 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
+import org.apache.http.protocol.HttpContext;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -68,6 +72,7 @@ public class CallUtility {
                             // Do not allow cookies to be stored between calls.
                             .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
                             .build())
+                    .setRetryHandler(buildRetryHandler())
                     .disableRedirectHandling().build();
     }
 
@@ -178,6 +183,26 @@ public class CallUtility {
             httpPost.setEntity(getHttpEntity(testRequest));
         }
         return execute(httpclient, httpPost);
+    }
+
+    private static HttpRequestRetryHandler buildRetryHandler() {
+        return (exception, executionCount, context) -> {
+            if (executionCount > 20) {
+                // Do not retry if over max retry count
+                return false;
+            }
+            if (exception instanceof HttpHostConnectException) {
+                try {
+                    Thread.sleep(250);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                // Retry if the server dropped connection on us
+                return true;
+            }
+            // otherwise do not retry
+            return false;
+        };
     }
 
     private static HttpEntity getHttpEntity(TestRequest testRequest) {

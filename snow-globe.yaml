@@ -25,5 +25,5 @@ nginx.env.config.files:
     - "/src/nginx/dev/"
 upstream.fake.container: "docker.kroger.com/nginx/fake-upstream-service:1.0"
 snowglobe.log.output:  true
-snowglobe.preserve.temp.files: true
+snowglobe.preserve.temp.files: false
 nginx.define.upstream.zones: true
