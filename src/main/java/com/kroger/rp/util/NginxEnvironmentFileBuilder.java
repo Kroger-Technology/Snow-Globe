@@ -45,7 +45,7 @@ public class NginxEnvironmentFileBuilder {
                     String line = reader.readLine();
                     if (line.contains(prefix)) {
                         addEmptyCluster(line);
-                    } else if (line.trim().startsWith("include ") && line.trim().replaceAll("#.*", "").contains(".conf")) {
+                    } else if (line.trim().startsWith("include ")) {
                         String subFileName = getIncludeFileName(line);
                         readNginxConfFile(subFileName, prefix);
                     }
