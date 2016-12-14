@@ -19,6 +19,13 @@ public class TestFrameworkProperties {
 
     static {
         initProperties();
+        handleLoggingSettings();
+    }
+
+    private static void handleLoggingSettings() {
+        if(properties.getOrDefault("snowglobe.disable.commons.logging", "false").toString().equalsIgnoreCase("true")) {
+            System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
+        }
     }
 
     private static String getStringValue(String key) {
