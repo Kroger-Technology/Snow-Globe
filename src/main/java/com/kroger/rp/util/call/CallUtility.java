@@ -191,7 +191,7 @@ public class CallUtility {
                 // Do not retry if over max retry count
                 return false;
             }
-            if (exception instanceof HttpHostConnectException) {
+            if (exception instanceof HttpHostConnectException || exception instanceof  NoHttpResponseException) {
                 try {
                     Thread.sleep(250);
                 } catch (InterruptedException e) {
