@@ -9,6 +9,7 @@ import java.util.*;
 
 import static com.kroger.rp.util.TestFrameworkProperties.getFilesToScan;
 import static com.kroger.rp.util.TestFrameworkProperties.getNginxVolumes;
+import static com.kroger.rp.util.TestFrameworkProperties.preserveTempFiles;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
@@ -25,7 +26,9 @@ public class NginxRpBuilder {
     public NginxRpBuilder(AppServiceCluster[] clusters) {
         this.clusters = clusters;
         environmentFile = new File(new File(System.getProperty("user.dir")), "NGINX_ENV-"+ randomNamePrefix + ".conf");
-        environmentFile.deleteOnExit();
+        if(!preserveTempFiles()) {
+            environmentFile.deleteOnExit();
+        }
     }
 
     public static NginxRpBuilder configureRp(AppServiceCluster... clusters) {

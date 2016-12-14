@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.kroger.rp.util.TestFrameworkProperties.preserveTempFiles;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 
@@ -39,7 +40,9 @@ public class ComposeBuilder {
 
     private void writeComposeFile(String fileContents) {
         File composeFile = new File(getComposeFileName());
-        composeFile.deleteOnExit();
+        if(!preserveTempFiles()) {
+            composeFile.deleteOnExit();
+        }
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(getComposeFileName()))) {
             writer.write(fileContents);
         } catch (IOException e) {

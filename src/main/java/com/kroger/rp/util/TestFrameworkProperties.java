@@ -44,8 +44,17 @@ public class TestFrameworkProperties {
     }
 
     static boolean logContainerOutput() {
-        return properties.get("framework.log.output") != null &&
-                properties.get("framework.log.output").toString().equalsIgnoreCase("true");
+        return getBooleanValue("snowglobe.log.output");
+    }
+
+    public static boolean preserveTempFiles() {
+        return getBooleanValue("snowglobe.preserve.temp.files");
+    }
+
+
+    private static boolean getBooleanValue(String key) {
+        return properties.get(key) != null &&
+                properties.get(key).toString().equalsIgnoreCase("true");
     }
 
     static String getNginxImage() {

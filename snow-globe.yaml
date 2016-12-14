@@ -1,10 +1,8 @@
 nginx.volume.mounts:
   - "src/nginx/nginx.conf:/etc/nginx/nginx.conf"
   - "src/nginx/dev/*:/etc/nginx/dev/"
-nginx.upstream.file.path:
-  "/etc/nginx/upstreams.conf"
-nginx.container:
-  "docker.kroger.com/library/nginx:1.11.3"
+nginx.upstream.file.path: "/etc/nginx/upstreams.conf"
+nginx.container: "docker.kroger.com/library/nginx:1.11.3"
 nginx.url.port.mapping:
   - https:
       pattern: "https:.*"
@@ -25,7 +23,6 @@ nginx.env.config.files:
   dev:
     - "/src/nginx/nginx.conf"
     - "/src/nginx/dev/"
-upstream.fake.container:
-  "docker.kroger.com/nginx/fake-upstream-service:1.0"
-framework.log.output:
-  true
+upstream.fake.container: "docker.kroger.com/nginx/fake-upstream-service:1.0"
+snowglobe.log.output:  true
+snowglobe.preserve.temp.files: true
