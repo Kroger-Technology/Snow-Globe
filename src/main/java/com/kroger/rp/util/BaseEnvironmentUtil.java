@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.kroger.rp.util.TestFrameworkProperties.getDeployedDirectory;
+import static com.kroger.rp.util.TestFrameworkProperties.getSourceDirectory;
 import static java.net.NetworkInterface.getNetworkInterfaces;
 import static java.util.Collections.list;
 import static java.util.Collections.singletonList;
@@ -33,15 +35,15 @@ public abstract class BaseEnvironmentUtil {
 
     protected void readNginxConfFile(String confFile, String prefix) {
         try {
-            String baseDirectory = confFile.substring(0, confFile.lastIndexOf("/nginx/") + 6);
+
             FileReader fileReader = new FileReader(confFile);
             BufferedReader reader = new BufferedReader(fileReader);
-            while(reader.ready()) {
+            while (reader.ready()) {
                 String line = reader.readLine();
-                if(line.contains(prefix)) {
+                if (line.contains(prefix)) {
                     addEmptyCluster(line);
-                } else if(line.trim().startsWith("include ") && line.trim().replaceAll("#.*", "").contains(".conf")) {
-                    String subFileName = baseDirectory + File.separator + getIncludeFileName(line);
+                } else if (line.trim().startsWith("include ") && line.trim().replaceAll("#.*", "").contains(".conf")) {
+                    String subFileName = getIncludeFileName(line);
                     readNginxConfFile(subFileName, prefix);
                 }
 
@@ -53,11 +55,14 @@ public abstract class BaseEnvironmentUtil {
     }
 
     protected String getIncludeFileName(String line) {
-        String relativeFilePath = line;
-        if(line.contains("/etc/nginx/")) {
-            relativeFilePath = line.replace("/etc/nginx/", "");
-        }
-        return relativeFilePath.trim().substring(8).trim().replace(";", "").trim();
+        String filePath = line.trim().substring(8).trim().replace(";", "").trim();
+        return correctFilePath(filePath);
+    }
+
+    protected String correctFilePath(String filePath) {
+        return (filePath.contains(getDeployedDirectory())) ?
+                filePath.replace(getDeployedDirectory(), getSourceDirectory()) :
+                getSourceDirectory() + File.separator + filePath;
     }
 
     /**
@@ -65,24 +70,23 @@ public abstract class BaseEnvironmentUtil {
      * upstream servers the configuration will be looking for.  We just add an empty one so it doesn't
      * complain and shutdown.
      *
-     * @param line
-     *      a line from the nginx.conf file that should be of the format:
-     *      "   proxy_pass http://[CLUSTER NAME]/..."
+     * @param line a line from the nginx.conf file that should be of the format:
+     *             "   proxy_pass http://[CLUSTER NAME]/..."
      */
     void addEmptyCluster(String line) {
         String prefixRemoved = line.substring(line.indexOf("://") + 3);
         String clusterName = prefixRemoved;
-        if(prefixRemoved.indexOf("/") > 0) {
+        if (prefixRemoved.indexOf("/") > 0) {
             clusterName = prefixRemoved.substring(0, prefixRemoved.indexOf("/"));
         }
 
-        if(prefixRemoved.indexOf("$") > 0) {
+        if (prefixRemoved.indexOf("$") > 0) {
             clusterName = prefixRemoved.substring(0, prefixRemoved.indexOf("$"));
         }
-        if(clusterName.contains(";")) {
+        if (clusterName.contains(";")) {
             clusterName = clusterName.substring(0, clusterName.indexOf(";"));
         }
-        if(clusterName.contains("/")) {
+        if (clusterName.contains("/")) {
             clusterName = clusterName.substring(0, clusterName.indexOf("/"));
         }
         addUpstreamServer(clusterName, singletonList(new UpstreamAppInfo("127.0.0.1", 65534)));

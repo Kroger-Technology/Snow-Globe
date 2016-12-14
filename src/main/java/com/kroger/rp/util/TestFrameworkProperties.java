@@ -76,8 +76,12 @@ public class TestFrameworkProperties {
         }
     }
 
-    public static String getBaseConfigFile() {
-        return getStringValue("nginx.base.config.file");
+    public static String getSourceDirectory() {
+        return getStringValue("nginx.source.base.directory");
+    }
+
+    public static String getDeployedDirectory() {
+        return getStringValue("nginx.deploy.base.directory");
     }
 
     @SuppressWarnings("unchecked")
