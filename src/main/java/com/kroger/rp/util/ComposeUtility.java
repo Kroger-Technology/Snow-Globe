@@ -56,7 +56,6 @@ public class ComposeUtility {
             getServiceNames().parallelStream().map(serviceName -> {
                 try {
                     ProcessBuilder processBuilder = new ProcessBuilder("docker", "rm", "-f", serviceName);
-                    System.out.println("Stopping " + serviceName);
                     processBuilder.start();
                     Thread.sleep(100); // wait a little for the command to kick off and then exit.
                 } catch (Exception e) {
