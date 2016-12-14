@@ -6,10 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
-import java.util.stream.Collectors;
 
-import static com.kroger.rp.util.TestFrameworkProperties.getAdditionalFilesToScan;
-import static com.kroger.rp.util.TestFrameworkProperties.getBaseConfigFile;
+import static com.kroger.rp.util.TestFrameworkProperties.getFilesToScan;
 import static com.kroger.rp.util.TestFrameworkProperties.getNginxVolumes;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
@@ -77,10 +75,9 @@ public class NginxRpBuilder {
     }
 
     private String buildFileContents() {
-        NginxEnvironmentFileBuilder builder =
-                new NginxEnvironmentFileBuilder(System.getProperty("user.dir") + getBaseConfigFile());
-        if(hasAdditionalFilesToScan()) {
-            getAdditionalFilesToScan(environmentOverride).stream()
+        NginxEnvironmentFileBuilder builder = new NginxEnvironmentFileBuilder();
+        if(hasFilesToScan()) {
+            getFilesToScan(environmentOverride).stream()
                     .forEach(additionalFile ->
                             builder.readEnvConfig(System.getProperty("user.dir") + additionalFile));
         }
@@ -88,8 +85,8 @@ public class NginxRpBuilder {
         return builder.buildClusterFileContents();
     }
 
-    private boolean hasAdditionalFilesToScan() {
-        return getAdditionalFilesToScan(environmentOverride) != null;
+    private boolean hasFilesToScan() {
+        return getFilesToScan(environmentOverride) != null;
     }
 
     public void stop() {

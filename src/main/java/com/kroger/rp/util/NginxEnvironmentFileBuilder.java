@@ -9,11 +9,6 @@ import static java.util.Arrays.stream;
 
 public class NginxEnvironmentFileBuilder extends BaseEnvironmentUtil{
 
-
-    public NginxEnvironmentFileBuilder(String nginxConfFile) {
-        readNginxConfFile(nginxConfFile, "proxy_pass");
-    }
-
     public void readEnvConfig(String envConfig) {
         File envConfigFile = new File(envConfig);
         if(envConfigFile.exists()) {

@@ -14,11 +14,14 @@ nginx.url.port.mapping:
       port: 80
 nginx.start.command:
   default: ["nginx", "-g", "'daemon off;'"]
-nginx.base.config.file: "/src/nginx/nginx.conf"
-nginx.env.additional.files:
+nginx.env.config.files:
+  default:
+    - "/src/nginx/nginx.conf"
   test:
+    - "/src/nginx/nginx.conf"
     - "/src/nginx/test-routing.conf"
   dev:
+    - "/src/nginx/nginx.conf"
     - "/src/nginx/dev/"
 upstream.fake.container:
   "docker.kroger.com/nginx/fake-upstream-service:1.0"

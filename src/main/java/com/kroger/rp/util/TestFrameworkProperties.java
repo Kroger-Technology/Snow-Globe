@@ -67,9 +67,9 @@ public class TestFrameworkProperties {
     }
 
     @SuppressWarnings("unchecked")
-    public static List<String> getAdditionalFilesToScan(String environmentOverride) {
+    public static List<String> getFilesToScan(String environmentOverride) {
         try {
-            Map<String, Object> additionalFiles = (Map<String, Object>) properties.get("nginx.env.additional.files");
+            Map<String, Object> additionalFiles = (Map<String, Object>) properties.get("nginx.env.config.files");
             return (List<String>) additionalFiles.get(environmentOverride);
         } catch (Exception e) {
             return null;
