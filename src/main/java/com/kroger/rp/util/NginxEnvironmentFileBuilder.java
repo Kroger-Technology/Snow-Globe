@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.kroger.rp.util.TestFrameworkProperties.defineUpstreamZones;
 import static com.kroger.rp.util.TestFrameworkProperties.getDeployedDirectory;
 import static com.kroger.rp.util.TestFrameworkProperties.getSourceDirectory;
 import static java.util.Arrays.stream;
@@ -117,6 +118,9 @@ public class NginxEnvironmentFileBuilder {
         StringBuilder sb = new StringBuilder();
         sb.append("\n")
                 .append("  upstream ").append(serverName).append(" { \n");
+        if(defineUpstreamZones()) {
+            sb.append("    zone  " + serverName + " 64k;\n");
+        }
         infos.stream()
                 .forEach(app ->
                         sb.append("    server ")

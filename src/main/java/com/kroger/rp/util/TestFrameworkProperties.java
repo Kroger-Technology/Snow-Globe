@@ -51,6 +51,10 @@ public class TestFrameworkProperties {
         return getBooleanValue("snowglobe.preserve.temp.files");
     }
 
+    public static boolean defineUpstreamZones() {
+        return getBooleanValue("nginx.define.upstream.zones");
+    }
+
 
     private static boolean getBooleanValue(String key) {
         return properties.get(key) != null &&
