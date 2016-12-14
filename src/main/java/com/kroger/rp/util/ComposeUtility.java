@@ -1,4 +1,4 @@
-package com.kroger.rp.util.compose;
+package com.kroger.rp.util;
 
 
 import com.kroger.rp.util.AppServiceCluster;
@@ -10,20 +10,21 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.kroger.rp.util.TestFrameworkProperties.preserveTempFiles;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
 
-public class ComposeBuilder {
+public class ComposeUtility {
 
     private final NginxRpBuilder nginxRpBuilder;
     private final AppServiceCluster[] appClusters;
 
-    public ComposeBuilder(NginxRpBuilder nginxRpBuilder, AppServiceCluster... appClusters) {
+    public ComposeUtility(NginxRpBuilder nginxRpBuilder, AppServiceCluster... appClusters) {
         this.nginxRpBuilder = nginxRpBuilder;
         this.appClusters = appClusters;
     }
@@ -52,11 +53,17 @@ public class ComposeBuilder {
 
     public void stop() {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("docker-compose", "--file", getComposeFileName(),
-                    "down", "--remove-orphans");
-            processBuilder.inheritIO();
-            Process process = processBuilder.start();
-            process.waitFor();
+            getServiceNames().parallelStream().map(serviceName -> {
+                try {
+                    ProcessBuilder processBuilder = new ProcessBuilder("docker", "rm", "-f", serviceName);
+                    System.out.println("Stopping " + serviceName);
+                    processBuilder.start();
+                    Thread.sleep(100); // wait a little for the command to kick off and then exit.
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                return "done";
+            }).collect(toList());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -104,5 +111,14 @@ public class ComposeBuilder {
                     .map(AppServiceCluster::buildComposeMap)
                     .flatMap(m -> m.entrySet().stream())
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    private List<String> getServiceNames() {
+        List<String> serviceNames = new ArrayList<>();
+        serviceNames.add(nginxRpBuilder.buildRpContainerId());
+        Arrays.stream(appClusters)
+                .forEach(appServiceCluster -> appServiceCluster.getAppInstanceInfos().stream()
+                        .forEach(upstreamAppInfo -> serviceNames.add(upstreamAppInfo.containerName())));
+        return serviceNames;
     }
 }

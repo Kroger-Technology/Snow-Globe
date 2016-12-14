@@ -1,7 +1,5 @@
 package com.kroger.rp.util;
 
-import com.kroger.rp.util.compose.ComposeBuilder;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -19,7 +17,7 @@ public class NginxRpBuilder {
     private final File environmentFile;
     private final int randomNamePrefix = Math.abs(new Random(System.currentTimeMillis()).nextInt());
     private String environmentOverride = "default";
-    private ComposeBuilder composeBuilder;
+    private ComposeUtility composeUtility;
     private PortMapper portMapper = new PortMapper();
 
 
@@ -53,8 +51,8 @@ public class NginxRpBuilder {
     public NginxRpBuilder start(){
         portMapper.initMapping();
         buildEnvironmentFile();
-        composeBuilder = new ComposeBuilder(this, clusters);
-        composeBuilder.start();
+        composeUtility = new ComposeUtility(this, clusters);
+        composeUtility.start();
         return this;
     }
 
@@ -96,7 +94,7 @@ public class NginxRpBuilder {
         if(TestFrameworkProperties.logContainerOutput()) {
             logContainerOutput(buildRpContainerId());
         }
-        composeBuilder.stop();
+        composeUtility.stop();
     }
 
     private void logContainerOutput(String containerName) {
