@@ -1,7 +1,9 @@
 nginx.volume.mounts:
-  - "src/nginx/nginx.conf:/etc/nginx/nginx.conf"
-  - "src/nginx/dev/*:/etc/nginx/dev/"
-nginx.upstream.file.path: "/etc/nginx/upstreams.conf"
+  default:
+    - "src/nginx/nginx.conf:/etc/nginx/nginx.conf"
+    - "src/nginx/dev/*:/etc/nginx/dev/"
+nginx.upstream.file.path:
+  default: "/etc/nginx/upstreams.conf"
 nginx.container: "docker.kroger.com/library/nginx:1.11.3"
 nginx.url.port.mapping:
   - https:

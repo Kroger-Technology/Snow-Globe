@@ -135,8 +135,8 @@ public class NginxRpBuilder {
 
     private List<String> buildNginxVolumeMounts() {
         List<String> allVolumeMounts = new ArrayList<>();
-        allVolumeMounts.addAll(getNginxVolumes().stream().filter(s -> !s.contains("*")).collect(toList()));
-        getNginxVolumes().stream()
+        allVolumeMounts.addAll(getNginxVolumes(environmentOverride).stream().filter(s -> !s.contains("*")).collect(toList()));
+        getNginxVolumes(environmentOverride).stream()
                 .filter(s -> s.contains("*"))
                 .map(this::processMountWildCard)
                 .forEach(allVolumeMounts::addAll);
@@ -163,7 +163,7 @@ public class NginxRpBuilder {
     }
 
     private String buildEnvironmentFileMapping() {
-        return environmentFile.getName() + ":" + TestFrameworkProperties.getUpstreamLocation();
+        return environmentFile.getName() + ":" + TestFrameworkProperties.getUpstreamLocation(environmentOverride);
     }
 
     private List<String> getServiceContainerNames(List<AppServiceCluster> serviceClusters) {

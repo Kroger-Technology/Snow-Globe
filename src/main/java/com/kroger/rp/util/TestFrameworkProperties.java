@@ -4,13 +4,10 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
-import static java.lang.Thread.currentThread;
-import static java.util.Arrays.asList;
+import static java.lang.String.valueOf;
 import static java.util.stream.Collectors.joining;
 
 public class TestFrameworkProperties {
@@ -72,13 +69,13 @@ public class TestFrameworkProperties {
         return getStringValue("nginx.container");
     }
 
-    static String getUpstreamLocation() {
-        return getStringValue("nginx.upstream.file.path");
+    static String getUpstreamLocation(String environment) {
+        return getEnvironmentString(environment, "nginx.upstream.file.path");
     }
 
     @SuppressWarnings("unchecked")
-    static List<String> getNginxVolumes() {
-        return (List<String>) properties.get("nginx.volume.mounts");
+    static List<String> getNginxVolumes(String environment) {
+        return getEnvironmentList(environment, "nginx.volume.mounts");
     }
 
     @SuppressWarnings("unchecked")
@@ -86,11 +83,29 @@ public class TestFrameworkProperties {
         return (List<Map<String, Object>>) properties.get("nginx.url.port.mapping");
     }
 
+
+    public static List<String> getFilesToScan(String environment) {
+        return getEnvironmentList(environment, "nginx.env.config.files");
+    }
+
     @SuppressWarnings("unchecked")
-    public static List<String> getFilesToScan(String environmentOverride) {
+    private static List<String> getEnvironmentList(String environment, String key) {
         try {
-            Map<String, Object> additionalFiles = (Map<String, Object>) properties.get("nginx.env.config.files");
-            return (List<String>) additionalFiles.get(environmentOverride);
+            Map<String, Object> configMap = (Map<String, Object>) properties.get(key);
+            return (configMap.containsKey(environment)) ?
+                        (List<String>) configMap.get(environment) :
+                        (List<String>) configMap.get("default");
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static String getEnvironmentString(String environment, String key) {
+        try {
+            Map<String, Object> configMap = (Map<String, Object>) properties.get(key);
+            return (configMap.containsKey(environment)) ?
+                    valueOf(configMap.get(environment)) :
+                    valueOf(configMap.get("default"));
         } catch (Exception e) {
             return null;
         }
