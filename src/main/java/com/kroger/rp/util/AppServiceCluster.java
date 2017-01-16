@@ -90,7 +90,7 @@ public class AppServiceCluster {
         try {
             return "\"" + new ObjectMapper().writeValueAsString(responseHeaders).replaceAll("\"", "\\\\\"") + "\"";
         } catch (IOException e) {
-            System.err.println("Unable to parse resposne header for upstream application");
+            System.err.println("Unable to parse response header for upstream application");
             return "";
         }
     }

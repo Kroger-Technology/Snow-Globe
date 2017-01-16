@@ -80,12 +80,5 @@ List of things to Do:
 3.  Add in unit tests for the tooling classes.
 4.  Add in the applicable license.
 5.  Add in a documentation header for each class and for each method.
-6.  Add in integration tests for the following scenarios
-
-    - Routes for HTTP and HTTPS
-    - Routes based on host name.
-    - Routes based on a regex pattern for the path.
-    - A route that changes the incoming header.
-    - A route that changes the cookie response.
-    
-7.  Add in documentation for each type of integration test that was created.
+6.  Add in integration tests for the following methods denoted in ResponseVerification.java
+7.  Add in documentation for each type of integration test that was created in the README.md
