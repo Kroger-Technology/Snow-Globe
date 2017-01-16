@@ -82,3 +82,11 @@ List of things to Do:
 5.  Add in a documentation header for each class and for each method.
 6.  Add in integration tests for the following methods denoted in ResponseVerification.java
 7.  Add in documentation for each type of integration test that was created in the README.md
+8.  Figure out how we will do a CI/CD build in Github.
+9.  Look at the superficial stuff
+
+    - The project name.
+    - Get a logo for the project.
+    - Determine the package.
+    - Figure out the Class names and see if they should be modified so that it is natural to use.
+    - Look at the verification wording to make sure that the "andExpect" prefix best makes sense.
