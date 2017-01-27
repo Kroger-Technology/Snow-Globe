@@ -14,6 +14,10 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+/**
+ * This the main class that is used to verify entire call.  The constructor will take the request to the RP, the request
+ * received by the upstream service, and the final response from the RP back to the client.
+ */
 public class ResponseVerification {
 
     private final int responseCode;
@@ -44,6 +48,9 @@ public class ResponseVerification {
     }
 
     private Map<String, String> buildHeaders(Header[] allHeaders) {
+        if(allHeaders == null) {
+            allHeaders = new Header[]{};
+        }
         return stream(allHeaders).collect(toMap(Header::getName, Header::getValue));
     }
 
@@ -86,8 +93,12 @@ public class ResponseVerification {
     }
 
     public ResponseVerification andExpectAppUrl(String url) {
+        return expectAppUrl(url);
+    }
+
+    public ResponseVerification expectAppUrl(String url) {
         assertThat("The url for: "   + this.testRequest.getPrettyUrl() +  " that was sent to the service did not match what we expected.",
-            this.urlToApplication, is(url));
+                this.urlToApplication, is(url));
         return this;
     }
 
@@ -101,7 +112,8 @@ public class ResponseVerification {
         return andExpectResponseHeader(headerKey);
     }
 
-    public ResponseVerification andExpectResponseHeader(String headerKey) {
+
+    public ResponseVerification expectResponseHeader(String headerKey) {
         assertThat("Call from Reverse Proxy to: " +  this.serviceResponseBody.getRequest().getUrlToApplication()
                         + " originating from: " + this.testRequest.getPrettyUrl()
                         + " did not contain the header in the response sent from the application.",
@@ -109,12 +121,16 @@ public class ResponseVerification {
         return this;
     }
 
+    public ResponseVerification andExpectResponseHeader(String headerKey) {
+        return this.expectResponseHeader(headerKey);
+    }
+
     @Deprecated
     public ResponseVerification hasRequestHeaderToApplication(String headerKey) {
         return andExpectRequestHeaderToApplication(headerKey);
     }
 
-    public ResponseVerification andExpectRequestHeaderToApplication(String headerKey) {
+    public ResponseVerification expectRequestHeaderToApplication(String headerKey) {
         assertThat("Call from Reverse Proxy to: " +  this.serviceResponseBody.getRequest().getUrlToApplication()
                         + " originating from: " + this.testRequest.getPrettyUrl()
                         + " did not contain the header in the request sent to the application.",
@@ -122,12 +138,17 @@ public class ResponseVerification {
         return this;
     }
 
+    public ResponseVerification andExpectRequestHeaderToApplication(String headerKey) {
+        return this.expectRequestHeaderToApplication(headerKey);
+    }
+
     @Deprecated
     public ResponseVerification hasRequestHeaderToApplicationMatching(String headerKey, String matchingRegex) {
         return andExpectRequestHeaderToApplicationMatching(headerKey, matchingRegex);
     }
 
-    public ResponseVerification andExpectRequestHeaderToApplicationMatching(String headerKey, String matchingRegex) {
+
+    public ResponseVerification expectRequestHeaderToApplicationMatching(String headerKey, String matchingRegex) {
         andExpectRequestHeaderToApplication(headerKey);
         assertThat("Call from Reverse Proxy to: " +  this.serviceResponseBody.getRequest().getUrlToApplication()
                         + " originating from: " + this.testRequest.getPrettyUrl()
@@ -137,11 +158,16 @@ public class ResponseVerification {
         return this;
     }
 
+    public ResponseVerification andExpectRequestHeaderToApplicationMatching(String headerKey, String matchingRegex) {
+       return this.expectRequestHeaderToApplicationMatching(headerKey, matchingRegex);
+    }
+
     @Deprecated
     public ResponseVerification andHasRequestHeaderToApplication(String headerKey) {
         return andExpectRequestHeaderToApplication(headerKey);
     }
 
+    @Deprecated
     public ResponseVerification hasRequestHeaderToApplication(String headerKey, String headerValue) {
         assertThat("Call from Reverse Proxy to: " +  this.serviceResponseBody.getRequest().getUrlToApplication()
                  + " originating from: " + this.testRequest.getPrettyUrl()
@@ -150,6 +176,7 @@ public class ResponseVerification {
         return this;
     }
 
+    @Deprecated
     public ResponseVerification andHasRequestHeaderToApplication(String headerKey, String headerValue) {
         return hasRequestHeaderToApplication(headerKey, headerValue);
     }
@@ -160,14 +187,6 @@ public class ResponseVerification {
                         + " does have the header + " + headerKey + " in the request sent to the application.",
                 this.serviceResponseBody.getRequest().getHeaders(), not(hasKey(headerKey)));
         return this;
-    }
-
-    public int getLatencyMillis() {
-        return latencyMillis;
-    }
-
-    public int getRoundTripTimeMillis() {
-        return roundTripTimeMillis;
     }
 
     @Deprecated

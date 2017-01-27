@@ -7,6 +7,7 @@ public class ResponseBody {
     private RequestToService request;
     private String rawResponse;
 
+    // This is used by jackson to help convert from JSON -> POJO.
     public ResponseBody() {
 
     }

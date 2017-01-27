@@ -26,6 +26,9 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 
+/**
+ * This is a collections of functions that allows the user to make a call based on the <code>TestRequest</code> class.
+ */
 public class CallUtility {
 
     /**
@@ -58,7 +61,7 @@ public class CallUtility {
      * @return
      *      An http client to be used to execute test requests to nginx.
      */
-    private static CloseableHttpClient buildHttpClient() {
+    static CloseableHttpClient buildHttpClient() {
         return HttpClients.custom()
                     .setConnectionManager(buildConnectionManager())
                     .setDefaultRequestConfig(RequestConfig.custom()
@@ -84,7 +87,7 @@ public class CallUtility {
      * @return
      *      A connection manager that resolves all DNS names to 127.0.0.1
      */
-    private static BasicHttpClientConnectionManager buildConnectionManager() {
+    static BasicHttpClientConnectionManager buildConnectionManager() {
         return new BasicHttpClientConnectionManager(getDefaultRegistry(), null,
                     null, host -> new InetAddress[] { InetAddress.getByAddress(new byte[] {127, 0, 0, 1}) });
     }
@@ -97,7 +100,7 @@ public class CallUtility {
      * @return
      *      the default registry for creating sockets based on the protocol.
      */
-    private static Registry<ConnectionSocketFactory> getDefaultRegistry() {
+    static Registry<ConnectionSocketFactory> getDefaultRegistry() {
         return RegistryBuilder.<ConnectionSocketFactory>create()
                 .register("http", PlainConnectionSocketFactory.getSocketFactory())
                 .register("https", SSLConnectionSocketFactory.getSocketFactory())
@@ -105,7 +108,7 @@ public class CallUtility {
     }
 
     /**
-     * Maps expected JSON formatted response from fake upstream server to the  ResponseBody class.
+     * Maps expected JSON formatted response from fake upstream server to the ResponseBody class.
      *
      * @param body
      *      String representation of the JSON response.
@@ -113,7 +116,7 @@ public class CallUtility {
      * @return
      *      The ResponseBody object representing the JSON response.
      */
-    private static ResponseBody buildResponseBody(String body) {
+    static ResponseBody buildResponseBody(String body) {
         ObjectMapper mapper = new ObjectMapper();
         ResponseBody res;
         try {
@@ -136,7 +139,7 @@ public class CallUtility {
      * @return
      *      The response that was given from the http client.
      */
-    private static CloseableHttpResponse makeRequest(TestRequest testRequest, CloseableHttpClient httpclient) {
+    static CloseableHttpResponse makeRequest(TestRequest testRequest, CloseableHttpClient httpclient) {
         switch(testRequest.getMethod()) {
             case "POST":
                 return makePostRequest(testRequest, httpclient);
@@ -149,34 +152,75 @@ public class CallUtility {
             default:
                 throw new RuntimeException("Unable to make request with action: " + testRequest.getMethod());
         }
-
     }
 
-    private static CloseableHttpResponse makeDeleteRequest(TestRequest testRequest, CloseableHttpClient httpclient) {
+    /**
+     * Makes a delete request to the client based on the input from the testRequest object though the custom connection
+     * setup for the call.
+     *
+     * @param testRequest
+     *      The request information used to make the request.
+     * @param httpclient
+     *      The calling object to invoke.
+     * @return
+     *      A response object that we will receive.  In this framework, this is the response that is given back from
+     *      the Nginx Reverse Proxy.
+     */
+    static CloseableHttpResponse makeDeleteRequest(TestRequest testRequest, CloseableHttpClient httpclient) {
         HttpDelete delete = new HttpDelete(testRequest.getUrl());
         setHeaders(delete, testRequest);
         return execute(httpclient, delete);
     }
 
-    private static CloseableHttpResponse makePutRequest(TestRequest testRequest, CloseableHttpClient httpclient) {
+    /**
+     * Makes a put request to the client based on the input from the testRequest object though the custom connection
+     * setup for the call.
+     *
+     * @param testRequest
+     *      The request information used to make the request.
+     * @param httpclient
+     *      The calling object to invoke.
+     * @return
+     *      A response object that we will receive.  In this framework, this is the response that is given back from
+     *      the Nginx Reverse Proxy.
+     */
+    static CloseableHttpResponse makePutRequest(TestRequest testRequest, CloseableHttpClient httpclient) {
         HttpPut put = new HttpPut(testRequest.getUrl());
         setHeaders(put, testRequest);
         return execute(httpclient, put);
     }
 
-    private static CloseableHttpResponse makeGetRequest(TestRequest testRequest, CloseableHttpClient httpclient) {
+    /**
+     * Makes a get request to the client based on the input from the testRequest object though the custom connection
+     * setup for the call.
+     *
+     * @param testRequest
+     *      The request information used to make the request.
+     * @param httpclient
+     *      The calling object to invoke.
+     * @return
+     *      A response object that we will receive.  In this framework, this is the response that is given back from
+     *      the Nginx Reverse Proxy.
+     */
+    static CloseableHttpResponse makeGetRequest(TestRequest testRequest, CloseableHttpClient httpclient) {
         HttpGet httpGet = new HttpGet(testRequest.getUrl());
         setHeaders(httpGet, testRequest);
         return execute(httpclient, httpGet);
     }
 
-    private static void setHeaders(HttpRequestBase httpMethod, TestRequest testRequest) {
-        if(testRequest.hasUserAgent()) {
-            httpMethod.setHeader("User-Agent", testRequest.getUserAgent());
-        }
-    }
-
-    private static CloseableHttpResponse makePostRequest(TestRequest testRequest, CloseableHttpClient httpclient) {
+    /**
+     * Makes a post request to the client based on the input from the testRequest object though the custom connection
+     * setup for the call.
+     *
+     * @param testRequest
+     *      The request information used to make the request.
+     * @param httpclient
+     *      The calling object to invoke.
+     * @return
+     *      A response object that we will receive.  In this framework, this is the response that is given back from
+     *      the Nginx Reverse Proxy.
+     */
+    static CloseableHttpResponse makePostRequest(TestRequest testRequest, CloseableHttpClient httpclient) {
         HttpPost httpPost = new HttpPost(testRequest.getUrl());
         setHeaders(httpPost, testRequest);
         if(testRequest.getBody() != null) {
@@ -185,7 +229,29 @@ public class CallUtility {
         return execute(httpclient, httpPost);
     }
 
-    private static HttpRequestRetryHandler buildRetryHandler() {
+    /**
+     * Sets incoming headers on the call.
+     *
+     * @param httpMethod
+     *      The call object to modify.
+     * @param testRequest
+     *      The request that contains the information on the headers that we should use to populate the request.
+     */
+    static void setHeaders(HttpRequestBase httpMethod, TestRequest testRequest) {
+        if(testRequest.hasUserAgent()) {
+            httpMethod.setHeader("User-Agent", testRequest.getUserAgent());
+        }
+    }
+
+    /**
+     * Builds a custom retry handler that will retry a request up to 20 times if the call fails to connect to the
+     * destination.  This is used since startup of nginx and other upstream servers are asynchronous.  This smooths
+     * over the "bumpiness" of getting everything started up before we make a call.
+     *
+     * @return
+     *      The retry handler that will be used by the custom http client.
+     */
+    static HttpRequestRetryHandler buildRetryHandler() {
         return (exception, executionCount, context) -> {
             if (executionCount > 20) {
                 // Do not retry if over max retry count
@@ -205,7 +271,15 @@ public class CallUtility {
         };
     }
 
-    private static HttpEntity getHttpEntity(TestRequest testRequest) {
+    /**
+     * Gets the UTF-8 body from the request object.  This is used to set the body of the request for POSTs.
+     *
+     * @param testRequest
+     *      The incoming request.
+     * @return
+     *      The HttpEntity that is properly encoded for the call that is made.
+     */
+    static HttpEntity getHttpEntity(TestRequest testRequest) {
         HttpEntity entity = null;
         try {
             entity = new ByteArrayEntity(testRequest.getBody().getBytes("UTF-8"));
@@ -215,7 +289,17 @@ public class CallUtility {
         return entity;
     }
 
-    private static CloseableHttpResponse execute(CloseableHttpClient client, HttpUriRequest action) {
+    /**
+     * Executes the call and handling any IO exception.
+     *
+     * @param client
+     *      The client to use to make the call.
+     * @param action
+     *      The action to invoke on the client.
+     * @return
+     *      The response from action.  All errors will bubble up as a runtime exception.
+     */
+    static CloseableHttpResponse execute(CloseableHttpClient client, HttpUriRequest action) {
         try {
             return client.execute(action);
         } catch (IOException e) {
@@ -225,11 +309,18 @@ public class CallUtility {
         }
     }
 
-    private static String getResponseBody(HttpEntity entity) {
+    /**
+     * This gets the response body out of the entity object.
+     *
+     * @param entity
+     *      the entity contained in the response.
+     * @return
+     *      A string value of the response body.
+     */
+    static String getResponseBody(HttpEntity entity) {
         StringBuilder sb = new StringBuilder();
         try {
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(entity.getContent()), 65728);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent()), 65728);
             String line;
             while ((line = reader.readLine()) != null) {
                 sb.append(line);
