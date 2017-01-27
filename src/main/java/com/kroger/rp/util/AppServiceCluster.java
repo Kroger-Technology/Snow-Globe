@@ -3,7 +3,6 @@ package com.kroger.rp.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kroger.rp.util.environment.UpstreamAppInfo;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -13,78 +12,109 @@ import static com.kroger.rp.util.TestFrameworkProperties.getFakeUpstreamImage;
 import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
 
+/**
+ * This represents the upstream service that will be dynamically created.  This represents a "fake" upstream cluster as
+ * it may be more than one instance.  The instance may be customized with a special response code with the ability to
+ * send custom headers in the response.
+ */
 public class AppServiceCluster {
 
     private final int randomNamePrefix = Math.abs(new Random(System.currentTimeMillis()).nextInt());
+
     private final String clusterName;
     private final int instances;
-    private List<Integer> ports = new ArrayList<>();
     private int httpResponseCode = 200;
     private String matchingPaths = "*";
     private Map<String, String> responseHeaders = new HashMap<>();
     private final boolean useHttps;
 
+    /**
+     * Helper method that will build a single cluster instance that accepts http traffic.
+     *
+     * @param clusterName
+     *      The name of the cluster that matches the Nginx Cluster Name.
+     * @return
+     *      The appServiceCluster object that can be used with the <code>NginxRpBuilder</code> to run as part of the
+     *      test.
+     */
     public static AppServiceCluster makeHttpWebService(String clusterName) {
         return new AppServiceCluster(clusterName, 1, false);
     }
 
+    /**
+     * Helper method that will build a cluster that accepts http traffic.
+     *
+     * @param clusterName
+     *      The name of the cluster that matches the Nginx Cluster Name.
+     * @param instances
+     *      The number of instances to create in the cluster.
+     * @return
+     *      The appServiceCluster object that can be used with the <code>NginxRpBuilder</code> to run as part of the
+     *      test.
+     */
     public static AppServiceCluster makeHttpWebService(String clusterName, int instances) {
         return new AppServiceCluster(clusterName, instances, false);
     }
 
+    /**
+     * Helper method that will build a single cluster instance that accepts https traffic.
+     *
+     * @param clusterName
+     *      The name of the cluster that matches the Nginx Cluster Name.
+     * @return
+     *      The appServiceCluster object that can be used with the <code>NginxRpBuilder</code> to run as part of the
+     *      test.
+     */
     public static AppServiceCluster makeHttpsWebService(String clusterName) {
         return new AppServiceCluster(clusterName, 1, true);
     }
 
+    /**
+     * Helper method that will build a cluster that accepts https traffic.
+     *
+     * @param clusterName
+     *      The name of the cluster that matches the Nginx Cluster Name.
+     * @param instances
+     *      The number of instances to create in the cluster.
+     * @return
+     *      The appServiceCluster object that can be used with the <code>NginxRpBuilder</code> to run as part of the
+     *      test.
+     */
     public static AppServiceCluster makeHttpsWebService(String clusterName, int instances) {
         return new AppServiceCluster(clusterName, instances, true);
     }
 
+    /**
+     * The constructor that stores the basic state of the service.
+     *
+     * @param clusterName
+     *      The name of the cluster that matches the Nginx Cluster Name.
+     * @param instances
+     *      The number of instances to create in the cluster.
+     * @param useHttps
+     *      if true, then this cluster should accept https traffic, otherwise if false, then it will only accept http
+     *      traffic
+     */
     public AppServiceCluster(String clusterName, int instances, boolean useHttps) {
         this.clusterName = clusterName;
         this.instances = instances;
         this.useHttps = useHttps;
     }
 
+    /**
+     * A builder method that defines the default http response code.
+     * @param httpResponseCode
+     *      the default http response code.
+     * @return
+     *      the <code>AppServiceCluster</code> object.
+     */
     public AppServiceCluster withHttpResponses(int httpResponseCode) {
         this.httpResponseCode = httpResponseCode;
         return this;
     }
 
-    public AppServiceCluster start() {
-        String startCommand = System.getProperty("user.dir") + "/src/test/resources/startService.sh";
-        String commandPath = System.getProperty("user.dir") + "/src/test/resources/";
-        IntStream.range(0, instances).parallel().forEach(instance -> {
-            try {
-                int port = ContainerUtil.getAvailablePort();
-                ports.add(port);
-                startServiceContainer(startCommand, commandPath, instance, port);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-        return this;
-    }
-
-    private void startServiceContainer(String startCommand, String commandPath, int instance, int port) throws IOException, InterruptedException {
-        ProcessBuilder processBuilder = new ProcessBuilder(startCommand,
-                buildContainerId(instance),
-                clusterName,
-                Integer.toString(instance),
-                Integer.toString(httpResponseCode),
-                matchingPaths,
-                Integer.toString(port),
-                (useHttps ? "https" : "http"));
-        processBuilder.directory(new File(commandPath));
-        processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-        Process process = processBuilder.start();
-        process.waitFor();
-    }
-
     /**
      * Wraps all headers in quotes for argument on parameter.  Also does the horrible escape of quotes.
-     *
-     * @return
      */
     private String getHeadersAsArgument() {
         try {
@@ -100,7 +130,7 @@ public class AppServiceCluster {
         return this;
     }
 
-    private String buildContainerId(int instance) {
+    String buildContainerId(int instance) {
         return "CLUSTER-" + randomNamePrefix + "-" + clusterName + "-" + Integer.toString(instance);
     }
 
@@ -126,7 +156,7 @@ public class AppServiceCluster {
         return composeMap;
     }
 
-    private List<String> buildEnvironmentList(int instance) {
+    List<String> buildEnvironmentList(int instance) {
         List<String> environmentVariables = new ArrayList<>();
         environmentVariables.add("INSTANCE_NUMBER=" + instance);
         environmentVariables.add("CLUSTER_NAME=" + getClusterName());
@@ -147,5 +177,29 @@ public class AppServiceCluster {
         return IntStream.range(0, instances)
                 .mapToObj(instance -> new UpstreamAppInfo(buildContainerId(instance), 3000))
                 .collect(Collectors.toList());
+    }
+
+    public int getRandomNamePrefix() {
+        return randomNamePrefix;
+    }
+
+    public int getInstances() {
+        return instances;
+    }
+
+    public int getHttpResponseCode() {
+        return httpResponseCode;
+    }
+
+    public String getMatchingPaths() {
+        return matchingPaths;
+    }
+
+    public Map<String, String> getResponseHeaders() {
+        return responseHeaders;
+    }
+
+    public boolean isUseHttps() {
+        return useHttps;
     }
 }
