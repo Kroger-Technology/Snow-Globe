@@ -35,33 +35,36 @@ public class NginxEnvironmentFileBuilder {
 
 
     protected void readNginxConfFile(String confFile, String prefix) {
-        if(confFile.contains("*")) {
+        if (confFile.contains("*")) {
             getWildCardFiles(confFile).stream().forEach(file -> readNginxConfFile(file, prefix));
         } else {
-            try {
+            readSingleNginxFile(confFile, prefix);
+        }
+    }
 
-                FileReader fileReader = new FileReader(confFile);
-                BufferedReader reader = new BufferedReader(fileReader);
-                while (reader.ready()) {
-                    String line = reader.readLine();
-                    if (line.contains(prefix)) {
-                        addEmptyCluster(line);
-                    } else if (line.trim().startsWith("include ")) {
-                        String subFileName = getIncludeFileName(line);
-                        readNginxConfFile(subFileName, prefix);
-                    }
-
-                }
-                fileReader.close();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+    private void readSingleNginxFile(String confFile, String prefix) {
+        try {
+            FileReader fileReader = new FileReader(confFile);
+            BufferedReader reader = new BufferedReader(fileReader);
+            while (reader.ready()) {
+                parseNginxFileLine(prefix, reader.readLine());
             }
+            fileReader.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void parseNginxFileLine(String prefix, String line) {
+        if (line.contains(prefix)) {
+            addEmptyCluster(line);
+        } else if (line.trim().startsWith("include ")) {
+            readNginxConfFile(getIncludeFileName(line), prefix);
         }
     }
 
     protected String getIncludeFileName(String line) {
-        String filePath = line.trim().substring(8).trim().replace(";", "").trim();
-        return correctFilePath(filePath);
+        return correctFilePath(line.trim().substring(8).trim().replace(";", "").trim());
     }
 
     protected String correctFilePath(String filePath) {
@@ -81,20 +84,16 @@ public class NginxEnvironmentFileBuilder {
     void addEmptyCluster(String line) {
         String prefixRemoved = line.substring(line.indexOf("://") + 3);
         String clusterName = prefixRemoved;
-        if (prefixRemoved.indexOf("/") > 0) {
-            clusterName = prefixRemoved.substring(0, prefixRemoved.indexOf("/"));
-        }
-
-        if (prefixRemoved.indexOf("$") > 0) {
-            clusterName = prefixRemoved.substring(0, prefixRemoved.indexOf("$"));
-        }
-        if (clusterName.contains(";")) {
-            clusterName = clusterName.substring(0, clusterName.indexOf(";"));
-        }
-        if (clusterName.contains("/")) {
-            clusterName = clusterName.substring(0, clusterName.indexOf("/"));
-        }
+        clusterName = handleClusterNameChar(prefixRemoved, clusterName, "/");
+        clusterName = handleClusterNameChar(prefixRemoved, clusterName, "$");
+        clusterName = handleClusterNameChar(prefixRemoved, clusterName, ";");
+        clusterName = handleClusterNameChar(prefixRemoved, clusterName, "/");
         addUpstreamServer(clusterName, singletonList(new UpstreamAppInfo("127.0.0.1", 65534)));
+    }
+
+    private String handleClusterNameChar(String prefixRemoved, String clusterName, String character) {
+        return (prefixRemoved.indexOf(character) > 0) ?
+            prefixRemoved.substring(0, prefixRemoved.indexOf(character)) : clusterName;
     }
 
     public void addUpstreamServer(AppServiceCluster appServiceCluster) {
@@ -103,8 +102,8 @@ public class NginxEnvironmentFileBuilder {
 
     public void readEnvConfig(String envConfig) {
         File envConfigFile = new File(envConfig);
-        if(envConfigFile.exists()) {
-            if(envConfigFile.isDirectory() && envConfigFile.listFiles() != null) {
+        if (envConfigFile.exists()) {
+            if (envConfigFile.isDirectory() && envConfigFile.listFiles() != null) {
                 stream(envConfigFile.listFiles())
                         .map(File::getAbsolutePath)
                         .forEach(this::readEnvConfig);
@@ -118,8 +117,8 @@ public class NginxEnvironmentFileBuilder {
         StringBuilder sb = new StringBuilder();
         sb.append("\n")
                 .append("  upstream ").append(serverName).append(" { \n");
-        if(defineUpstreamZones()) {
-            sb.append("    zone  " + serverName + " 64k;\n");
+        if (defineUpstreamZones()) {
+            sb.append("    zone " + serverName + " 64k;\n");
         }
         infos.stream()
                 .forEach(app ->
@@ -136,14 +135,14 @@ public class NginxEnvironmentFileBuilder {
 
     public List<String> getWildCardFiles(String wildcardInclude) {
         String beforeStar = wildcardInclude.split("\\*")[0];
-        String afterStar =  wildcardInclude.split("\\*")[1];
+        String afterStar = wildcardInclude.split("\\*")[1];
         String baseDirectory = beforeStar.contains("/") ? beforeStar.substring(0, beforeStar.lastIndexOf("/")) : "";
         try {
             return stream(new File(baseDirectory).list())
                     .filter(s -> s.matches(".*" + afterStar))
                     .map(s -> beforeStar + s)
                     .collect(toList());
-        } catch(Exception e) {
+        } catch (Exception e) {
             return new ArrayList<>();
         }
 
