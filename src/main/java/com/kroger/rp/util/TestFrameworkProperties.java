@@ -15,7 +15,7 @@ public class TestFrameworkProperties {
     public static Map<String, Object> properties;
 
     static {
-        initProperties();
+        initProperties("snow-globe.yaml");
         handleLoggingSettings();
     }
 
@@ -34,13 +34,17 @@ public class TestFrameworkProperties {
     }
 
     @SuppressWarnings("unchecked")
-    static void initProperties() {
+    static void initProperties(String path) {
         try {
-            properties = (Map<String, Object>) new Yaml().load(new FileInputStream("snow-globe.yaml"));
+            properties = (Map<String, Object>) new Yaml().load(new FileInputStream(path));
         } catch (FileNotFoundException e) {
             System.err.println("Unable to find 'snow-globe.yaml'.  This is needed to run.");
             throw new RuntimeException(e);
         }
+    }
+
+    static void initPropertiesFromFile(String path) {
+        initProperties(path);
     }
 
     static String getFakeUpstreamImage() {

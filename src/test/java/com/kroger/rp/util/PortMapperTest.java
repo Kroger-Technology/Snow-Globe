@@ -15,6 +15,7 @@ public class PortMapperTest {
     @Before
     public void init() {
         portMapper = new PortMapper();
+        TestFrameworkProperties.initPropertiesFromFile("src/test/resources/test-snow-globe.yaml");
     }
 
     @Test
