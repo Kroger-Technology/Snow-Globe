@@ -25,14 +25,6 @@ public class TestFrameworkProperties {
         }
     }
 
-    private static String getStringValue(String key) {
-        if(properties.get(key) != null) {
-            return properties.get(key).toString();
-        } else {
-            return null;
-        }
-    }
-
     @SuppressWarnings("unchecked")
     static void initProperties(String path) {
         try {
@@ -45,6 +37,19 @@ public class TestFrameworkProperties {
 
     static void initPropertiesFromFile(String path) {
         initProperties(path);
+    }
+
+    private static boolean getBooleanValue(String key) {
+        return properties.get(key) != null &&
+                properties.get(key).toString().equalsIgnoreCase("true");
+    }
+
+    private static String getStringValue(String key) {
+        if(properties.get(key) != null) {
+            return properties.get(key).toString();
+        } else {
+            return null;
+        }
     }
 
     static String getFakeUpstreamImage() {
@@ -61,12 +66,6 @@ public class TestFrameworkProperties {
 
     public static boolean defineUpstreamZones() {
         return getBooleanValue("nginx.define.upstream.zones");
-    }
-
-
-    private static boolean getBooleanValue(String key) {
-        return properties.get(key) != null &&
-                properties.get(key).toString().equalsIgnoreCase("true");
     }
 
     static String getNginxImage() {
