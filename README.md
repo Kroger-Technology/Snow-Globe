@@ -73,20 +73,63 @@ framework.log.output:
   true
 ```
 
-List of things to Do:
 
-1.  Setup JIRA project to track internal tickets.
-2.  Update README file to include up-to-date information on each of the entries.
-3.  Add in unit tests for the tooling classes.
-4.  Add in the applicable license.
-5.  Add in a documentation header for each class and for each method.
-6.  Add in integration tests for the following methods denoted in ResponseVerification.java
-7.  Add in documentation for each type of integration test that was created in the README.md
-8.  Figure out how we will do a CI/CD build in Github.
-9.  Look at the superficial stuff
+# Examples Test Scenarios
 
-    - The project name.
-    - Get a logo for the project.
-    - Determine the package.
-    - Figure out the Class names and see if they should be modified so that it is natural to use.
-    - Look at the verification wording to make sure that the "andExpect" prefix best makes sense.
+Below are example test scenarios that include configuration and testing examples.  All of the examples below are used as 
+integration tests for the project and pass for each build.
+
+## Verifying the HTTP status code response to the client.
+
+There are times where nginx or the upstream server set the HTTP response code and we can verify the response code whether
+it is set in Nginx or the upstream server.
+
+**Simple Example**
+
+This is an example that verifies that the upstream server that sends a 200 will return back to the client with a 200.
+
+Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
+```
+   location /login {
+       proxy_set_header X-Forwarded-Proto https;
+       proxy_set_header host $host;
+       proxy_pass  https://Login_Cluster/login;
+   }
+```
+
+Example test code snippet (from `src/test/java/com.kroger.snowGlobe.integration.tests.StatusCodeTest`)
+```
+    @Test
+    public void should_return_200_for_login() {
+        make(getRequest("https://www.nginx-test.com/login").to(nginxReverseProxy))
+                .andExpectResponseCode(200);
+    }
+```
+
+---
+***HTTP -> HTTPS redirect Example***
+
+This is an example that an http call will return a HTTP `301` and have a location header to use HTTPS
+
+Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
+```
+ server {
+     listen *:80;
+     server_name
+        www.nginx-test.com;
+
+        location / {
+            return 301 https://$host$request_uri;
+        }
+  }
+```
+
+Example test code snippet (from `src/test/java/com.kroger.snowGlobe.integration.tests.StatusCodeTest`)
+```
+    @Test
+    public void should_return_301_http_to_https() {
+        make(getRequest("http://www.nginx-test.com").to(nginxReverseProxy))
+                .andExpectResponseHeader("Location", "https://www.nginx-test.com/")
+                .andExpectResponseCode(301);
+    }
+```
