@@ -133,3 +133,43 @@ Example test code snippet (from `src/test/java/com.kroger.snowGlobe.integration.
                 .andExpectResponseCode(301);
     }
 ```
+
+## Verifying the call was routed to the correct upstream cluster
+
+When Nginx routes a call using the `proxy_pass` directive, this test can verify that it was sent to the correct cluster.
+
+**Simple Example**
+
+This verifies that the login calls are routed to the login cluster.  We have another test that verifies that it is 
+routed to the item cluster
+
+Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
+```
+   location /login {
+       proxy_set_header X-Forwarded-Proto https;
+       proxy_set_header host $host;
+       proxy_pass  https://Login_Cluster/login;
+   }
+   
+   location /item {
+      proxy_set_header host $host;
+      proxy_pass  http://Item_Cluster/item;
+   }
+```
+
+Example test code snippet (from `src/test/java/com.kroger.snowGlobe.integration.tests.ClusterNameTest`)
+```
+    @Test
+    public void should_route_login_request_to_login_cluster() {
+        make(getRequest("https://www.nginx-test.com/login").to(nginxReverseProxy))
+                .andExpectClusterName("Login_Cluster");
+    }
+    
+    @Test
+    public void should_route_item_request_to_item_cluster() {
+        make(getRequest("https://www.nginx-test.com/item").to(nginxReverseProxy))
+                .andExpectClusterName("Item_Cluster");
+}
+```
+
+---
