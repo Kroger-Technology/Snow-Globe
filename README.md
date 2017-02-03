@@ -93,11 +93,11 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
    location /login {
        proxy_set_header X-Forwarded-Proto https;
        proxy_set_header host $host;
-       proxy_pass  https://Login_Cluster/login;
+       proxy_pass  https://Login_Cluster/login-path;
    }
 ```
 
-Example test code snippet (from `src/test/java/com.kroger.snowGlobe.integration.tests.StatusCodeTest`)
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/StatusCodeTest.java`)
 ```
     @Test
     public void should_return_200_for_login() {
@@ -124,7 +124,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
   }
 ```
 
-Example test code snippet (from `src/test/java/com.kroger.snowGlobe.integration.tests.StatusCodeTest`)
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/StatusCodeTest.java`)
 ```
     @Test
     public void should_return_301_http_to_https() {
@@ -148,7 +148,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
    location /login {
        proxy_set_header X-Forwarded-Proto https;
        proxy_set_header host $host;
-       proxy_pass  https://Login_Cluster/login;
+       proxy_pass  https://Login_Cluster/login-path;
    }
    
    location /item {
@@ -157,7 +157,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
    }
 ```
 
-Example test code snippet (from `src/test/java/com.kroger.snowGlobe.integration.tests.ClusterNameTest`)
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/ClusterNameTest.java`)
 ```
     @Test
     public void should_route_login_request_to_login_cluster() {
@@ -169,7 +169,34 @@ Example test code snippet (from `src/test/java/com.kroger.snowGlobe.integration.
     public void should_route_item_request_to_item_cluster() {
         make(getRequest("https://www.nginx-test.com/item").to(nginxReverseProxy))
                 .andExpectClusterName("Item_Cluster");
-}
+    }
 ```
 
----
+
+## Verifying the call sent to the upstream app uses the correct path
+
+When Nginx routes a call using the `proxy_pass` directive, this test can verify that it was sent to the upstream app with
+the correct path.
+
+**Simple Example**
+
+This verifies that the login calls are routed to the login cluster.  We have another test that verifies that it is 
+routed to the item cluster
+
+Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
+```
+   location /login {
+       proxy_set_header X-Forwarded-Proto https;
+       proxy_set_header host $host;
+       proxy_pass  https://Login_Cluster/login-path;
+   }
+```
+
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/AppPathTest.java`)
+```
+    @Test
+    public void should_route_login_request_to_login_path() {
+        make(getRequest("https://www.nginx-test.com/login").to(nginxReverseProxy))
+                .andExpectAppPath("/login-path");
+    }
+```
