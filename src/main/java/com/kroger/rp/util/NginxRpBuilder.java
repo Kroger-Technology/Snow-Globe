@@ -11,16 +11,29 @@ import static com.kroger.rp.util.TestFrameworkProperties.preserveTempFiles;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
+/**
+ * This is the "main" class to define the nginx setup.  This is typically used with <code>AppServiceCluster</code> to
+ * define an nginx instance with the fake upstream servers.  This setup will allow a user to define a little world so
+ * that they can test requests being sent into it.
+ *
+ */
 public class NginxRpBuilder {
 
-    private AppServiceCluster[] clusters;
-    private final File environmentFile;
-    private final int randomNamePrefix = Math.abs(new Random(System.currentTimeMillis()).nextInt());
-    private String environmentOverride = "default";
-    private ComposeUtility composeUtility;
-    private PortMapper portMapper = new PortMapper();
+    AppServiceCluster[] clusters;
+    final File environmentFile;
+    final int randomNamePrefix = Math.abs(new Random(System.currentTimeMillis()).nextInt());
+    String environmentOverride = "default";
+    ComposeUtility composeUtility;
+    PortMapper portMapper = new PortMapper();
 
 
+    /**
+     * The constructor that will define the upstream servers file.  This will be populated later once the setup has been
+     * defined and the cluster started.
+     *
+     * @param clusters
+     *      Zero or more upstream clusters that will be used. These represent one or more instances in an upstream.
+     */
     public NginxRpBuilder(AppServiceCluster[] clusters) {
         this.clusters = clusters;
         environmentFile = new File(new File(System.getProperty("user.dir")), "NGINX_ENV-"+ randomNamePrefix + ".conf");
@@ -94,7 +107,9 @@ public class NginxRpBuilder {
         if(TestFrameworkProperties.logContainerOutput()) {
             logContainerOutput(buildRpContainerId());
         }
-        composeUtility.stop();
+        if(composeUtility != null) {
+            composeUtility.stop();
+        }
     }
 
     private void logContainerOutput(String containerName) {

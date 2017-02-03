@@ -1,10 +1,11 @@
 package com.kroger.rp.util;
 
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.kroger.rp.util.ContainerUtil.getAvailablePort;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
 import static java.util.stream.Collectors.toList;
@@ -47,5 +48,16 @@ class PortMapper {
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("Unable to map url request: \"" + url + "\" to known port in the yaml configuration."))
                     .getValue();
+    }
+
+    public static int getAvailablePort() {
+        try {
+            ServerSocket serverSocket = new ServerSocket(0);
+            int localPort = serverSocket.getLocalPort();
+            serverSocket.close();
+            return localPort;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
