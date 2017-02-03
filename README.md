@@ -180,8 +180,7 @@ the correct path.
 
 **Simple Example**
 
-This verifies that the login calls are routed to the login cluster.  We have another test that verifies that it is 
-routed to the item cluster
+This verifies that the login calls are routed with the upstream path of "/login-path".
 
 Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
 ```
@@ -198,5 +197,34 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
     public void should_route_login_request_to_login_path() {
         make(getRequest("https://www.nginx-test.com/login").to(nginxReverseProxy))
                 .andExpectAppPath("/login-path");
+    }
+```
+
+## Verifying the call to the upstream application contains a specific header
+
+When Nginx routes a call using the `proxy_pass` directive, this test can verify that it was sent to the upstream app with
+the a specific header and the value matches a regex pattern.  This also verifies that the host header field is properly 
+set using a dynamic variable.
+
+**Simple Example**
+
+This verifies that the login calls are routed with the "x-forwarded-proto" header field sent with a value of "https"
+
+Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
+```
+   location /login {
+       proxy_set_header X-Forwarded-Proto https;
+       proxy_set_header host $host;
+       proxy_pass  https://Login_Cluster/login-path;
+   }
+```
+
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/RequestHeaderTest.java`)
+```
+    @Test
+    public void should_add_x_proto_header_to_login_request() {
+        make(getRequest("https://www.nginx-test.com/login").to(nginxReverseProxy))
+                .andExpectRequestHeaderToApplicationMatching("x-forwarded-proto", "https")
+                .andExpectRequestHeaderToApplicationMatching("host", "www.nginx-test.com");
     }
 ```
