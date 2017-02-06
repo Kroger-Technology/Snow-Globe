@@ -255,3 +255,38 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
                 .andExpectAppUrl("https://www.nginx-test.com/login-path");
     }
 ```
+
+## Verifying the call response contains headers from either the upstream application or the RP
+
+When Nginx routes a call using the `proxy_pass` directive, this test can verify that the response contains specific 
+headers.  One interesting thing to note is that you can configure your fake upstream servers to respond with specific
+headers.
+
+**Simple Example**
+
+This verifies that the that the response header 
+
+Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
+```
+   location /checkout {
+       proxy_set_header X-Forwarded-Proto https;
+       proxy_set_header host $host;
+       add_header rp-response-header true;
+       proxy_pass  https://Cart_Cluster/cart/checkout;
+   }
+```
+
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/ResponseHeaderTest.java`)
+```
+    // A custom upstream app can be created that defines response headers.
+    public static AppServiceCluster cartUpstreamApp = makeHttpsWebService("Cart_Cluster", 1)
+            .withResponseHeader("got-cart", "success");
+            
+    @Test
+    public void should_return_response_headers() {
+        make(getRequest("https://www.nginx-test.com/checkout").to(nginxReverseProxy))
+            .andExpectResponseHeader("got-cart", "success") // this comes from the fake upstream
+            .andExpectResponseHeader("rp-response-header", "true"); // this comes from the Nginx Configuration
+    }
+
+```
