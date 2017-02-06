@@ -228,3 +228,30 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
                 .andExpectRequestHeaderToApplicationMatching("host", "www.nginx-test.com");
     }
 ```
+
+## Verifying the call to the upstream application has the url fields properly set.
+
+When Nginx routes a call using the `proxy_pass` directive, this test can verify that it was sent to the upstream app with
+the host, protocol, and url field.
+
+**Simple Example**
+
+This verifies that the login calls are routed with the with the host, protocol and url fields properly set
+
+Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
+```
+   location /login {
+       proxy_set_header X-Forwarded-Proto https;
+       proxy_set_header host $host;
+       proxy_pass  https://Login_Cluster/login-path;
+   }
+```
+
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/AppUrlTest.java`)
+```
+    @Test
+    public void should_properly_pass_url_fields() {
+        make(getRequest("https://www.nginx-test.com/login").to(nginxReverseProxy))
+                .andExpectAppUrl("https://www.nginx-test.com/login-path");
+    }
+```
