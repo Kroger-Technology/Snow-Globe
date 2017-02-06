@@ -264,7 +264,8 @@ headers.
 
 **Simple Example**
 
-This verifies that the that the response header 
+This verifies that the that the response header contains specific fields and values that can be populated by the upstream
+response or from the nginx configuration.
 
 Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
 ```
@@ -282,6 +283,8 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
     public static AppServiceCluster cartUpstreamApp = makeHttpsWebService("Cart_Cluster", 1)
             .withResponseHeader("got-cart", "success");
             
+    //...
+                
     @Test
     public void should_return_response_headers() {
         make(getRequest("https://www.nginx-test.com/checkout").to(nginxReverseProxy))
@@ -290,3 +293,40 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
     }
 
 ```
+
+
+## Verifying the call is made to a specific upstream server
+
+When Nginx routes a call using the `proxy_pass` directive, this test can verify that the request is sent to a specific 
+upstream instance.  This is useful to verify the weighting, and load distribution configuration.
+
+**Simple Example**
+
+This verifies that the calls are made in a round robin distribution.
+
+Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
+```
+    location /login {
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header host $host;
+        proxy_pass  https://Login_Cluster/login-path;
+    }
+```
+
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/ClusterNumberTest.java`)
+```
+    // A custom upstream app can be created that defines response headers.
+    public static AppServiceCluster cartUpstreamApp = makeHttpsWebService("Cart_Cluster", 1)
+            .withResponseHeader("got-cart", "success");
+            
+    //... 
+    
+    @Test
+    public void should_round_robin_each_request_to_each_upstream_instance() {
+        range(0,10).forEach(clusterNumber ->
+                make(getRequest("https://www.nginx-test.com/login").to(nginxReverseProxy))
+                .andExpectClusterNumber(clusterNumber));
+    }
+```
+
+
