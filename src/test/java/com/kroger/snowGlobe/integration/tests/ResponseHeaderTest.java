@@ -20,7 +20,8 @@ public class ResponseHeaderTest {
 
     public static NginxRpBuilder nginxReverseProxy;
     public static AppServiceCluster cartUpstreamApp = makeHttpsWebService("Cart_Cluster", 1)
-            .withResponseHeader("got-cart", "success");
+            .withResponseHeader("got-cart", "success")
+            .withResponseHeader("internal-secret-key", "42");
 
     @BeforeClass
     public static void setup() {
@@ -37,5 +38,11 @@ public class ResponseHeaderTest {
         make(getRequest("https://www.nginx-test.com/checkout").to(nginxReverseProxy))
                 .andExpectResponseHeader("got-cart", "success")
                 .andExpectResponseHeader("rp-response-header", "true");
+    }
+
+    @Test
+    public void should_not_return_secret_header() {
+        make(getRequest("https://www.nginx-test.com/checkout").to(nginxReverseProxy))
+                .andExpectMissingResponseHeader("internal-secret_key");
     }
 }
