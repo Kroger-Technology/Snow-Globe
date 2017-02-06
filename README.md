@@ -389,7 +389,8 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
                .andExpectResponseHeader("got-cart", "success")
                .andExpectResponseHeader("rp-response-header", "true");
    }
-      @Test
+   
+   @Test
    public void should_not_return_secret_header() {
        make(getRequest("https://www.nginx-test.com/checkout").to(nginxReverseProxy))
                .andExpectMissingResponseHeader("internal-secret_key");
