@@ -1,6 +1,7 @@
 nginx.volume.mounts:
   default:
     - "src/integrationTestNginxConfig/nginx.conf:/etc/nginx/nginx.conf"
+    - "src/integrationTestNginxConfig/static/*:/etc/nginx/static/"
     - "src/integrationTestNginxConfig/dev/*:/etc/nginx/dev/"
 nginx.upstream.file.path:
   default: "/etc/nginx/upstreams.conf"

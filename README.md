@@ -362,3 +362,36 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
                 .andExpectToHaveQueryParam("q", "milk");
     }
 ```
+
+
+## Verifying the response matches a file or string
+
+When Nginx routes a call using the `proxy_pass` directive, this test can verify that response matches a string value or 
+the contents of a file.
+
+**Simple Example**
+
+This verifies that `/body` matches the file in `src/integrationTestNginxConfig/static/static.html` and the string
+contents
+
+Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
+```
+   location /body {
+        try_files /static.html =404;
+   }
+```
+
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/FileResponseTest.java`)
+```
+   @Test
+   public void should_return_response_headers() {
+       make(getRequest("https://www.nginx-test.com/checkout").to(nginxReverseProxy))
+               .andExpectResponseHeader("got-cart", "success")
+               .andExpectResponseHeader("rp-response-header", "true");
+   }
+      @Test
+   public void should_not_return_secret_header() {
+       make(getRequest("https://www.nginx-test.com/checkout").to(nginxReverseProxy))
+               .andExpectMissingResponseHeader("internal-secret_key");
+   }
+```
