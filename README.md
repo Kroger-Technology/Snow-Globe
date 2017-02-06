@@ -338,3 +338,27 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
 ```
 
 
+## Verifying the call made to an upstream server contains a query param
+
+When Nginx routes a call using the `proxy_pass` directive, this test can verify that the request is sent to an upstream
+service has a specified query param set.
+
+**Simple Example**
+
+This verifies that a path variable from a regex expression is converted to a query parameter for an upstream service.
+
+Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
+```
+   location ~* /search/(.*) {
+        proxy_pass http://Search_Cluster/search?q=$1;
+   }
+```
+
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/QueryParamTest.java`)
+```
+    @Test
+    public void should_convert_path_to_query_param() {
+        make(getRequest("https://www.nginx-test.com/search/milk").to(nginxReverseProxy))
+                .andExpectToHaveQueryParam("q", "milk");
+    }
+```
