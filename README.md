@@ -4,7 +4,7 @@ A end to end testing framework that will simulate your upstream servers and help
 of your calls.  It verifies that your configuration decorates the request to the upstream servers and the responses back
 work as expected.
 
-[Snow Globe Visual Layout](https://stash.kroger.com/projects/DCPCE/repos/nginx-snow-globe/raw/snowGlobe.png?at=refs%2Fheads%2Fmaster)
+![Snow Globe Visual Layout](snowGlobe.png)
 
 We move beyond the "-t" option to validate the configuration.  This framework builds an isolated environment of upstream servers and then sends a request into the NGINX instance.  This "magic" is done by parsing the configuration, dynamically building an upstream file, and with the power of Docker Compose, simulating an actual flow through your NGINX configuration.
 
