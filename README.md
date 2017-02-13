@@ -1,9 +1,12 @@
-# Nginx Snow-Globe
-How to simulate and test most any scenario when using NGINX as a reverse proxy in your own little world.
+# Snow-Globe
 
-## Overview
+A end to end testing framework that will simulate your upstream servers and help verify that Nginx properly routes all 
+of your calls.  It verifies that your configuration decorates the request to the upstream servers and the responses back
+work as expected.
 
-This project was created to test out NGINX configuration.  We move beyon the "-t" option to validate the configuration.  This framework builds an isolated environment of upstream servers and then sends a request into the NGINX instance.  This "magic" is done by parsing the configuration, dynamically building an upstream file, and with the power of Docker Compose, simulating an actual flow through your NGINX configuration.
+[Snow Globe Visual Layout](https://stash.kroger.com/projects/DCPCE/repos/nginx-snow-globe/raw/snowGlobe.png?at=refs%2Fheads%2Fmaster)
+
+We move beyond the "-t" option to validate the configuration.  This framework builds an isolated environment of upstream servers and then sends a request into the NGINX instance.  This "magic" is done by parsing the configuration, dynamically building an upstream file, and with the power of Docker Compose, simulating an actual flow through your NGINX configuration.
 
 
 ## How To Use Snow-Globe
