@@ -17,7 +17,7 @@ To use this framework, here are the pre-requesites for your machine:
 
 #### Project Setup
 You will need to do three things to use this framework:
-1.  Setup a gradle or maven project with the libarary [here in artifactory](http://artifactory.kroger.com/artifactory/webapp/#/artifacts/browse/tree/General/kroger-dcp/com/kroger/dcp/nginxSnowGlobe/nginx-snow-globe) set.
+1.  Setup a gradle or maven project with the library [here in artifactory](http://artifactory.kroger.com/artifactory/webapp/#/artifacts/browse/tree/General/kroger-dcp/com/kroger/dcp/nginxSnowGlobe/nginx-snow-globe) set.
 2.  Configure `snow-globe.yaml`
 3.  Write your tests.
 
