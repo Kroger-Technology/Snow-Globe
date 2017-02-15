@@ -1,5 +1,6 @@
 package com.kroger.rp.util;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
@@ -13,6 +14,13 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
 public class AppServiceClusterTest {
+
+    TestFrameworkProperties testFrameworkProperties;
+
+    @Before
+    public void init() {
+        testFrameworkProperties = new TestFrameworkProperties();
+    }
 
     @Test
     public void shouldBuildSingleHttpCluster() {
@@ -88,7 +96,7 @@ public class AppServiceClusterTest {
     public void shouldBuildComposeMap() {
         String clusterName = "clusterName";
         AppServiceCluster cluster = AppServiceCluster.makeHttpsWebService(clusterName);
-        Map<String, Object> composeMap = (Map<String, Object>) cluster.buildComposeMap()
+        Map<String, Object> composeMap = (Map<String, Object>) cluster.buildComposeMap(testFrameworkProperties)
                 .get(cluster.buildContainerId(0));
         assertThat(composeMap, hasEntry("container_name", cluster.buildContainerId(0)));
         assertThat(composeMap, hasEntry("expose", singletonList(3000)));

@@ -5,9 +5,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
-import static com.kroger.rp.util.TestFrameworkProperties.getFilesToScan;
-import static com.kroger.rp.util.TestFrameworkProperties.getNginxVolumes;
-import static com.kroger.rp.util.TestFrameworkProperties.preserveTempFiles;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
@@ -25,6 +22,7 @@ public class NginxRpBuilder {
     String environmentOverride = "default";
     ComposeUtility composeUtility;
     PortMapper portMapper = new PortMapper();
+    TestFrameworkProperties testFrameworkProperties;
 
 
     /**
@@ -36,8 +34,9 @@ public class NginxRpBuilder {
      */
     public NginxRpBuilder(AppServiceCluster[] clusters) {
         this.clusters = clusters;
+        testFrameworkProperties = new TestFrameworkProperties();
         environmentFile = new File(new File(System.getProperty("user.dir")), "NGINX_ENV-"+ randomNamePrefix + ".conf");
-        if(!preserveTempFiles()) {
+        if(!testFrameworkProperties.preserveTempFiles()) {
             environmentFile.deleteOnExit();
         }
     }
@@ -62,9 +61,9 @@ public class NginxRpBuilder {
     }
 
     public NginxRpBuilder start(){
-        portMapper.initMapping();
+        portMapper.initMapping(testFrameworkProperties);
         buildEnvironmentFile();
-        composeUtility = new ComposeUtility(this, clusters);
+        composeUtility = new ComposeUtility(this, testFrameworkProperties, clusters);
         composeUtility.start();
         return this;
     }
@@ -91,7 +90,7 @@ public class NginxRpBuilder {
     private String buildFileContents() {
         NginxEnvironmentFileBuilder builder = new NginxEnvironmentFileBuilder();
         if(hasFilesToScan()) {
-            getFilesToScan(environmentOverride).stream()
+            testFrameworkProperties.getFilesToScan(environmentOverride).stream()
                     .forEach(additionalFile ->
                             builder.readEnvConfig(System.getProperty("user.dir") + additionalFile));
         }
@@ -100,11 +99,11 @@ public class NginxRpBuilder {
     }
 
     private boolean hasFilesToScan() {
-        return getFilesToScan(environmentOverride) != null;
+        return testFrameworkProperties.getFilesToScan(environmentOverride) != null;
     }
 
     public void stop() {
-        if(TestFrameworkProperties.logContainerOutput()) {
+        if(testFrameworkProperties.logContainerOutput()) {
             logContainerOutput(buildRpContainerId());
         }
         if(composeUtility != null) {
@@ -131,7 +130,7 @@ public class NginxRpBuilder {
         Map<String, Object> argsMap = new HashMap<>();
         composeMap.put(buildRpContainerId(), argsMap);
         argsMap.put("container_name", buildRpContainerId());
-        argsMap.put("image", TestFrameworkProperties.getNginxImage());
+        argsMap.put("image", testFrameworkProperties.getNginxImage());
         argsMap.put("volumes", buildComposeVolumes());
         argsMap.put("ports", buildComposePorts());
         argsMap.put("links", getServiceContainerNames(serviceClusters));
@@ -150,8 +149,8 @@ public class NginxRpBuilder {
 
     private List<String> buildNginxVolumeMounts() {
         List<String> allVolumeMounts = new ArrayList<>();
-        allVolumeMounts.addAll(getNginxVolumes(environmentOverride).stream().filter(s -> !s.contains("*")).collect(toList()));
-        getNginxVolumes(environmentOverride).stream()
+        allVolumeMounts.addAll(testFrameworkProperties.getNginxVolumes(environmentOverride).stream().filter(s -> !s.contains("*")).collect(toList()));
+        testFrameworkProperties.getNginxVolumes(environmentOverride).stream()
                 .filter(s -> s.contains("*"))
                 .map(this::processMountWildCard)
                 .forEach(allVolumeMounts::addAll);
@@ -178,7 +177,7 @@ public class NginxRpBuilder {
     }
 
     private String buildEnvironmentFileMapping() {
-        return environmentFile.getName() + ":" + TestFrameworkProperties.getUpstreamLocation(environmentOverride);
+        return environmentFile.getName() + ":" + testFrameworkProperties.getUpstreamLocation(environmentOverride);
     }
 
     private List<String> getServiceContainerNames(List<AppServiceCluster> serviceClusters) {
@@ -197,6 +196,6 @@ public class NginxRpBuilder {
     }
 
     public String getStartCommand() {
-        return TestFrameworkProperties.getStartCommand(environmentOverride);
+        return testFrameworkProperties.getStartCommand(environmentOverride);
     }
 }

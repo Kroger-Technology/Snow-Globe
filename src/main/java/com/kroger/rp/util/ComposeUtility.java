@@ -1,8 +1,6 @@
 package com.kroger.rp.util;
 
 
-import com.kroger.rp.util.AppServiceCluster;
-import com.kroger.rp.util.NginxRpBuilder;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -12,9 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
-import static com.kroger.rp.util.TestFrameworkProperties.preserveTempFiles;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
@@ -22,16 +18,18 @@ import static java.util.stream.Collectors.toList;
 public class ComposeUtility {
 
     private final NginxRpBuilder nginxRpBuilder;
+    private TestFrameworkProperties testFrameworkProperties;
     private final AppServiceCluster[] appClusters;
 
-    public ComposeUtility(NginxRpBuilder nginxRpBuilder, AppServiceCluster... appClusters) {
+    public ComposeUtility(NginxRpBuilder nginxRpBuilder, TestFrameworkProperties testFrameworkProperties, AppServiceCluster... appClusters) {
         this.nginxRpBuilder = nginxRpBuilder;
+        this.testFrameworkProperties = testFrameworkProperties;
         this.appClusters = appClusters;
     }
 
     public void start() {
         String fileContents = buildComposeFileContents();
-        writeComposeFile(fileContents);
+        writeComposeFile(fileContents, testFrameworkProperties);
         startDockerCompose();
     }
 
@@ -39,9 +37,9 @@ public class ComposeUtility {
         return nginxRpBuilder.buildRpContainerId() + "-compose.yml";
     }
 
-    private void writeComposeFile(String fileContents) {
+    private void writeComposeFile(String fileContents, TestFrameworkProperties testFrameworkProperties) {
         File composeFile = new File(getComposeFileName());
-        if(!preserveTempFiles()) {
+        if(!testFrameworkProperties.preserveTempFiles()) {
             composeFile.deleteOnExit();
         }
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(getComposeFileName()))) {
@@ -107,7 +105,7 @@ public class ComposeUtility {
 
     private Map<String, Object> buildUpstreamsMap() {
         return stream(appClusters)
-                    .map(AppServiceCluster::buildComposeMap)
+                    .map(c -> c.buildComposeMap(testFrameworkProperties))
                     .flatMap(m -> m.entrySet().stream())
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }

@@ -11,16 +11,18 @@ import static org.junit.Assert.assertNotEquals;
 public class PortMapperTest {
 
     private PortMapper portMapper;
+    TestFrameworkProperties testFrameworkProperties;
 
     @Before
     public void init() {
         portMapper = new PortMapper();
-        TestFrameworkProperties.initPropertiesFromFile("src/test/resources/test-snow-globe.yaml");
+        testFrameworkProperties = new TestFrameworkProperties();
+        testFrameworkProperties.initPropertiesFromFile("src/test/resources/test-snow-globe.yaml");
     }
 
     @Test
     public void shouldConsistentlyAssignCorrectPortToSecureAndInsecureUrls() {
-        portMapper.initMapping();
+        portMapper.initMapping(testFrameworkProperties);
         int securePort = portMapper.getMappedPortForUrl("https://secureurl.com");
         int inSecurePort = portMapper.getMappedPortForUrl("http://insecureurl.com");
         assertNotEquals(securePort, inSecurePort);
@@ -31,7 +33,7 @@ public class PortMapperTest {
 
     @Test(expected = RuntimeException.class)
     public void shouldThrowExceptionOnBadUrlFormat() {
-        portMapper.initMapping();
+        portMapper.initMapping(testFrameworkProperties);
         portMapper.getMappedPortForUrl("badurl.com");
     }
 

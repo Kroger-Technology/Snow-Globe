@@ -26,11 +26,11 @@ class PortMapper {
                 .collect(toList());
     }
 
-    void initMapping() {
-        List<Map<String, Object>> yamlMapping = TestFrameworkProperties.getNginxPortMapping();
+    void initMapping(TestFrameworkProperties testFrameworkProperties) {
+        List<Map<String, Object>> yamlMapping = testFrameworkProperties.getNginxPortMapping();
         urlRegexToNginxPortMap = yamlMapping.stream()
                 .collect(toMap(mapping -> valueOf(getActualMappingForPort(mapping).get("pattern")),
-                               mapping -> parseInt(valueOf(getActualMappingForPort(mapping).get("port")))));
+                        mapping -> parseInt(valueOf(getActualMappingForPort(mapping).get("port")))));
         nginxToDockerPortMap = urlRegexToNginxPortMap.entrySet().stream()
                 .collect(toMap(Map.Entry::getValue, entry -> getAvailablePort()));
     }
@@ -38,16 +38,16 @@ class PortMapper {
     @SuppressWarnings("unchecked")
     private Map<String, Object> getActualMappingForPort(Map<String, Object> singlePortMapping) {
         return (Map<String, Object>) singlePortMapping.entrySet().stream()
-                    .findFirst().orElseThrow(() -> new RuntimeException("Invalid port mapping entry"))
-                    .getValue();
+                .findFirst().orElseThrow(() -> new RuntimeException("Invalid port mapping entry"))
+                .getValue();
     }
 
     private Integer getNginxPort(String url) {
         return urlRegexToNginxPortMap.entrySet().stream()
-                    .filter(entry -> url.matches(entry.getKey()))
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Unable to map url request: \"" + url + "\" to known port in the yaml configuration."))
-                    .getValue();
+                .filter(entry -> url.matches(entry.getKey()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Unable to map url request: \"" + url + "\" to known port in the yaml configuration."))
+                .getValue();
     }
 
     public static int getAvailablePort() {

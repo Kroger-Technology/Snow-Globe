@@ -12,21 +12,26 @@ import static java.util.stream.Collectors.joining;
 
 public class TestFrameworkProperties {
 
-    public static Map<String, Object> properties;
+    public Map<String, Object> properties;
 
-    static {
+//    static {
+//        initProperties("snow-globe.yaml");
+//        handleLoggingSettings();
+//    }
+
+    public TestFrameworkProperties() {
         initProperties("snow-globe.yaml");
         handleLoggingSettings();
     }
 
-    private static void handleLoggingSettings() {
+    private void handleLoggingSettings() {
         if(properties.getOrDefault("snowglobe.disable.commons.logging", "false").toString().equalsIgnoreCase("true")) {
             System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
         }
     }
 
     @SuppressWarnings("unchecked")
-    static void initProperties(String path) {
+    void initProperties(String path) {
         try {
             properties = (Map<String, Object>) new Yaml().load(new FileInputStream(path));
         } catch (FileNotFoundException e) {
@@ -35,16 +40,16 @@ public class TestFrameworkProperties {
         }
     }
 
-    static void initPropertiesFromFile(String path) {
+    void initPropertiesFromFile(String path) {
         initProperties(path);
     }
 
-    private static boolean getBooleanValue(String key) {
+    private boolean getBooleanValue(String key) {
         return properties.get(key) != null &&
                 properties.get(key).toString().equalsIgnoreCase("true");
     }
 
-    private static String getStringValue(String key) {
+    private String getStringValue(String key) {
         if(properties.get(key) != null) {
             return properties.get(key).toString();
         } else {
@@ -52,47 +57,47 @@ public class TestFrameworkProperties {
         }
     }
 
-    static String getFakeUpstreamImage() {
+    String getFakeUpstreamImage() {
         return getStringValue("upstream.fake.container");
     }
 
-    static boolean logContainerOutput() {
+    boolean logContainerOutput() {
         return getBooleanValue("snowglobe.log.output");
     }
 
-    public static boolean preserveTempFiles() {
+    public boolean preserveTempFiles() {
         return getBooleanValue("snowglobe.preserve.temp.files");
     }
 
-    public static boolean defineUpstreamZones() {
+    public boolean defineUpstreamZones() {
         return getBooleanValue("nginx.define.upstream.zones");
     }
 
-    static String getNginxImage() {
+    String getNginxImage() {
         return getStringValue("nginx.container");
     }
 
-    static String getUpstreamLocation(String environment) {
+    String getUpstreamLocation(String environment) {
         return getEnvironmentString(environment, "nginx.upstream.file.path");
     }
 
     @SuppressWarnings("unchecked")
-    static List<String> getNginxVolumes(String environment) {
+    List<String> getNginxVolumes(String environment) {
         return getEnvironmentList(environment, "nginx.volume.mounts");
     }
 
     @SuppressWarnings("unchecked")
-    static List<Map<String, Object>> getNginxPortMapping() {
+    List<Map<String, Object>> getNginxPortMapping() {
         return (List<Map<String, Object>>) properties.get("nginx.url.port.mapping");
     }
 
 
-    public static List<String> getFilesToScan(String environment) {
+    public List<String> getFilesToScan(String environment) {
         return getEnvironmentList(environment, "nginx.env.config.files");
     }
 
     @SuppressWarnings("unchecked")
-    private static List<String> getEnvironmentList(String environment, String key) {
+    private List<String> getEnvironmentList(String environment, String key) {
         try {
             Map<String, Object> configMap = (Map<String, Object>) properties.get(key);
             return (configMap.containsKey(environment)) ?
@@ -103,7 +108,7 @@ public class TestFrameworkProperties {
         }
     }
 
-    private static String getEnvironmentString(String environment, String key) {
+    private String getEnvironmentString(String environment, String key) {
         try {
             Map<String, Object> configMap = (Map<String, Object>) properties.get(key);
             return (configMap.containsKey(environment)) ?
@@ -114,16 +119,16 @@ public class TestFrameworkProperties {
         }
     }
 
-    public static String getSourceDirectory() {
+    public String getSourceDirectory() {
         return getStringValue("nginx.source.base.directory");
     }
 
-    public static String getDeployedDirectory() {
+    public String getDeployedDirectory() {
         return getStringValue("nginx.deploy.base.directory");
     }
 
     @SuppressWarnings("unchecked")
-    public static String getStartCommand(String environment) {
+    public String getStartCommand(String environment) {
         Map<String, List<String>> startCommands = (Map<String, List<String>>) properties.get("nginx.start.command");
         if(!startCommands.containsKey(environment)) {
             environment = "default";

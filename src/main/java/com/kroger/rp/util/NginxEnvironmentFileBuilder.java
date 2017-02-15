@@ -10,14 +10,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.kroger.rp.util.TestFrameworkProperties.defineUpstreamZones;
-import static com.kroger.rp.util.TestFrameworkProperties.getDeployedDirectory;
-import static com.kroger.rp.util.TestFrameworkProperties.getSourceDirectory;
 import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
 public class NginxEnvironmentFileBuilder {
+
+    TestFrameworkProperties testFrameworkProperties;
+
+    public NginxEnvironmentFileBuilder() {
+        testFrameworkProperties = new TestFrameworkProperties();
+    }
 
     Map<String, List<UpstreamAppInfo>> upstreamServers = new HashMap<>();
 
@@ -68,9 +71,9 @@ public class NginxEnvironmentFileBuilder {
     }
 
     protected String correctFilePath(String filePath) {
-        return (filePath.contains(getDeployedDirectory())) ?
-                filePath.replace(getDeployedDirectory(), getSourceDirectory()) :
-                getSourceDirectory() + File.separator + filePath;
+        return (filePath.contains(testFrameworkProperties.getDeployedDirectory())) ?
+                filePath.replace(testFrameworkProperties.getDeployedDirectory(), testFrameworkProperties.getSourceDirectory()) :
+                testFrameworkProperties.getSourceDirectory() + File.separator + filePath;
     }
 
     /**
@@ -117,7 +120,7 @@ public class NginxEnvironmentFileBuilder {
         StringBuilder sb = new StringBuilder();
         sb.append("\n")
                 .append("  upstream ").append(serverName).append(" { \n");
-        if (defineUpstreamZones()) {
+        if (testFrameworkProperties.defineUpstreamZones()) {
             sb.append("    zone " + serverName + " 64k;\n");
         }
         infos.stream()

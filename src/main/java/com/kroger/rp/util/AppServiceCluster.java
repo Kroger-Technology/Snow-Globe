@@ -8,7 +8,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.kroger.rp.util.TestFrameworkProperties.getFakeUpstreamImage;
 import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
 
@@ -143,12 +142,12 @@ public class AppServiceCluster {
         return this;
     }
 
-    public Map<String, Object> buildComposeMap() {
+    public Map<String, Object> buildComposeMap(TestFrameworkProperties testFrameworkProperties) {
         Map<String, Object> composeMap = new HashMap<>();
         IntStream.range(0, instances).forEach(instance -> {
             Map<String, Object> appArgsMap = new HashMap<>();
             appArgsMap.put("container_name", buildContainerId(instance));
-            appArgsMap.put("image", getFakeUpstreamImage());
+            appArgsMap.put("image", testFrameworkProperties.getFakeUpstreamImage());
             appArgsMap.put("environment", buildEnvironmentList(instance));
             appArgsMap.put("expose", singletonList(3000));
             composeMap.put(buildContainerId(instance), appArgsMap);
