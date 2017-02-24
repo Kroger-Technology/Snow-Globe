@@ -74,6 +74,14 @@ public class NginxEnvironmentFileBuilderTest {
     }
 
     @Test
+    public void shouldHandleUpstreamLinesWithTrailingSpace() {
+        String cluster1 = "cluster1";
+        final String upstreamLine = "proxy_pass http://" + cluster1 + " ;";
+        fileBuilder.addEmptyCluster(upstreamLine);
+        assertThat(fileBuilder.upstreamServers, hasKey(cluster1));
+    }
+
+    @Test
     public void shouldHandleUpstreamLinesWithPath() {
         String cluster1 = "cluster1";
         final String upstreamLine = "proxy_pass http://" + cluster1 + "/path/to/other/thing";

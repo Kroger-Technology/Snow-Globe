@@ -43,7 +43,7 @@ public class NginxEnvironmentFileBuilder {
     Map<String, List<UpstreamAppInfo>> upstreamServers = new HashMap<>();
 
     public void addUpstreamServer(String clusterName, List<UpstreamAppInfo> appInfos) {
-        upstreamServers.put(clusterName, appInfos);
+        upstreamServers.put(clusterName.trim(), appInfos);
     }
 
     public String buildClusterFileContents() {
