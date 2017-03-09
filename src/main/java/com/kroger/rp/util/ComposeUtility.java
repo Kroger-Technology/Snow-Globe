@@ -91,6 +91,7 @@ public class ComposeUtility {
             processBuilder.inheritIO();
             Process process = processBuilder.start();
             process.waitFor();
+            Thread.sleep(500);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
