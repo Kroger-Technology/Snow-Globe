@@ -87,7 +87,7 @@ public class ComposeUtility {
         try {
 
             ProcessBuilder processBuilder = new ProcessBuilder("docker-compose", "--file", getComposeFileName(),
-                    "up", "-d", "--remove-orphans");
+                    "up", "-d");
             processBuilder.inheritIO();
             Process process = processBuilder.start();
             process.waitFor();
