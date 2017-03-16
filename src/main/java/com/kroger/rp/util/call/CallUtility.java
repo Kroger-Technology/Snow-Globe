@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
+import java.net.SocketException;
 
 /**
  * This is a collections of functions that allows the user to make a call based on the <code>TestRequest</code> class.
@@ -275,7 +276,9 @@ public class CallUtility {
                 // Do not retry if over max retry count
                 return false;
             }
-            if (exception instanceof HttpHostConnectException || exception instanceof  NoHttpResponseException) {
+            if (exception instanceof HttpHostConnectException ||
+                    exception instanceof  NoHttpResponseException ||
+                    exception instanceof SocketException) {
                 try {
                     Thread.sleep(250);
                 } catch (InterruptedException e) {
