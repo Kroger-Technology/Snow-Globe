@@ -21,10 +21,7 @@ package com.kroger.rp.util;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -68,16 +65,12 @@ public class ComposeUtility {
 
     public void stop() {
         try {
-            getServiceNames().parallelStream().map(serviceName -> {
-                try {
-                    ProcessBuilder processBuilder = new ProcessBuilder("docker", "rm", "-f", serviceName);
-                    processBuilder.start();
-                    Thread.sleep(100); // wait a little for the command to kick off and then exit.
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                return "done";
-            }).collect(toList());
+            ProcessBuilder shutdownProcess = new ProcessBuilder("docker-compose", "--project-name",
+                    nginxRpBuilder.buildRpContainerId(), "--file", getComposeFileName(), "down");
+            if(testFrameworkProperties.logContainerOutput()) {
+                shutdownProcess.inheritIO();
+            }
+            shutdownProcess.start().waitFor();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -86,21 +79,53 @@ public class ComposeUtility {
     private void startDockerCompose() {
         try {
 
-            ProcessBuilder processBuilder = new ProcessBuilder("docker-compose", "--file", getComposeFileName(),
-                    "up", "-d");
-            processBuilder.inheritIO();
+            ProcessBuilder processBuilder = new ProcessBuilder("docker-compose", "--project-name",
+                    nginxRpBuilder.buildRpContainerId(), "--file", getComposeFileName(), "up", "-d");
+            if(testFrameworkProperties.logContainerOutput()) {
+                processBuilder.inheritIO();
+            }
             Process process = processBuilder.start();
             process.waitFor();
+            waitForServicesToStart();
         } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void waitForServicesToStart() {
+        getServiceNames().parallelStream().map(serviceName -> {
+            waitForServiceToStart(serviceName);
+            return "done";
+        }).collect(toList());
+    }
+
+    private void waitForServiceToStart(String serviceName) {
+        try {
+            Process serviceProcess = new ProcessBuilder("docker", "logs", "-f", serviceName).start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(serviceProcess.getInputStream()));
+            boolean gotStartedOutput = false;
+            int retries = 0;
+            while(!gotStartedOutput) {
+                retries++;
+                String line = reader.readLine();
+                gotStartedOutput = (line != null && line.contains("app listening"));
+                if(retries > 40) {
+                    throw new RuntimeException("Timeout waiting on: " + serviceName + " to start.");
+                }
+                Thread.sleep(100);
+            }
+            serviceProcess.destroyForcibly();
+        } catch(Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     private String buildComposeFileContents() {
         Map<String, Object> composeYaml = new HashMap<>();
-        composeYaml.put("version", "2");
+        String prefix = "version: '2'\n\n";
         composeYaml.put("services", buildServicesMap());
-        return new Yaml(buildDumperOptions()).dump(composeYaml);
+        String body = new Yaml(buildDumperOptions()).dump(composeYaml) + "\n\n";
+        return prefix + body;
     }
 
     private Map<String, Object> buildServicesMap() {
@@ -129,7 +154,6 @@ public class ComposeUtility {
 
     private List<String> getServiceNames() {
         List<String> serviceNames = new ArrayList<>();
-        serviceNames.add(nginxRpBuilder.buildRpContainerId());
         Arrays.stream(appClusters)
                 .forEach(appServiceCluster -> appServiceCluster.getAppInstanceInfos().stream()
                         .forEach(upstreamAppInfo -> serviceNames.add(upstreamAppInfo.containerName())));

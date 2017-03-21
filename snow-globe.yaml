@@ -27,7 +27,7 @@ nginx.env.config.files:
     - "/src/integrationTestNginxConfig/nginx.conf"
     - "/src/nginxIntegrationConfig/dev/"
 upstream.fake.container: "docker.kroger.com/nginx/fake-upstream-service:1.0"
-snowglobe.log.output:  true
+snowglobe.log.output:  false
 snowglobe.preserve.temp.files: false
 snowglobe.disable.commons.logging: true
 nginx.define.upstream.zones: true

@@ -32,11 +32,6 @@ public class TestFrameworkProperties {
 
     public Map<String, Object> properties;
 
-//    static {
-//        initProperties("snow-globe.yaml");
-//        handleLoggingSettings();
-//    }
-
     public TestFrameworkProperties() {
         initProperties("snow-globe.yaml");
         handleLoggingSettings();
@@ -126,6 +121,7 @@ public class TestFrameworkProperties {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private String getEnvironmentString(String environment, String key) {
         try {
             Map<String, Object> configMap = (Map<String, Object>) properties.get(key);

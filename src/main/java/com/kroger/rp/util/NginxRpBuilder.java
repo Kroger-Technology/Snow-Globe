@@ -90,6 +90,10 @@ public class NginxRpBuilder {
         return "RP-" + randomNamePrefix;
     }
 
+    public String getRpNetworkName() {
+        return "rp" + randomNamePrefix + "_default";
+    }
+
     private void buildEnvironmentFile() {
         try {
             if (environmentFile.exists()) {

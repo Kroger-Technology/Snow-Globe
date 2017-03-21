@@ -110,6 +110,7 @@ public class AppServiceClusterTest {
         assertThat(cluster.getMatchingPaths(), is(expectedPath1 + "|" + expectedPath2));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldBuildComposeMap() {
         String clusterName = "clusterName";
