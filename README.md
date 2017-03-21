@@ -137,6 +137,43 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
     }
 ```
 
+
+## Adding health checks to your requests
+
+***Successful Health Check***
+
+This is an example that a health check is defined and called in addition to your base call. If you do not define a health check endpoint and call expectSuccessfulHealthCheck you will receive a fail() message
+
+Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
+```
+ server {
+     listen *:80;
+     server_name
+        www.nginx-test.com;
+
+        location / {
+                   proxy_set_header host $host;
+                   proxy_pass  http://Content_Cluster;
+               }
+        location /healthcheck {
+                   return 200;
+        }
+  }
+```
+
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/HealthCheckTest.java`)
+```
+    @Test
+    public void should_have_successful_health_check() {
+        make(getRequest("https://www.nginx-test.com")
+                .withHealthCheck("/healthcheck")
+                .to(nginxReverseProxy))
+                .andExpectClusterName("Content_Cluster")
+                .expectSuccessfulHealthCheck();
+    }
+```
+
+
 ## Verifying the call was routed to the correct upstream cluster
 
 When Nginx routes a call using the `proxy_pass` directive, this test can verify that it was sent to the correct cluster.
