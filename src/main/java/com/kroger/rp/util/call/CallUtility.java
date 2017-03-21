@@ -68,9 +68,13 @@ public class CallUtility {
      */
     public static ResponseVerification make(TestRequest testRequest) {
         CloseableHttpResponse rawResponse = makeRequest(testRequest, buildHttpClient());
+        CloseableHttpResponse healthCheckResponse = null;
+        if (null != testRequest.getHealthCheckUrl() ) {
+            healthCheckResponse = makeGetRequest(testRequest, buildHttpClient());
+        }
         String jsonResponse = getResponseBody(rawResponse.getEntity());
         ResponseBody responseBody = buildResponseBody(jsonResponse);
-        return new ResponseVerification(responseBody, rawResponse, jsonResponse, testRequest);
+        return new ResponseVerification(responseBody, rawResponse, healthCheckResponse, jsonResponse, testRequest);
     }
 
     /**

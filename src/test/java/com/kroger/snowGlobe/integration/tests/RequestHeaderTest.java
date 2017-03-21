@@ -51,7 +51,10 @@ public class RequestHeaderTest {
 
     @Test
     public void should_add_x_proto_header_to_login_request() {
-        make(getRequest("https://www.nginx-test.com/login").to(nginxReverseProxy))
+        make(getRequest("https://www.nginx-test.com/login")
+                .to(nginxReverseProxy)
+                .withHealthCheck("/health"))
+                .expectSuccessfulHealthCheck()
                 .andExpectRequestHeaderToApplicationMatching("x-forwarded-proto", "https")
                 .andExpectRequestHeaderToApplicationMatching("host", "www.nginx-test.com");
     }

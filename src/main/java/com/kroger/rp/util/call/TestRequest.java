@@ -33,6 +33,7 @@ public class TestRequest {
     private String body;
     private NginxRpBuilder reverseProxy;
     private String userAgent;
+    private String healthCheckUrl;
 
     public static TestRequest getRequest(String url) {
         return new TestRequest("GET", url);
@@ -97,6 +98,10 @@ public class TestRequest {
         }
     }
 
+    public String getHealthCheckUrl() {
+        return healthCheckUrl;
+    }
+
     public String getPrettyUrl() {
         return url;
     }
@@ -111,6 +116,18 @@ public class TestRequest {
 
     public TestRequest to(NginxRpBuilder reverseProxy) {
         this.reverseProxy = reverseProxy;
+        return this;
+    }
+
+    public TestRequest withHealthCheck(String healthCheckUrl) {
+        try {
+            URI o = new URI(this.url + healthCheckUrl);
+            URI injected = new URI("http", null, o.getHost(), reverseProxy.getPortForUrl(this.url),
+                    o.getPath(), o.getQuery(), o.getFragment());
+            this.healthCheckUrl = injected.toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return this;
     }
 }

@@ -31,6 +31,7 @@ import static java.util.stream.Collectors.toMap;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 /**
  * This the main class that is used to verify entire call.  The constructor will take the request to the RP, the request
@@ -49,10 +50,12 @@ public class ResponseVerification {
     private final ResponseBody serviceResponseBody;
     private final TestRequest testRequest;
     private final String urlToApplication;
+    private final CloseableHttpResponse healthCheckResponse;
 
 
-    public ResponseVerification(ResponseBody serviceResponseBody, CloseableHttpResponse response, String body, TestRequest testRequest) {
+    public ResponseVerification(ResponseBody serviceResponseBody, CloseableHttpResponse response, CloseableHttpResponse healthCheckResponse, String body, TestRequest testRequest) {
         this.testRequest = testRequest;
+        this.healthCheckResponse = healthCheckResponse;
         this.responseCode = response.getStatusLine().getStatusCode();
         this.clusterName = serviceResponseBody.getCluster();
         this.clusterNumber = serviceResponseBody.getInstance();
@@ -70,6 +73,17 @@ public class ResponseVerification {
             allHeaders = new Header[]{};
         }
         return stream(allHeaders).collect(toMap(Header::getName, Header::getValue));
+    }
+
+    public ResponseVerification expectSuccessfulHealthCheck() {
+        int code = 0;
+        if (null != healthCheckResponse) {
+            code = this.healthCheckResponse.getStatusLine().getStatusCode();
+        } else {
+            fail("No health check url has been defined");
+        }
+        assertThat("The response code for: "  + this.testRequest.getHealthCheckUrl() + " did not match what we expected.", code, is(200));
+        return this;
     }
 
     public ResponseVerification expectResponseCode(int responseCode) {

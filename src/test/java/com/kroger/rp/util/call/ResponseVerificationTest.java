@@ -18,6 +18,7 @@
 
 package com.kroger.rp.util.call;
 
+import junit.framework.AssertionFailedError;
 import org.apache.http.Header;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -29,6 +30,8 @@ import org.mockito.Mock;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -39,6 +42,7 @@ public class ResponseVerificationTest {
     @Mock TestRequest testRequest;
     @Mock RequestToService requestToService;
     @Mock StatusLine statusLine;
+    @Mock CloseableHttpResponse healthCheckResponse;
 
     String body = new String();
 
@@ -47,10 +51,11 @@ public class ResponseVerificationTest {
         initMocks(this);
         when(serviceResponseBody.getRequest()).thenReturn(requestToService);
         when(response.getStatusLine()).thenReturn(statusLine);
+        when(healthCheckResponse.getStatusLine()).thenReturn(statusLine);
     }
 
     private ResponseVerification buildVerification() {
-        return new ResponseVerification(serviceResponseBody, response, body, testRequest);
+        return new ResponseVerification(serviceResponseBody, response, healthCheckResponse, body, testRequest);
     }
 
     @Test
@@ -78,6 +83,22 @@ public class ResponseVerificationTest {
 
         buildVerification().expectClusterNumber(clusterNumber);
         buildVerification().andExpectClusterNumber(clusterNumber);
+    }
+
+    @Test
+    public void shouldReturnSuccessfulHealthCheck() {
+        when(statusLine.getStatusCode()).thenReturn(200);
+        buildVerification().expectSuccessfulHealthCheck();
+    }
+
+    @Test
+    public void shouldFailIfHealthCheckResponseIsNull() {
+        this.healthCheckResponse = null;
+        try {
+            buildVerification().expectSuccessfulHealthCheck();
+        } catch (AssertionError er) {
+            assertThat(er.getMessage(), is("No health check url has been defined"));
+        }
     }
 
     @Test
