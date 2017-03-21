@@ -36,7 +36,7 @@ import static java.util.Collections.singletonList;
  */
 public class AppServiceCluster {
 
-    private final int randomNamePrefix = Math.abs(new Random(System.currentTimeMillis()).nextInt());
+    private final String randomNamePrefix;
 
     private final String clusterName;
     private final int instances;
@@ -116,6 +116,15 @@ public class AppServiceCluster {
         this.clusterName = clusterName;
         this.instances = instances;
         this.useHttps = useHttps;
+        randomNamePrefix = UUID.randomUUID().toString();
+    }
+
+    protected AppServiceCluster(String clusterName, int instances, int httpResponseCode, String matchingPaths,
+                                Map<String, String> responseHeaders, boolean useHttps) {
+        this(clusterName, instances, useHttps);
+        this.httpResponseCode = httpResponseCode;
+        this.matchingPaths = matchingPaths;
+        this.responseHeaders = responseHeaders;
     }
 
     /**
@@ -140,6 +149,13 @@ public class AppServiceCluster {
             System.err.println("Unable to parse response header for upstream application");
             return "";
         }
+    }
+
+
+
+    public AppServiceCluster clone() {
+        return new AppServiceCluster(this.clusterName, instances, httpResponseCode, matchingPaths,
+                responseHeaders, useHttps);
     }
 
     public AppServiceCluster withExpectedPaths(String... matchingPaths) {
@@ -196,7 +212,7 @@ public class AppServiceCluster {
                 .collect(Collectors.toList());
     }
 
-    public int getRandomNamePrefix() {
+    public String getRandomNamePrefix() {
         return randomNamePrefix;
     }
 

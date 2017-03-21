@@ -78,12 +78,19 @@ public class NginxRpBuilder {
         return this;
     }
 
-    public NginxRpBuilder start(){
+    public NginxRpBuilder start() {
+        buildCopyOfServices();
         portMapper.initMapping(testFrameworkProperties);
         buildEnvironmentFile();
         composeUtility = new ComposeUtility(this, testFrameworkProperties, clusters);
         composeUtility.start();
         return this;
+    }
+
+
+
+    private void buildCopyOfServices() {
+        stream(clusters).map(AppServiceCluster::clone).collect(toList()).toArray(clusters);
     }
 
     public String buildRpContainerId() {

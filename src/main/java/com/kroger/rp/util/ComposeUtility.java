@@ -109,7 +109,7 @@ public class ComposeUtility {
                 retries++;
                 String line = reader.readLine();
                 gotStartedOutput = (line != null && line.contains("app listening"));
-                if(retries > 40) {
+                if(retries > 80) {
                     throw new RuntimeException("Timeout waiting on: " + serviceName + " to start.");
                 }
                 Thread.sleep(100);
