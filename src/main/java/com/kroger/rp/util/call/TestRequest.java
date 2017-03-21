@@ -99,7 +99,14 @@ public class TestRequest {
     }
 
     public String getHealthCheckUrl() {
-        return healthCheckUrl;
+        try {
+            URI o = new URI(this.url + healthCheckUrl);
+            URI injected = new URI("http", null, o.getHost(), reverseProxy.getPortForUrl(this.url),
+                    o.getPath(), o.getQuery(), o.getFragment());
+            return injected.toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public String getPrettyUrl() {
@@ -120,14 +127,7 @@ public class TestRequest {
     }
 
     public TestRequest withHealthCheck(String healthCheckUrl) {
-        try {
-            URI o = new URI(this.url + healthCheckUrl);
-            URI injected = new URI("http", null, o.getHost(), reverseProxy.getPortForUrl(this.url),
-                    o.getPath(), o.getQuery(), o.getFragment());
-            this.healthCheckUrl = injected.toString();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        this.healthCheckUrl = healthCheckUrl;
         return this;
     }
 }
