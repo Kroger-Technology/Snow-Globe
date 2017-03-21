@@ -36,7 +36,7 @@ import static java.util.Collections.singletonList;
  */
 public class AppServiceCluster {
 
-    private final String randomNamePrefix;
+    private final int randomNamePrefix;
 
     private final String clusterName;
     private final int instances;
@@ -116,7 +116,7 @@ public class AppServiceCluster {
         this.clusterName = clusterName;
         this.instances = instances;
         this.useHttps = useHttps;
-        randomNamePrefix = UUID.randomUUID().toString();
+        randomNamePrefix = Math.abs(new Random(System.currentTimeMillis()).nextInt());
     }
 
     protected AppServiceCluster(String clusterName, int instances, int httpResponseCode, String matchingPaths,
@@ -164,7 +164,7 @@ public class AppServiceCluster {
     }
 
     String buildContainerId(int instance) {
-        return "CLUSTER-" + randomNamePrefix + "-" + clusterName + "-" + Integer.toString(instance);
+        return clusterName + "-" + randomNamePrefix + "-" + Integer.toString(instance);
     }
 
     public String getClusterName() {
@@ -210,10 +210,6 @@ public class AppServiceCluster {
         return IntStream.range(0, instances)
                 .mapToObj(instance -> new UpstreamAppInfo(buildContainerId(instance), 3000))
                 .collect(Collectors.toList());
-    }
-
-    public String getRandomNamePrefix() {
-        return randomNamePrefix;
     }
 
     public int getInstances() {
