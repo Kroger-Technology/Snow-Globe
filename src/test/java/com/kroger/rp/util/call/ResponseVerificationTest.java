@@ -18,7 +18,6 @@
 
 package com.kroger.rp.util.call;
 
-import junit.framework.AssertionFailedError;
 import org.apache.http.Header;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -88,14 +87,14 @@ public class ResponseVerificationTest {
     @Test
     public void shouldReturnSuccessfulHealthCheck() {
         when(statusLine.getStatusCode()).thenReturn(200);
-        buildVerification().expectSuccessfulHealthCheck();
+        buildVerification().andExpectSuccessfulHealthCheck();
     }
 
     @Test
     public void shouldFailIfHealthCheckResponseIsNull() {
         this.healthCheckResponse = null;
         try {
-            buildVerification().expectSuccessfulHealthCheck();
+            buildVerification().andExpectSuccessfulHealthCheck();
         } catch (AssertionError er) {
             assertThat(er.getMessage(), is("No health check url has been defined"));
         }

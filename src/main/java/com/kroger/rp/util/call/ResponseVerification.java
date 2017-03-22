@@ -75,7 +75,7 @@ public class ResponseVerification {
         return stream(allHeaders).collect(toMap(Header::getName, Header::getValue));
     }
 
-    public ResponseVerification expectSuccessfulHealthCheck() {
+    public ResponseVerification andExpectSuccessfulHealthCheck() {
         int code = 0;
         if (null != healthCheckResponse) {
             code = this.healthCheckResponse.getStatusLine().getStatusCode();
