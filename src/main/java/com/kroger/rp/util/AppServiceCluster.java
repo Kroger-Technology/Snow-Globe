@@ -151,8 +151,6 @@ public class AppServiceCluster {
         }
     }
 
-
-
     public AppServiceCluster clone() {
         return new AppServiceCluster(this.clusterName, instances, httpResponseCode, matchingPaths,
                 responseHeaders, useHttps);
