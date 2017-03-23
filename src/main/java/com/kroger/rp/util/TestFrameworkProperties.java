@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
 import static java.util.stream.Collectors.joining;
 
@@ -148,5 +149,27 @@ public class TestFrameworkProperties {
             environment = "default";
         }
         return startCommands.get(environment).stream().collect(joining(" "));
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    public int getServiceStartupTimeout() {
+        String stringValue = getStringValue("nginx.start.serviceTimeout");
+        int startupTime = 10; // seconds
+        if(canParseint(stringValue)) {
+            startupTime = parseInt(stringValue);
+        }
+        return startupTime;
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private boolean canParseint(String stringValue) {
+        boolean canParse = false;
+        if(stringValue != null && stringValue.length() > 0) {
+            try {
+                parseInt(stringValue);
+                canParse = true;
+            } catch (Exception ignored) { }
+        }
+        return canParse;
     }
 }

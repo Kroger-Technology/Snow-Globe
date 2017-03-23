@@ -23,13 +23,10 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.toList;
 
 public class ComposeUtility {
 
@@ -69,45 +66,21 @@ public class ComposeUtility {
         try {
             List<String> serviceNames = getServiceNames();
             serviceNames.add(nginxRpBuilder.buildRpContainerId());
-
-//            serviceNames.stream().parallel().forEach(serviceName -> {
-//                ProcessBuilder disconnectProcess = new ProcessBuilder("docker", "network", "disconnect", nginxRpBuilder.getRpNetworkName(), serviceName);
-//                if(testFrameworkProperties.logContainerOutput()) {
-//                    disconnectProcess.inheritIO();
-//                }
-//                try {
-//                    Process start = disconnectProcess.start();
-//                    start.waitFor();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//            });
-
-            serviceNames.stream().parallel().forEach(serviceName -> {
-                ProcessBuilder shutdownProcess = new ProcessBuilder("docker", "rm", "-f", serviceName);
-                if(testFrameworkProperties.logContainerOutput()) {
-                    shutdownProcess.inheritIO();
-                }
-                try {
-                    shutdownProcess.start();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-//            ProcessBuilder fullStopProcess = new ProcessBuilder("docker-compose", "--project-name",
-//                    nginxRpBuilder.buildRpContainerId(), "--file", getComposeFileName(), "down");
-//                if(testFrameworkProperties.logContainerOutput()) {
-//                fullStopProcess.inheritIO();
-//            }
-//            try {
-//                fullStopProcess.start();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
+            serviceNames.stream().parallel().forEach(this::shutDownService);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void shutDownService(String serviceName) {
+        ProcessBuilder shutdownProcess = new ProcessBuilder("docker", "rm", "-f", serviceName);
+        if(testFrameworkProperties.logContainerOutput()) {
+            shutdownProcess.inheritIO();
+        }
+        try {
+            shutdownProcess.start();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -132,24 +105,38 @@ public class ComposeUtility {
 
     private void waitForServiceToStart(String serviceName) {
         try {
-            Process serviceProcess = new ProcessBuilder("docker", "logs", "-f", serviceName).start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(serviceProcess.getInputStream()));
-            String line = reader.readLine();
-            boolean gotStartedOutput = (line != null && line.contains("app listening"));
+            boolean gotStartedOutput = isAppStarted(getServiceLogs(serviceName));
             int retries = 0;
             while(!gotStartedOutput) {
                 retries++;
-                line = reader.readLine();
-                gotStartedOutput = (line != null && line.contains("app listening"));
-                if(retries > 80) {
-                    throw new RuntimeException("Timeout waiting on: " + serviceName + " to start.");
+                gotStartedOutput = (isAppStarted(getServiceLogs(serviceName)));
+                int maxRetries = testFrameworkProperties.getServiceStartupTimeout() * 10;
+                if(retries > maxRetries) {
+                    throw new RuntimeException("Timeout waiting on: " + serviceName + " to start.\n" +
+                            "\tApp Service Output:\n\n" + getServiceLogs(serviceName));
                 }
                 Thread.sleep(100);
             }
-            serviceProcess.destroyForcibly();
         } catch(Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private boolean isAppStarted(String logs) {
+        return logs != null && logs.contains("app listening");
+    }
+
+    private String getServiceLogs(String serviceName) throws Exception{
+        Process serviceProcess = new ProcessBuilder("docker", "logs", serviceName).start();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(serviceProcess.getInputStream()));
+        serviceProcess.waitFor();
+        StringBuilder builder = new StringBuilder();
+        String line;
+        while ( (line = reader.readLine()) != null) {
+            builder.append(line);
+            builder.append(System.getProperty("line.separator"));
+        }
+        return builder.toString();
     }
 
     private String buildComposeFileContents() {
