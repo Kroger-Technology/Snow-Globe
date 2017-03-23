@@ -128,7 +128,19 @@ public class ComposeUtility {
 
     private String getServiceLogs(String serviceName) throws Exception{
         Process serviceProcess = new ProcessBuilder("docker", "logs", serviceName).start();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(serviceProcess.getInputStream()));
+        InputStream inputStream = serviceProcess.getInputStream();
+        InputStream errorStream = serviceProcess.getErrorStream();
+        String output = getProcessInput(serviceProcess, inputStream);
+        String stdErr = getProcessInput(serviceProcess, errorStream);
+        if(stdErr != null && stdErr.trim().length() > 0) {
+            output += "\n\tError stream:\n-------------------\n";
+            output += stdErr;
+        }
+        return output;
+    }
+
+    private String getProcessInput(Process serviceProcess, InputStream inputStream) throws InterruptedException, IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         serviceProcess.waitFor();
         StringBuilder builder = new StringBuilder();
         String line;
