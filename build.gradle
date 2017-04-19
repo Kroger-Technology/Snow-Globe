@@ -1,0 +1,53 @@
+apply plugin: 'idea'
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    compile 'junit:junit:4.11',
+            'org.hamcrest:hamcrest-junit:2.0.0.0',
+            'com.fasterxml.jackson.core:jackson-databind:2.8.5',
+            'org.apache.httpcomponents:httpclient:4.5.1',
+            'org.yaml:snakeyaml:1.17'
+
+    testCompile 'org.mockito:mockito-all:1.9.5'
+}
+
+test {
+    testLogging {
+        showStandardStreams = true
+    }
+}
+
+def getVersionName = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'describe', '--tags'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+sourceCompatibility = 1.8
+group "com.kroger.dcp.snowGlobe"
+version getVersionName()
+
+idea {
+    project {
+        languageLevel = '1.8'
+        vcs = 'Git'
+
+        ipr.withXml { xmlFile ->
+            // setup Git root
+            xmlFile.asNode().component.find { it.@name == 'VcsDirectoryMappings' }.replaceNode {
+                component(name: 'VcsDirectoryMappings') {
+                    mapping(directory: "", vcs: "")
+                    mapping(directory: "\$PROJECT_DIR\$", vcs: 'Git')
+                }
+            }
+        }
+    }
+}
