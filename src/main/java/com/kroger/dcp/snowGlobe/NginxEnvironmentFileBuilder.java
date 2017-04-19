@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-package com.kroger.rp.util;
+package com.kroger.dcp.snowGlobe;
 
-import com.kroger.rp.util.environment.UpstreamAppInfo;
+import com.kroger.dcp.snowGlobe.environment.UpstreamAppInfo;
 
 import java.io.BufferedReader;
 import java.io.File;

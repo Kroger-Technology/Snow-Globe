@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.kroger.rp.util.environment;
+package com.kroger.dcp.snowGlobe.environment;
 
 /**
  * A POJO that is used to hold the container name and port of a "fake" upstream service that

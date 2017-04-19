@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.kroger.rp.util.call;
+package com.kroger.dcp.snowGlobe.call;
 
 import org.apache.http.Header;
 import org.apache.http.StatusLine;

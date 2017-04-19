@@ -18,18 +18,16 @@
 
 package com.kroger.snowGlobe.integration.tests;
 
-import com.kroger.rp.util.AppServiceCluster;
-import com.kroger.rp.util.NginxRpBuilder;
+import com.kroger.dcp.snowGlobe.AppServiceCluster;
+import com.kroger.dcp.snowGlobe.NginxRpBuilder;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.stream.IntStream;
-
-import static com.kroger.rp.util.AppServiceCluster.makeHttpsWebService;
-import static com.kroger.rp.util.NginxRpBuilder.startNginxRpWithCluster;
-import static com.kroger.rp.util.call.CallUtility.make;
-import static com.kroger.rp.util.call.TestRequest.getRequest;
+import static com.kroger.dcp.snowGlobe.AppServiceCluster.makeHttpsWebService;
+import static com.kroger.dcp.snowGlobe.NginxRpBuilder.startNginxRpWithCluster;
+import static com.kroger.dcp.snowGlobe.call.CallUtility.make;
+import static com.kroger.dcp.snowGlobe.call.TestRequest.getRequest;
 import static java.util.stream.IntStream.range;
 
 /**

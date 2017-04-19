@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.kroger.rp.util.call;
+package com.kroger.dcp.snowGlobe.call;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,7 +36,6 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
-import org.apache.http.protocol.HttpContext;
 
 import java.io.BufferedReader;
 import java.io.IOException;

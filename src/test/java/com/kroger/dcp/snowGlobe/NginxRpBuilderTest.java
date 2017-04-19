@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.kroger.rp.util;
+package com.kroger.dcp.snowGlobe;
 
 import org.junit.After;
 import org.junit.Test;

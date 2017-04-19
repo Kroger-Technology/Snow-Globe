@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.kroger.rp.util;
+package com.kroger.dcp.snowGlobe;
 
 import java.io.IOException;
 import java.net.ServerSocket;

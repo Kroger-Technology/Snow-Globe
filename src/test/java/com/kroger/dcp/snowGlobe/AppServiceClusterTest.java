@@ -16,8 +16,9 @@
  * limitations under the License.
  */
 
-package com.kroger.rp.util;
+package com.kroger.dcp.snowGlobe;
 
+import org.hamcrest.collection.IsMapContaining;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -117,7 +118,7 @@ public class AppServiceClusterTest {
         AppServiceCluster cluster = AppServiceCluster.makeHttpsWebService(clusterName);
         Map<String, Object> composeMap = (Map<String, Object>) cluster.buildComposeMap(testFrameworkProperties)
                 .get(cluster.buildContainerId(0));
-        assertThat(composeMap, hasEntry("container_name", cluster.buildContainerId(0)));
+        assertThat(composeMap, IsMapContaining.hasEntry("container_name", cluster.buildContainerId(0)));
         assertThat(composeMap, hasEntry("expose", singletonList(3000)));
     }
 

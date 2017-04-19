@@ -18,14 +18,14 @@
 
 package com.kroger.snowGlobe.integration.tests;
 
-import com.kroger.rp.util.NginxRpBuilder;
+import com.kroger.dcp.snowGlobe.NginxRpBuilder;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static com.kroger.rp.util.NginxRpBuilder.startNginxRpWithCluster;
-import static com.kroger.rp.util.call.CallUtility.make;
-import static com.kroger.rp.util.call.TestRequest.getRequest;
+import static com.kroger.dcp.snowGlobe.NginxRpBuilder.startNginxRpWithCluster;
+import static com.kroger.dcp.snowGlobe.call.CallUtility.make;
+import static com.kroger.dcp.snowGlobe.call.TestRequest.getRequest;
 
 /**
  * This integration test verifies that a file is sent back in the body of the response  The snow globe

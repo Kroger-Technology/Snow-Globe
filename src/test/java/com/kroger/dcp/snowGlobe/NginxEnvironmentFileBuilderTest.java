@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-package com.kroger.rp.util;
+package com.kroger.dcp.snowGlobe;
 
-import com.kroger.rp.util.environment.UpstreamAppInfo;
+import com.kroger.dcp.snowGlobe.environment.UpstreamAppInfo;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -53,10 +53,10 @@ public class NginxEnvironmentFileBuilderTest {
                 singletonList(new UpstreamAppInfo("127.0.0.1", 65534))) +
                         fileBuilder.buildUpstreamServerEntry(cluster2,
                                 singletonList(new UpstreamAppInfo("127.0.0.1", 65534)));
-        
+
         assertThat(expectedContents, is(clusterFileContents));
     }
-    
+
     @Test
     public void shouldHandleUpstreamLinesWithHttps() {
         String cluster1 = "cluster1";
