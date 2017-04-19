@@ -4,40 +4,44 @@ A end to end testing framework that will simulate your upstream servers and help
 of your calls.  It verifies that your configuration decorates the request to the upstream servers and the responses back
 work as expected.
 
-![Snow Globe Visual Layout](snowGlobe.png)
-
 We move beyond the "-t" option to validate the configuration.  This framework builds an isolated environment of upstream servers and then sends a request into the NGINX instance.  This "magic" is done by parsing the configuration, dynamically building an upstream file, and with the power of Docker Compose, simulating an actual flow through your NGINX configuration.
 
-
 ## How To Use Snow-Globe
-To use this framework, here are the pre-requesites for your machine:
+To use this framework, here are the pre-requisites for your machine:
 - Docker (1.11.0 or greater)
 - Docker Compose (1.7.0 or greater)
 - Java JDK (version 1.8.0 or greater)
 
-#### Project Setup
-You will need to do three things to use this framework:
-1.  Setup a gradle or maven project with the library [here in artifactory](http://artifactory.kroger.com/artifactory/webapp/#/artifacts/browse/tree/General/kroger-dcp/com/kroger/dcp/nginxSnowGlobe/nginx-snow-globe) set.
-2.  Configure `snow-globe.yaml`
-3.  Write your tests.
+## Project Setup
+You will need to do four things to use this framework:
+1.  Setup a gradle or maven project with the library set.
+2.  Make sure your upstreams are defined in a separate file (or better yet directory).
+3.  Configure `snow-globe.yaml`
+4.  Write your tests.
 
 The sections below will show you how to do this.
 
-**Setup a gradle or maven Project**
-You need to include in your test part of compilation, the latest jar from here: http://artifactory.kroger.com/artifactory/webapp/#/artifacts/browse/tree/General/kroger-dcp/com/kroger/dcp/nginxSnowGlobe/nginx-snow-globe
+#### Step 1: Setups your project
+These tests are written in Java.  To properly use this, we recommend that you setup a maven or gradle project.  If you are unsure how to do this, copy the `exampleUsage` folder and you can start from there.
 
 Below is an example snippet for gradle:
 ```
-compileTest(group: 'com.kroger.dcp.nginxSnowGlobe', name: 'nginx-snow-globe', version: '1.0-1-gffe2f52')
+compileTest(group: 'com.kroger.dcp.snowGlobe', name: 'snowGlobe', version: '1.0-1-gffe2f52')
 ```
 Below is an example snipppet for maven:
 ```
 <dependency>
-    <groupId>com.kroger.dcp.nginxSnowGlobe</groupId>
-    <artifactId>nginx-snow-globe</artifactId>
+    <groupId>com.kroger.dcp.snowGlobe</groupId>
+    <artifactId>snowGlobe</artifactId>
     <version>1.0-1-gffe2f52</version>
 </dependency>
 ```
+
+#### Step 2: Make sure your Nginx Configuration is setup to be used by the tests.
+
+SnowGlobe will crawl your configuration for each test and build the temporary upstreams.  So to be able to do that, it
+ needs to have the upstreams define in a separate file that are _not_ included in the configuration.  We recommend that
+ you have your upstreams in a separate directory.  That makes it more simple to include/exclude files for the tests.
 
 **Configure `snow-globe.yaml`**
 The yaml file has several entries that need to be completed.  Below is the documenation on this:

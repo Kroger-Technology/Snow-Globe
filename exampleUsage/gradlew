@@ -6,15 +6,6 @@
 ##
 ##############################################################################
 
-
-#
-#  Change Java home to java 8 if it is set that way.
-#
-    if [ "$JAVA_HOME" == "/usr/lib/jvm/java-7-oracle" ]
-then
-  JAVA_HOME=/usr/lib/jvm/java-8-oracle
-fi
-
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 DEFAULT_JVM_OPTS=""
 
