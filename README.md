@@ -21,15 +21,17 @@ You will need to do four things to use this framework:
 
 The sections below will show you how to do this.
 
-#### Step 1: Setups your project
+## Step 1: Setups your project
 These tests are written in Java.  To properly use this, we recommend that you setup a maven or gradle project.  If you are unsure how to do this, copy the `exampleUsage` folder and you can start from there.
 
 Below is an example snippet for gradle:
-```
+
+```groovy
 compileTest(group: 'com.kroger.dcp.snowGlobe', name: 'snowGlobe', version: '1.0-1-gffe2f52')
 ```
-Below is an example snipppet for maven:
-```
+Below is an example snippet for maven:
+
+```xml
 <dependency>
     <groupId>com.kroger.dcp.snowGlobe</groupId>
     <artifactId>snowGlobe</artifactId>
@@ -37,56 +39,174 @@ Below is an example snipppet for maven:
 </dependency>
 ```
 
-#### Step 2: Make sure your Nginx Configuration is setup to be used by the tests.
+## Step 2: Make sure your Nginx Configuration is setup to be used by the tests.
 
 SnowGlobe will crawl your configuration for each test and build the temporary upstreams.  So to be able to do that, it
  needs to have the upstreams define in a separate file that are _not_ included in the configuration.  We recommend that
  you have your upstreams in a separate directory.  That makes it more simple to include/exclude files for the tests.
 
+You can see an example Nginx setup in the `exampleUsage` directory.
+
+## Step 3: Setup the SnowGlobe Yaml file
+
 **Configure `snow-globe.yaml`**
-The yaml file has several entries that need to be completed.  Below is the documenation on this:
-```
+The yaml file has several entries that need to be completed.  Below is the documentation on this.
+
+The first part of the manual is how we map your configuration files into the docker container.  No matter the method, you
+will be transfering your configuration to your destination environment.  We use `nginx.volume.mounts` to map your local
+files into the path on the docker image.  Here is an example:
+
+```yaml
 nginx.volume.mounts:
-# This is a list of files that you want to have mounted into your NGINX instance.  Below shows a single file
-# that is being #mounted to "/etc/nginx/nginx.conf" inside of the container.  You can also specify
-# directories to cover multiple files.
-  - "src/nginx/nginx.conf:/etc/nginx/nginx.conf"
+    defaults:
+      - "src/nginx/nginx.conf:/etc/nginx/nginx.conf"
+```
+The `nginx.volume.mounts` is an array of mappings.  You can mount a single file, a directory, or a wildcard.  One
+thing to note is that you can't map your upstream file.  SnowGlobe is going to build one for you and put it in.  Here
+is an example mounts with different mapping techniques.
+
+```yaml
+nginx.volume.mounts:
+  default:
+    - "src/nginx/*:/webApps/nginx/conf/"
+    - "src/nginx/html:/webApps/nginx/conf/html"
+    - "src/nginx/env/prod/*:/webApps/nginx/conf/env/prod/"
+    - "src/nginx/env/prod/certs/:/webApps/nginx/conf/env/prod/certs/"
+    - "src/nginx/env/prod/locations/:/webApps/nginx/conf/env/prod/locations/"
+    - "src/nginx/env/prod/servers/:/webApps/nginx/conf/env/prod/servers/"
+    - "src/scripts/startTest.sh:/startTest.sh"
+```
+
+**NOTE:**  There is the `default` setting where you can have different mappings.  We do this to allow you to define
+a mapping for your environments.  You can map different files for dev/test/prod.  If you are just starting out, try
+just the "default" mapping.
+
+Next up, you need to help SnowGlobe tell us where you put you upstream file(s).  This is done because SnowGlobe will 
+generate one for you and drop it in for you.  This is the file location on the deployed configuration, not the path
+for the source code.  Here is an example:
+
+```yaml
 nginx.upstream.file.path:
-# this is the location of the upstream file that will be created inside of the container.  Your
-# configuration _MUST_ reference this file so it can be properly inserted.  You should not mount your
-# own upstream file in the mounts section.  The framework will build it for your.
   "/etc/nginx/upstreams.conf"
+```
+
+After that, we need to know what container you are using to run Nginx.
+
+```yaml
 nginx.container:
-# The docker container to use to run your test.  This should be a working nginx container with the
-# command "nginx" on the path.
   "docker.kroger.com/library/nginx:1.11.3"
+```
+
+This next part is the port mapping for traffic.  Most people send HTTPS -> 443 and HTTP -> 80.   But we have had
+cases where this is not true.  This section allows you to define the traffic and how you want to map it.  You can
+define multiple patterns for the url and which port you route traffic to.
+
+```yaml
 nginx.url.port.mapping:
-# A mapping of the url to the port on your NGINX configuration.  The first is a simple name to identify
-# your mapping.  The first parameter "pattern" is a regular expression to match for this port.  The
-# "port" specifies which port on your nginx instance to route.  Below shows the simple pattern to
-# direct all https calls to 443 and all http: calls to 80 on the container.
   - https:
       pattern: "https:.*"
       port: 443
   - http:
       pattern: "http:.*"
       port: 80
-upstream.fake.container:
-# This is the name of the container for the fake upstream service.  The project has the ability to build
-# the nodejs application that will reflect back the response.
-  "docker.kroger.com/nginx/fake-upstream-service:1.0"
-framework.log.output:
-# If set to true, then each test will output the NGINX logs for each test.
-  true
 ```
 
+This next field is the docker container to use for the fake upstream service.
 
-# Examples Test Scenarios
+```yaml
+upstream.fake.container:
+  "docker.kroger.com/nginx/fake-upstream-service:1.0"
+```
+
+This next field defines how to start nginx.   You may have a custom script that you
+use and this is where you run that.  This can have environment specific startup commands
+so the `default` field is needed for the base run command.
+
+```yaml
+nginx.start.command:
+  default: ["nginx", "-g", "'daemon off;'"]
+```
+
+The next two fields define the "base" directory for you configuration.  It is popular to
+use relative paths for includes and such.  This gives SnowGlobe advice on how to interpret 
+includes using a relative path:
+
+```yaml
+nginx.source.base.directory: "src/integrationTestNginxConfig/"
+nginx.deploy.base.directory: "/etc/nginx/"
+```
+
+This next field tells SnowGlobe where to search when inspecting the configuration.  Many times, this is
+just the nginx.conf or base file that is used for the configuration.  If you deployment is more than just copying
+a directory, you will need to tell SnowGlobe where all of the moved files are.  
+
+```yaml
+nginx.env.config.files:
+  default:
+    - "/src/integrationTestNginxConfig/nginx.conf"
+```
+
+The next field indicates where to pull the fake upstream container:
+```yaml
+upstream.fake.container:[TBD]
+```
+
+This field will when set to true will output all logs from the framework and docker containers:
+```yaml
+snowglobe.log.output:  false
+```
+This field will preserve the compose and upstream files for help in investigating a problem:
+ ```yaml
+snowglobe.preserve.temp.files: false
+```
+This field will disable extra logging that is mostly not needed:
+```yaml
+snowglobe.disable.commons.logging: true
+```
+This last field will add upstream zones if you are using Nginx Plus. 
+```yaml
+nginx.define.upstream.zones: true
+```
+
+## Step 4: Write the tests
+
+Writing the tests is one of the easy parts and also one of the most important.  Starting up the Docker compose 
+environment can be slow (.5 - 3 seconds) and so we recommend that you do that you combine tests for similar scenarios.
+
+### Test Setup
+
+Tests are setup by starting the Nginx environment.  You need to declare your upstream servers and then
+start the nginx configuration.
+
+The code snipped below shows a common pattern of starting and stopping the nginx cluster for tests.  This
+snippet comes from `src/test/java/com/kroger/snowGlobe/integration/tests/AppUrlTest`
+
+```java
+    public static NginxRpBuilder nginxReverseProxy;
+    public static AppServiceCluster loginUpstreamApp = makeHttpsWebService("Login_Cluster", 1);
+
+    @BeforeClass
+    public static void setup() {
+        nginxReverseProxy = startNginxRpWithCluster(loginUpstreamApp);
+    }
+
+    @AfterClass
+    public static void teardown() {
+        nginxReverseProxy.stop();
+    }
+```
+
+This is done not inside a function but at the class level.  The `@BeforeClass` method is run once before
+the tests in the class.  You can see that it starts the Nginx Configuration with the login upstream cluster defined. You
+don't need to define every upstream, just the one that you are interested in testing. You can define multiple upstreams
+to set their behavior to test non-200 scenarios.  
+
+### Examples Test Scenarios
 
 Below are example test scenarios that include configuration and testing examples.  All of the examples below are used as 
 integration tests for the project and pass for each build.
 
-## Verifying the HTTP status code response to the client.
+#### Verifying the HTTP status code response to the client.
 
 There are times where nginx or the upstream server set the HTTP response code and we can verify the response code whether
 it is set in Nginx or the upstream server.
@@ -105,7 +225,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
 ```
 
 Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/StatusCodeTest.java`)
-```
+```java
     @Test
     public void should_return_200_for_login() {
         make(getRequest("https://www.nginx-test.com/login").to(nginxReverseProxy))
@@ -132,7 +252,8 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
 ```
 
 Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/StatusCodeTest.java`)
-```
+
+```java
     @Test
     public void should_return_301_http_to_https() {
         make(getRequest("http://www.nginx-test.com").to(nginxReverseProxy))
@@ -142,7 +263,7 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
 ```
 
 
-## Adding health checks to your requests
+#### Adding health checks to your requests
 
 ***Successful Health Check***
 
@@ -166,7 +287,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
 ```
 
 Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/HealthCheckTest.java`)
-```
+```java
     @Test
     public void should_have_successful_health_check() {
         make(getRequest("https://www.nginx-test.com")
@@ -176,9 +297,7 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
                 .expectSuccessfulHealthCheck();
     }
 ```
-
-
-## Verifying the call was routed to the correct upstream cluster
+#### Verifying the call was routed to the correct upstream cluster
 
 When Nginx routes a call using the `proxy_pass` directive, this test can verify that it was sent to the correct cluster.
 
@@ -202,7 +321,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
 ```
 
 Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/ClusterNameTest.java`)
-```
+```java
     @Test
     public void should_route_login_request_to_login_cluster() {
         make(getRequest("https://www.nginx-test.com/login").to(nginxReverseProxy))
@@ -217,7 +336,7 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
 ```
 
 
-## Verifying the call sent to the upstream app uses the correct path
+#### Verifying the call sent to the upstream app uses the correct path
 
 When Nginx routes a call using the `proxy_pass` directive, this test can verify that it was sent to the upstream app with
 the correct path.
@@ -236,7 +355,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
 ```
 
 Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/AppPathTest.java`)
-```
+```java
     @Test
     public void should_route_login_request_to_login_path() {
         make(getRequest("https://www.nginx-test.com/login").to(nginxReverseProxy))
@@ -244,7 +363,7 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
     }
 ```
 
-## Verifying the call to the upstream application contains a specific header
+#### Verifying the call to the upstream application contains a specific header
 
 When Nginx routes a call using the `proxy_pass` directive, this test can verify that it was sent to the upstream app with
 the a specific header and the value matches a regex pattern.  This also verifies that the host header field is properly 
@@ -264,7 +383,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
 ```
 
 Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/RequestHeaderTest.java`)
-```
+```java
     @Test
     public void should_add_x_proto_header_to_login_request() {
         make(getRequest("https://www.nginx-test.com/login").to(nginxReverseProxy))
@@ -273,7 +392,7 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
     }
 ```
 
-## Verifying the call to the upstream application has the url fields properly set.
+#### Verifying the call to the upstream application has the url fields properly set.
 
 When Nginx routes a call using the `proxy_pass` directive, this test can verify that it was sent to the upstream app with
 the host, protocol, and url field.
@@ -292,7 +411,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
 ```
 
 Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/AppUrlTest.java`)
-```
+```java
     @Test
     public void should_properly_pass_url_fields() {
         make(getRequest("https://www.nginx-test.com/login").to(nginxReverseProxy))
@@ -300,7 +419,7 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
     }
 ```
 
-## Verifying the response headers
+#### Verifying the response headers
 
 When Nginx routes a call using the `proxy_pass` directive, this test can verify that the response contains specific 
 headers.  One interesting thing to note is that you can configure your fake upstream servers to respond with specific
@@ -324,7 +443,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
 ```
 
 Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/ResponseHeaderTest.java`)
-```
+```java
     // A custom upstream app can be created that defines response headers.
     public static AppServiceCluster cartUpstreamApp = makeHttpsWebService("Cart_Cluster", 1)
             .withResponseHeader("got-cart", "success")
@@ -347,7 +466,7 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
 ```
 
 
-## Verifying the call is made to a specific upstream server
+#### Verifying the call is made to a specific upstream server
 
 When Nginx routes a call using the `proxy_pass` directive, this test can verify that the request is sent to a specific 
 upstream instance.  This is useful to verify the weighting, and load distribution configuration.
@@ -366,7 +485,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
 ```
 
 Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/ClusterNumberTest.java`)
-```
+```java
     // A custom upstream app can be created that defines response headers.
     public static AppServiceCluster cartUpstreamApp = makeHttpsWebService("Cart_Cluster", 1)
             .withResponseHeader("got-cart", "success");
@@ -382,7 +501,7 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
 ```
 
 
-## Verifying the call made to an upstream server contains a query param
+#### Verifying the call made to an upstream server contains a query param
 
 When Nginx routes a call using the `proxy_pass` directive, this test can verify that the request is sent to an upstream
 service has a specified query param set.
@@ -399,7 +518,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
 ```
 
 Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/QueryParamTest.java`)
-```
+```java
     @Test
     public void should_convert_path_to_query_param() {
         make(getRequest("https://www.nginx-test.com/search/milk").to(nginxReverseProxy))
@@ -408,7 +527,7 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
 ```
 
 
-## Verifying the response matches a file or string
+#### Verifying the response matches a file or string
 
 When Nginx routes a call using the `proxy_pass` directive, this test can verify that response matches a string value or 
 the contents of a file.
@@ -426,7 +545,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
 ```
 
 Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/FileResponseTest.java`)
-```
+```java
    @Test
    public void should_return_response_headers() {
        make(getRequest("https://www.nginx-test.com/checkout").to(nginxReverseProxy))
