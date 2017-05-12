@@ -21,7 +21,7 @@ You will need to do four things to use this framework:
 
 The sections below will show you how to do this.
 
-## Step 1: Setups your project
+## Step 1: Setup your project
 These tests are written in Java.  To properly use this, we recommend that you setup a maven or gradle project.  If you are unsure how to do this, copy the `exampleUsage` folder and you can start from there.
 
 Below is an example snippet for gradle:
