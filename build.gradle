@@ -16,6 +16,13 @@ dependencies {
     testCompile 'org.mockito:mockito-all:1.9.5'
 }
 
+task buildContainer(type:Exec) {
+    workingDir './src/docker/fakeUpstreamApp/'
+    commandLine 'docker', 'build', '-t', 'fakeupstreamapp:latest', '.'
+}
+
+compileJava.dependsOn buildContainer
+
 test {
     testLogging {
         showStandardStreams = true
