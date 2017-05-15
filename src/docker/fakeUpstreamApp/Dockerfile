@@ -1,6 +1,6 @@
-FROM docker.kroger.com/library/tinynode
+FROM node:latest
 
-RUN mkdir /home/default/app
-COPY internal.cert internal.key service.js /home/default/app/
-
-CMD ["--minUptime", "1000", "--spinSleepTime", "1000", "app/service.js"]
+COPY package.json internal.cert internal.key service.js /app/
+WORKDIR /app
+RUN npm install
+CMD ["node", "/app/service.js"]

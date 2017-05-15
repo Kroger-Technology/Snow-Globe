@@ -1,26 +1,26 @@
-var express = require('express');
-var fs = require('fs');
-var https = require('https');
-var http = require('http');
+const express = require('express');
+const fs = require('fs');
+const https = require('https');
+const http = require('http');
 
 // Constants;
-var instanceNumber = Number(process.env.INSTANCE_NUMBER);
-var clusterName = process.env.CLUSTER_NAME;
-var matchingPaths = process.env.APP_PATHS;
-var responseCode = Number(process.env.RESPONSE_CODE);
-var responseHeaders = process.env.RESPONSE_HEADERS;
-var runHTTPS = (process.env.USE_HTTPS === 'https');
+const instanceNumber = Number(process.env.INSTANCE_NUMBER);
+const clusterName = process.env.CLUSTER_NAME;
+const matchingPaths = process.env.APP_PATHS;
+const responseCode = Number(process.env.RESPONSE_CODE);
+const responseHeaders = process.env.RESPONSE_HEADERS;
+const runHTTPS = (process.env.USE_HTTPS === 'https');
 
 
-var getResponseHeaders = function() {
+const getResponseHeaders = () => {
     if(responseHeaders) {
         return JSON.parse(JSON.parse(responseHeaders));
     }
     return null;
 };
 
-var respond = function(responseCode, req, response) {
-    var headers = getResponseHeaders();
+const respond = (responseCode, req, response) => {
+    const headers = getResponseHeaders();
     if(headers) {
        Object.keys(headers).map(function(key) {response.set(key, headers[key])});
     }
@@ -46,19 +46,19 @@ var respond = function(responseCode, req, response) {
     });
 };
 
-var privateKey = fs.readFileSync('/home/default/app/internal.key');
-var certificate = fs.readFileSync('/home/default/app/internal.cert');
+const privateKey = fs.readFileSync('/app/internal.key');
+const certificate = fs.readFileSync('/app/internal.cert');
 
-var credentials = {key: privateKey, cert: certificate};
+const credentials = {key: privateKey, cert: certificate};
 // App
-var app = express();
+const app = express();
 
 // Map all paths that should have "found" responses.
 if(matchingPaths) {
-    var paths = matchingPaths.split("|");
-    for (var i = 0; i < paths.length; i++) {
-        app.all(paths[i], function (req, res) { respond(responseCode, req, res); });
-    }
+    const paths = matchingPaths.split("|");
+    paths.forEach((path) => {
+      app.all(path, function (req, res) { respond(responseCode, req, res); });
+    });
 }
 
 app.get("/INTERNALHEALTHCHECKFORSTARTUP", function(req, res) {
@@ -70,15 +70,15 @@ app.use(function (req, res) {
     respond(404, req, res);
 });
 
-var server;
+let server;
 if(runHTTPS) {
     server = https.createServer(credentials, app);
 } else {
     server = http.createServer(app);
 }
-var runningServer = server.listen(3000, function () {
-    var host = runningServer.address().address;
-    var port = runningServer.address().port;
+const runningServer = server.listen(3000, function () {
+    const host = runningServer.address().address;
+    const port = runningServer.address().port;
 
     console.log('Fake service app listening at http://%s:%s', host, port);
 });
