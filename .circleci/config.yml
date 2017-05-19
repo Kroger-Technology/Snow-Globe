@@ -6,6 +6,9 @@ jobs:
     working_directory: /snowGlobe
     steps:
       - run:
+         name: Update APK
+         command: apk update
+      - run:
          name: Install Image Git
          command: apk add git
       - run:
