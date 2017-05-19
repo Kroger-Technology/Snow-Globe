@@ -4,4 +4,4 @@ machine:
 
 checkout:
   post:
-    - git fetch --tags && git tag
+    - git fetch --tags && git describe --tags
