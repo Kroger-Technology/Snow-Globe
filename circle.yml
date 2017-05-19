@@ -1,6 +1,7 @@
 machine:
   java:
     version: openjdk8
+
 checkout:
   post:
-    - git fetch --tags
+    - git fetch --tags && git tag
