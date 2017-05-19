@@ -5,7 +5,7 @@ nginx.volume.mounts:
     - "src/integrationTestNginxConfig/dev/*:/etc/nginx/dev/"
 nginx.upstream.file.path:
   default: "/etc/nginx/upstreams.conf"
-nginx.container: "docker.kroger.com/library/nginx:1.11.3"
+nginx.container: "nginx"
 nginx.url.port.mapping:
   - https:
       pattern: "https:.*"
