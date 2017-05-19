@@ -1,10 +1,13 @@
 # Snow-Globe
 
+https://circleci.com/gh/Kroger-Technology/Snow-Globe.svg?style=shield&circe-token=bb34e5439f189eb33ad7591f59f768bd257aa0b8
+
 A end to end testing framework that will simulate your upstream servers and help verify that Nginx properly routes all 
 of your calls.  It verifies that your configuration decorates the request to the upstream servers and the responses back
 work as expected.
 
 We move beyond the "-t" option to validate the configuration.  This framework builds an isolated environment of upstream servers and then sends a request into the NGINX instance.  This "magic" is done by parsing the configuration, dynamically building an upstream file, and with the power of Docker Compose, simulating an actual flow through your NGINX configuration.
+
 
 ## How To Use Snow-Globe
 To use this framework, here are the pre-requisites for your machine:
