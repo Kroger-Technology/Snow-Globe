@@ -4,7 +4,6 @@ machine:
   services:
     - docker
 
-checkout:
-  post:
-    - git fetch --unshallow
-    - git fetch --tags && git describe --tags
+dependencies:
+  pre:
+    - "[[ ! -s \"$(git rev-parse --git-dir)/shallow\" ]] || git fetch --unshallow"
