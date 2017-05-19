@@ -116,6 +116,7 @@ public class NginxEnvironmentFileBuilderTest {
 
     @Test
     public void shouldBuildUpstreamEntryWithZone() {
+        fileBuilder.getPropertiesForTest().setPropertyForTesting("nginx.define.upstream.zones", "true");
         String serverName = "serverName";
         String containerName = "containerName";
         int containerPort = 42;

@@ -172,4 +172,8 @@ public class TestFrameworkProperties {
         }
         return canParse;
     }
+
+    void setPropertyForTesting(String key, String value) {
+        properties.put(key, value);
+    }
 }

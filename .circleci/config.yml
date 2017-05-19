@@ -28,5 +28,8 @@ jobs:
       - store_artifacts:
           path: build/reports/
           destination: reports
+      - store_artifacts:
+          path: build/libs
+          destination: libs
 
 

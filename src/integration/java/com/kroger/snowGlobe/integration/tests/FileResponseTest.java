@@ -49,7 +49,7 @@ public class FileResponseTest {
     @Test
     public void should_have_response_match_file() {
         make(getRequest("https://www.nginx-test.com/body").to(nginxReverseProxy))
-                .andExpectResponseBodyMatchesFileContents("src/integrationTestNginxConfig/static/static.html");
+                .andExpectResponseBodyMatchesFileContents("src/integration/resources/static/static.html");
     }
 
     @Test

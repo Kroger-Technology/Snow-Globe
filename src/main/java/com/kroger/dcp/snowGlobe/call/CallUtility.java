@@ -62,7 +62,7 @@ public class CallUtility {
      *
      * @return
      *      The response object wrapped in the <code>ResponseVerification</code> object.  This will be used by the
-     *      tests to assert specific things about the request translation, and the response translation.
+     *      com.kroger.snowGlobe.integration.tests.tests to assert specific things about the request translation, and the response translation.
      *
      */
     public static ResponseVerification make(TestRequest testRequest) {

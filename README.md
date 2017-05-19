@@ -17,12 +17,12 @@ You will need to do four things to use this framework:
 1.  Setup a gradle or maven project with the library set.
 2.  Make sure your upstreams are defined in a separate file (or better yet directory).
 3.  Configure `snow-globe.yaml`
-4.  Write your tests.
+4.  Write your tests.tests.
 
 The sections below will show you how to do this.
 
 ## Step 1: Setup your project
-These tests are written in Java.  To properly use this, we recommend that you setup a maven or gradle project.  If you are unsure how to do this, copy the `exampleUsage` folder and you can start from there.
+These tests.tests are written in Java.  To properly use this, we recommend that you setup a maven or gradle project.  If you are unsure how to do this, copy the `exampleUsage` folder and you can start from there.
 
 Below is an example snippet for gradle:
 
@@ -39,11 +39,11 @@ Below is an example snippet for maven:
 </dependency>
 ```
 
-## Step 2: Make sure your Nginx Configuration is setup to be used by the tests.
+## Step 2: Make sure your Nginx Configuration is setup to be used by the tests.tests.
 
 SnowGlobe will crawl your configuration for each test and build the temporary upstreams.  So to be able to do that, it
  needs to have the upstreams define in a separate file that are _not_ included in the configuration.  We recommend that
- you have your upstreams in a separate directory.  That makes it more simple to include/exclude files for the tests.
+ you have your upstreams in a separate directory.  That makes it more simple to include/exclude files for the tests.tests.
 
 You can see an example Nginx setup in the `exampleUsage` directory.
 
@@ -168,18 +168,18 @@ This last field will add upstream zones if you are using Nginx Plus.
 nginx.define.upstream.zones: true
 ```
 
-## Step 4: Write the tests
+## Step 4: Write the tests.tests
 
-Writing the tests is one of the easy parts and also one of the most important.  Starting up the Docker compose 
-environment can be slow (.5 - 3 seconds) and so we recommend that you do that you combine tests for similar scenarios.
+Writing the tests.tests is one of the easy parts and also one of the most important.  Starting up the Docker compose 
+environment can be slow (.5 - 3 seconds) and so we recommend that you do that you combine tests.tests for similar scenarios.
 
 ### Test Setup
 
 Tests are setup by starting the Nginx environment.  You need to declare your upstream servers and then
 start the nginx configuration.
 
-The code snipped below shows a common pattern of starting and stopping the nginx cluster for tests.  This
-snippet comes from `src/test/java/com/kroger/snowGlobe/integration/tests/AppUrlTest`
+The code snipped below shows a common pattern of starting and stopping the nginx cluster for tests.tests.  This
+snippet comes from `src/test/java/com/kroger/snowGlobe/integration/tests.tests/AppUrlTest`
 
 ```java
     public static NginxRpBuilder nginxReverseProxy;
@@ -197,14 +197,14 @@ snippet comes from `src/test/java/com/kroger/snowGlobe/integration/tests/AppUrlT
 ```
 
 This is done not inside a function but at the class level.  The `@BeforeClass` method is run once before
-the tests in the class.  You can see that it starts the Nginx Configuration with the login upstream cluster defined. You
+the tests.tests in the class.  You can see that it starts the Nginx Configuration with the login upstream cluster defined. You
 don't need to define every upstream, just the one that you are interested in testing. You can define multiple upstreams
 to set their behavior to test non-200 scenarios.  
 
 ### Examples Test Scenarios
 
 Below are example test scenarios that include configuration and testing examples.  All of the examples below are used as 
-integration tests for the project and pass for each build.
+integration tests.tests for the project and pass for each build.
 
 #### Verifying the HTTP status code response to the client.
 
@@ -224,7 +224,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
    }
 ```
 
-Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/StatusCodeTest.java`)
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests.tests/StatusCodeTest.java`)
 ```java
     @Test
     public void should_return_200_for_login() {
@@ -251,7 +251,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
   }
 ```
 
-Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/StatusCodeTest.java`)
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests.tests/StatusCodeTest.java`)
 
 ```java
     @Test
@@ -286,7 +286,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
   }
 ```
 
-Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/HealthCheckTest.java`)
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests.tests/HealthCheckTest.java`)
 ```java
     @Test
     public void should_have_successful_health_check() {
@@ -320,7 +320,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
    }
 ```
 
-Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/ClusterNameTest.java`)
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests.tests/ClusterNameTest.java`)
 ```java
     @Test
     public void should_route_login_request_to_login_cluster() {
@@ -354,7 +354,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
    }
 ```
 
-Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/AppPathTest.java`)
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests.tests/AppPathTest.java`)
 ```java
     @Test
     public void should_route_login_request_to_login_path() {
@@ -382,7 +382,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
    }
 ```
 
-Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/RequestHeaderTest.java`)
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests.tests/RequestHeaderTest.java`)
 ```java
     @Test
     public void should_add_x_proto_header_to_login_request() {
@@ -410,7 +410,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
    }
 ```
 
-Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/AppUrlTest.java`)
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests.tests/AppUrlTest.java`)
 ```java
     @Test
     public void should_properly_pass_url_fields() {
@@ -442,7 +442,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
    }
 ```
 
-Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/ResponseHeaderTest.java`)
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests.tests/ResponseHeaderTest.java`)
 ```java
     // A custom upstream app can be created that defines response headers.
     public static AppServiceCluster cartUpstreamApp = makeHttpsWebService("Cart_Cluster", 1)
@@ -484,7 +484,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
     }
 ```
 
-Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/ClusterNumberTest.java`)
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests.tests/ClusterNumberTest.java`)
 ```java
     // A custom upstream app can be created that defines response headers.
     public static AppServiceCluster cartUpstreamApp = makeHttpsWebService("Cart_Cluster", 1)
@@ -517,7 +517,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
    }
 ```
 
-Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/QueryParamTest.java`)
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests.tests/QueryParamTest.java`)
 ```java
     @Test
     public void should_convert_path_to_query_param() {
@@ -544,7 +544,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
    }
 ```
 
-Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/FileResponseTest.java`)
+Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests.tests/FileResponseTest.java`)
 ```java
    @Test
    public void should_return_response_headers() {

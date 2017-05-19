@@ -166,6 +166,9 @@ public class NginxEnvironmentFileBuilder {
         } catch (Exception e) {
             return new ArrayList<>();
         }
+    }
 
+    TestFrameworkProperties getPropertiesForTest() {
+        return testFrameworkProperties;
     }
 }
