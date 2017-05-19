@@ -30,4 +30,4 @@ upstream.fake.container: "fakeupstreamapp:latest"
 snowglobe.log.output:  true
 snowglobe.preserve.temp.files: false
 snowglobe.disable.commons.logging: true
-nginx.define.upstream.zones: true
+nginx.define.upstream.zones: false
