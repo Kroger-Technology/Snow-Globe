@@ -1,0 +1,25 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: docker/dind
+    steps:
+      - run:
+         name: Install Image Dependencies
+         command: apk add git openssh-client ca-certificates openjdk8 bash py-pip
+      - run:
+         name: Install Docker Compose
+         command: pip install docker-compose
+      - checkout
+      - run:
+          name: Pull tags
+          command: /bin/bash -c "[[ ! -s \"$(git rev-parse --git-dir)/shallow\" ]] || git fetch --unshallow"
+      - setup_remote_docker
+      - run:
+          name: build library
+          command: ./gradlew build
+      - store_artifacts:
+          path: build/reports/
+          destination: reports
+
+
