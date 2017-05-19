@@ -18,6 +18,7 @@ jobs:
       - run:
           name: Pull tags
           command: /bin/bash -c "[[ ! -s \"$(git rev-parse --git-dir)/shallow\" ]] || git fetch --unshallow"
+      - setup_remote_docker
       - run:
           name: build library
           command: ./gradlew build
