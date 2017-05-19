@@ -1,6 +1,8 @@
 machine:
   java:
     version: openjdk8
+  services:
+    - docker
 
 checkout:
   post:
