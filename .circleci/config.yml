@@ -6,8 +6,17 @@ jobs:
     working_directory: /snowGlobe
     steps:
       - run:
-         name: Install Image Dependencies
-         command: apk add git openssh-client ca-certificates openjdk8 bash py-pip
+         name: Install Image Git
+         command: apk add git
+      - run:
+         name: Install Image Open JDK
+         command: apk add openjdk8
+      - run:
+         name: Install Image Bash
+         command: apk add bash
+      - run:
+         name: Install Image Python Pip
+         command: apk add py-pip
       - run:
          name: Install Docker Compose
          command: pip install docker-compose
