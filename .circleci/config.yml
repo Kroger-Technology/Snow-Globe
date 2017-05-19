@@ -2,24 +2,15 @@ version: 2
 jobs:
   build:
     docker:
-      - image: docker:dind
+      - image: docker/dind
     working_directory: /snowGlobe
     steps:
       - run:
          name: Update APK
          command: apk update
       - run:
-         name: Install Image Git
-         command: apk add git
-      - run:
-         name: Install Image Open JDK
-         command: apk add openjdk8
-      - run:
-         name: Install Image Bash
-         command: apk add bash
-      - run:
-         name: Install Image Python Pip
-         command: apk add py-pip
+         name: Install Image Dependencies
+         command: apk add git openssh-client ca-certificates openjdk8 bash py-pip
       - run:
          name: Install Docker Compose
          command: pip install docker-compose
@@ -27,7 +18,6 @@ jobs:
       - run:
           name: Pull tags
           command: /bin/bash -c "[[ ! -s \"$(git rev-parse --git-dir)/shallow\" ]] || git fetch --unshallow"
-      - setup_remote_docker
       - run:
           name: build library
           command: ./gradlew build
