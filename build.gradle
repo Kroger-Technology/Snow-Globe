@@ -21,7 +21,6 @@ task buildContainer(type:Exec) {
     commandLine 'docker', 'build', '-t', 'fakeupstreamapp:latest', '.'
 }
 
-compileJava.dependsOn buildContainer
 
 test {
     testLogging {
@@ -50,7 +49,7 @@ task integrationTest(type: Test) {
     outputs.upToDateWhen { false }
 }
 
-
+integrationTest.dependsOn buildContainer
 integrationTest.mustRunAfter test
 
 def getVersionName = { ->
