@@ -3,6 +3,7 @@ jobs:
   build:
     docker:
       - image: docker/dind
+    working_directory: /snowGlobe
     steps:
       - run:
          name: Install Image Dependencies
