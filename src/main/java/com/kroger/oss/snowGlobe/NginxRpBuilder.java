@@ -181,7 +181,7 @@ public class NginxRpBuilder {
     }
 
     private String[] buildStartupEnvironment() {
-        return new String[]{"SLEEP_LENGTH=0.005"};
+        return new String[]{"SLEEP_LENGTH=" + testFrameworkProperties.getStartupPollTime()};
     }
 
     protected String buildStartupContainerId() {

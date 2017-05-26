@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
@@ -162,29 +163,22 @@ public class TestFrameworkProperties {
         return startCommands.get(environment).stream().collect(joining(" "));
     }
 
-    @SuppressWarnings("ConstantConditions")
-    public int getServiceStartupTimeout() {
-        String stringValue = getStringValue("nginx.start.serviceTimeout");
-        int startupTime = 10; // seconds
-        if(canParseint(stringValue)) {
-            startupTime = parseInt(stringValue);
-        }
-        return startupTime;
-    }
-
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    private boolean canParseint(String stringValue) {
-        boolean canParse = false;
-        if(stringValue != null && stringValue.length() > 0) {
-            try {
-                parseInt(stringValue);
-                canParse = true;
-            } catch (Exception ignored) { }
-        }
-        return canParse;
-    }
 
     void setPropertyForTesting(String key, String value) {
         properties.put(key, value);
+    }
+
+    private int getIntValue(String key, int defaultValue) {
+        try {
+            return Integer.parseInt(properties.get(key).toString());
+        }catch(Exception ignored) {
+            return defaultValue;
+        }
+    }
+
+    public String getStartupPollTime() {
+        int millis = getIntValue("upstream.startup.pollingTimeMs", 10);
+        float seconds = new Float(millis) / 1000;
+        return String.format("%.3f", seconds);
     }
 }

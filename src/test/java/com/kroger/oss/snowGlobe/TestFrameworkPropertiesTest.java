@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
 public class TestFrameworkPropertiesTest {
@@ -145,6 +146,17 @@ public class TestFrameworkPropertiesTest {
     public void shouldGetStartCommandForEnvironment() {
         testFrameworkProperties.initPropertiesFromFile("src/test/resources/bogus-snow-globe-1.yaml");
         assertEquals("bogus -a whee!!", testFrameworkProperties.getStartCommand("bogus"));
+    }
+
+    @Test
+    public void shouldGetUpstreamPollingTimeInSecondsFormatted() {
+        testFrameworkProperties.setPropertyForTesting("upstream.startup.pollingTimeMs", "50");
+        assertThat(testFrameworkProperties.getStartupPollTime(), is("0.050"));
+    }
+
+    @Test
+    public void shouldGetDefaultUpstreamPollingTimeInSecondsFormatted() {
+        assertThat(testFrameworkProperties.getStartupPollTime(), is("0.010"));
     }
 
 }
