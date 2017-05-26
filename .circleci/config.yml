@@ -1,9 +1,7 @@
 version: 2
 jobs:
   build:
-    docker:
-      - image: docker:dind
-      - machine: true
+    machine: true
     working_directory: /snowGlobe
     steps:
       - run:
