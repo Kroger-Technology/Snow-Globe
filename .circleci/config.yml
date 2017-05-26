@@ -4,15 +4,6 @@ jobs:
     machine: true
     working_directory: ~/snowGlobe
     steps:
-      - run:
-         name: Update APK
-         command: apk update
-      - run:
-         name: Install Image Dependencies
-         command: apk add git openssh-client ca-certificates openjdk8 bash py-pip
-      - run:
-         name: Install Docker Compose
-         command: pip install docker-compose
       - checkout
       - run:
           name: Pull tags
