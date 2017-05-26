@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.kroger.dcp.snowGlobe.environment;
+package com.kroger.oss.snowGlobe.environment;
 
 /**
  * A POJO that is used to hold the container name and port of a "fake" upstream service that
@@ -46,6 +46,8 @@ public class UpstreamAppInfo {
     /**
      * The name of the container used in the Docker Compose file to identify the upstream
      * instance.
+     * @return
+     *      The name of the container that is identified in the docker compose file.
      */
     public String containerName() {
         return containerName;
@@ -54,6 +56,7 @@ public class UpstreamAppInfo {
     /**
      * The named port that traffic should be routed to.
      * @return
+     *      The port number to use when communicating with the container.
      */
     public int port() {
         return containerPort;

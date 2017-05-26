@@ -27,7 +27,7 @@ nginx.env.config.files:
     - "/src/integration/resources/nginx.conf"
     - "/src/nginxIntegrationConfig/dev/"
 upstream.fake.container: "fakeupstreamapp:latest"
-snowglobe.log.output:  true
+snowglobe.log.output:  false
 snowglobe.preserve.temp.files: false
 snowglobe.disable.commons.logging: true
 nginx.define.upstream.zones: false

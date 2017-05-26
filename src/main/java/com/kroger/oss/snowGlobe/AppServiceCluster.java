@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-package com.kroger.dcp.snowGlobe;
+package com.kroger.oss.snowGlobe;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kroger.dcp.snowGlobe.environment.UpstreamAppInfo;
+import com.kroger.oss.snowGlobe.environment.UpstreamAppInfo;
 
 import java.io.IOException;
 import java.util.*;

@@ -16,8 +16,9 @@
  * limitations under the License.
  */
 
-package com.kroger.dcp.snowGlobe;
+package com.kroger.oss.snowGlobe;
 
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Test;
 
@@ -62,7 +63,7 @@ public class NginxRpBuilderTest {
         clusters.add(new AppServiceCluster("cluster1", 1, false));
         clusters.add(new AppServiceCluster("cluster2", 1, false));
         Map<String, Object> composeMap = nginxRpBuilder.buildComposeMap(clusters);
-        assertThat(composeMap, hasKey(nginxRpBuilder.buildRpContainerId()));
+        assertThat(composeMap, Matchers.hasKey(nginxRpBuilder.buildRpContainerId()));
         Map<String, Object> argsMap = (Map<String, Object>) composeMap.get(nginxRpBuilder.buildRpContainerId());
         assertThat(argsMap, hasKey("container_name"));
         assertThat(argsMap, hasKey("volumes"));

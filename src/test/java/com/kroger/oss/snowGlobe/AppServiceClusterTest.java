@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.kroger.dcp.snowGlobe;
+package com.kroger.oss.snowGlobe;
 
 import org.hamcrest.collection.IsMapContaining;
 import org.junit.Before;

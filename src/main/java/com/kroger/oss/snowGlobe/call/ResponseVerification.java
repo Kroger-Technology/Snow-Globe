@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.kroger.dcp.snowGlobe.call;
+package com.kroger.oss.snowGlobe.call;
 
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;

@@ -1,5 +1,7 @@
 apply plugin: 'idea'
 apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
 repositories {
     mavenCentral()
@@ -62,8 +64,23 @@ def getVersionName = { ->
 }
 
 sourceCompatibility = 1.8
-group "com.kroger.dcp.snowGlobe"
+archivesBaseName = "snow-globe"
+group "com.kroger.oss.snowGlobe"
 version getVersionName()
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
 
 idea {
     project {

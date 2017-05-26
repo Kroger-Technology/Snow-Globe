@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-package com.kroger.dcp.snowGlobe.call;
+package com.kroger.oss.snowGlobe.call;
 
-import com.kroger.dcp.snowGlobe.NginxRpBuilder;
+import com.kroger.oss.snowGlobe.NginxRpBuilder;
 
 import java.net.URI;
 import java.util.HashMap;

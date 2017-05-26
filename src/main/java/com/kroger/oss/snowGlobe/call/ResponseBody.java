@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.kroger.dcp.snowGlobe.call;
+package com.kroger.oss.snowGlobe.call;
 
 public class ResponseBody {
 
