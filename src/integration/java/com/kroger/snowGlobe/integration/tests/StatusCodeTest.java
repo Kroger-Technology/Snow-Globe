@@ -18,16 +18,16 @@
 
 package com.kroger.snowGlobe.integration.tests;
 
-import com.kroger.dcp.snowGlobe.AppServiceCluster;
-import com.kroger.dcp.snowGlobe.NginxRpBuilder;
+import com.kroger.oss.snowGlobe.AppServiceCluster;
+import com.kroger.oss.snowGlobe.NginxRpBuilder;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static com.kroger.dcp.snowGlobe.AppServiceCluster.makeHttpsWebService;
-import static com.kroger.dcp.snowGlobe.NginxRpBuilder.startNginxRpWithCluster;
-import static com.kroger.dcp.snowGlobe.call.CallUtility.make;
-import static com.kroger.dcp.snowGlobe.call.TestRequest.getRequest;
+import static com.kroger.oss.snowGlobe.AppServiceCluster.makeHttpsWebService;
+import static com.kroger.oss.snowGlobe.NginxRpBuilder.startNginxRpWithCluster;
+import static com.kroger.oss.snowGlobe.call.CallUtility.make;
+import static com.kroger.oss.snowGlobe.call.TestRequest.getRequest;
 
 /**
  * This integration test verifies that the status code works correctly for an example setup.  The snow globe

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.kroger.dcp.snowGlobe;
+package com.kroger.oss.snowGlobe;
 
 import java.io.File;
 import java.io.IOException;

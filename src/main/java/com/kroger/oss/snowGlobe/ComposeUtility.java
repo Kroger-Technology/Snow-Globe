@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.kroger.dcp.snowGlobe;
+package com.kroger.oss.snowGlobe;
 
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -180,7 +180,7 @@ public class ComposeUtility {
 
     private List<String> getServiceNames() {
         List<String> serviceNames = new ArrayList<>();
-        Arrays.stream(appClusters)
+        stream(appClusters)
                 .forEach(appServiceCluster -> appServiceCluster.getAppInstanceInfos().stream()
                         .forEach(upstreamAppInfo -> serviceNames.add(upstreamAppInfo.containerName())));
         return serviceNames;
