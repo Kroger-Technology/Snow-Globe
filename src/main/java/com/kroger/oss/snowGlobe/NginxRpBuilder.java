@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
@@ -165,6 +166,29 @@ public class NginxRpBuilder {
         argsMap.put("links", getServiceContainerNames(serviceClusters));
         argsMap.put("command", getStartCommand());
         return composeMap;
+    }
+
+    public Map<String, Object> buildDependenciesStartupMap(List<AppServiceCluster> serviceClusters) {
+        Map<String, Object> composeMap = new HashMap<>();
+        Map<String, Object> argsMap = new HashMap<>();
+        composeMap.put(buildStartupContainerId(), argsMap);
+        argsMap.put("container_name", buildStartupContainerId());
+        argsMap.put("image", testFrameworkProperties.getStartupImage());
+        argsMap.put("depends_on", getServiceContainerNames(serviceClusters));
+        argsMap.put("command", buildStartupCommand(serviceClusters));
+        return composeMap;
+    }
+
+    protected String buildStartupContainerId() {
+        return "startup-" + randomNamePrefix;
+    }
+
+    protected String buildStartupCommand(List<AppServiceCluster> serviceClusters) {
+        return serviceClusters.stream()
+                .map(AppServiceCluster::getAppInstanceInfos)
+                .flatMap(Collection::stream)
+                .map(upstreamAppInfo -> upstreamAppInfo.containerName() + ":" + upstreamAppInfo.port())
+                .collect(Collectors.joining(" "));
     }
 
     private List<String> buildComposeVolumes() {

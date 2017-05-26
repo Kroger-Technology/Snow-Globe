@@ -36,7 +36,7 @@ public class NginxRpBuilderTest {
 
     @After
     public void teardown() {
-        if(nginxRpBuilder != null) {
+        if (nginxRpBuilder != null) {
             nginxRpBuilder.stop();
         }
     }
@@ -70,6 +70,22 @@ public class NginxRpBuilderTest {
         assertThat(argsMap, hasKey("ports"));
         assertThat(argsMap, hasKey("links"));
         assertThat(argsMap, hasKey("command"));
+    }
+
+    @Test
+    public void shouldbuildListOfDependentContainersAndPortsForStartup() {
+        nginxRpBuilder = new NginxRpBuilder(null);
+        List<AppServiceCluster> clusters = new ArrayList<>();
+        clusters.add(new AppServiceCluster("cluster1", 1, false));
+        clusters.add(new AppServiceCluster("cluster2", 2, false));
+        assertThat(nginxRpBuilder.buildStartupCommand(clusters),
+                is(clusters.get(0).getAppInstanceInfos().get(0).containerName() + ":"
+                        + clusters.get(0).getAppInstanceInfos().get(0).port() + " "
+                        + clusters.get(1).getAppInstanceInfos().get(0).containerName() + ":"
+                        + clusters.get(1).getAppInstanceInfos().get(0).port() + " "
+                        + clusters.get(1).getAppInstanceInfos().get(1).containerName() + ":"
+                        + clusters.get(1).getAppInstanceInfos().get(1).port()));
+
     }
 
 }

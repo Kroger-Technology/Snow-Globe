@@ -46,7 +46,7 @@ public class ComposeUtility {
         startDockerCompose();
     }
 
-    private String getComposeFileName() {
+    protected String getComposeFileName() {
         return nginxRpBuilder.buildRpContainerId() + "-compose.yml";
     }
 
@@ -146,7 +146,7 @@ public class ComposeUtility {
         return builder.toString();
     }
 
-    private String buildComposeFileContents() {
+    protected String buildComposeFileContents() {
         Map<String, Object> composeYaml = new HashMap<>();
         String prefix = "version: '2'\n\n";
         composeYaml.put("services", buildServicesMap());
@@ -154,15 +154,21 @@ public class ComposeUtility {
         return prefix + body;
     }
 
-    private Map<String, Object> buildServicesMap() {
+    protected Map<String, Object> buildServicesMap() {
         Map<String, Object> nginxServiceMap = buildNginxServiceMap();
+        Map<String, Object> startupMap = buildStartupServiceMap();
         Map<String, Object> allServicesMap = buildUpstreamsMap();
         allServicesMap.putAll(nginxServiceMap);
+        allServicesMap.putAll(startupMap);
         return allServicesMap;
     }
 
     private Map<String, Object> buildNginxServiceMap() {
         return nginxRpBuilder.buildComposeMap(asList(appClusters));
+    }
+
+    private Map<String, Object> buildStartupServiceMap() {
+        return nginxRpBuilder.buildDependenciesStartupMap(asList(appClusters));
     }
 
     private DumperOptions buildDumperOptions() {

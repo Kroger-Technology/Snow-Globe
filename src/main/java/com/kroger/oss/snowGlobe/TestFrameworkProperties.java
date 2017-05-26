@@ -71,6 +71,13 @@ public class TestFrameworkProperties {
         }
     }
 
+    private String getStringValue(String key, String defaultValue) {
+        return (properties.get(key) != null) ?
+                properties.get(key).toString() :
+                defaultValue;
+    }
+
+
     String getFakeUpstreamImage() {
         return getStringValue("upstream.fake.container");
     }
@@ -88,7 +95,11 @@ public class TestFrameworkProperties {
     }
 
     String getNginxImage() {
-        return getStringValue("nginx.container");
+        return getStringValue("nginx.container", "nginx");
+    }
+
+    String getStartupImage() {
+        return getStringValue("startup.container", "dadarek/wait-for-dependencies");
     }
 
     String getUpstreamLocation(String environment) {
