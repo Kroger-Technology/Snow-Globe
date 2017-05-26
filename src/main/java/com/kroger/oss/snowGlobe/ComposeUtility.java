@@ -67,7 +67,8 @@ public class ComposeUtility {
         try {
             List<String> serviceNames = getServiceNames();
             serviceNames.add(nginxRpBuilder.buildRpContainerId());
-            serviceNames.stream().parallel().forEach(this::shutDownService);
+            serviceNames.add(nginxRpBuilder.buildStartupContainerId());
+            serviceNames.forEach(this::shutDownService);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -87,7 +88,6 @@ public class ComposeUtility {
 
     private void startUpstreams() {
         try {
-
             ProcessBuilder processBuilder = new ProcessBuilder("docker-compose", "--file",
                     getComposeFileName(), "run", "--rm", nginxRpBuilder.buildStartupContainerId());
             if(testFrameworkProperties.logContainerOutput()) {
@@ -95,12 +95,10 @@ public class ComposeUtility {
             }
             Process process = processBuilder.start();
             process.waitFor();
-            waitForServicesToStart();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-
 
     private void startReverseProxy() {
         try {
@@ -111,57 +109,9 @@ public class ComposeUtility {
             }
             Process process = processBuilder.start();
             process.waitFor();
-            waitForServicesToStart();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private void waitForServicesToStart() {
-       getServiceNames().stream().forEach(this::waitForServiceToStart);
-    }
-
-    private void waitForServiceToStart(String serviceName) {
-        try {
-            boolean gotStartedOutput = isAppStarted(getServiceLogs(serviceName));
-            int retries = 0;
-            while(!gotStartedOutput) {
-                retries++;
-                gotStartedOutput = (isAppStarted(getServiceLogs(serviceName)));
-                int maxRetries = testFrameworkProperties.getServiceStartupTimeout() * 10;
-                if(retries > maxRetries) {
-                    throw new RuntimeException("Timeout waiting on: " + serviceName + " to start.\n" +
-                            "\tApp Service Output:\n\n" + getServiceLogs(serviceName));
-                }
-                Thread.sleep(100);
-            }
-        } catch(Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private boolean isAppStarted(String logs) {
-        return logs != null && logs.contains("app listening");
-    }
-
-    private String getServiceLogs(String serviceName) throws Exception{
-        ProcessBuilder processBuilder = new ProcessBuilder("docker", "logs", serviceName);
-        processBuilder.redirectErrorStream();
-        Process serviceProcess = processBuilder.start();
-        InputStream inputStream = serviceProcess.getInputStream();
-        return getProcessInput(serviceProcess, inputStream);
-    }
-
-    private String getProcessInput(Process serviceProcess, InputStream inputStream) throws InterruptedException, IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        serviceProcess.waitFor();
-        StringBuilder builder = new StringBuilder();
-        String line;
-        while ( (line = reader.readLine()) != null) {
-            builder.append(line);
-            builder.append(System.getProperty("line.separator"));
-        }
-        return builder.toString();
     }
 
     protected String buildComposeFileContents() {
