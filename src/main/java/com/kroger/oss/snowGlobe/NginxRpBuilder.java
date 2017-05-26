@@ -201,7 +201,7 @@ public class NginxRpBuilder {
         nginxVolumes.addAll(buildNginxVolumeMounts());
         nginxVolumes.add(buildEnvironmentFileMapping());
         return nginxVolumes.stream()
-                .map(volume -> System.getProperty("user.dir") + (volume.startsWith("/") ? "" : "/") + volume + ":ro")
+                .map(volume -> (volume.startsWith("/") ? "." : "./") + volume + ":ro")
                 .collect(toList());
     }
 
