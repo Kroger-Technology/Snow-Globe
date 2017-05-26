@@ -168,15 +168,20 @@ public class NginxRpBuilder {
         return composeMap;
     }
 
-    public Map<String, Object> buildDependenciesStartupMap(List<AppServiceCluster> serviceClusters) {
+    protected Map<String, Object> buildDependenciesStartupMap(List<AppServiceCluster> serviceClusters) {
         Map<String, Object> composeMap = new HashMap<>();
         Map<String, Object> argsMap = new HashMap<>();
         composeMap.put(buildStartupContainerId(), argsMap);
         argsMap.put("container_name", buildStartupContainerId());
+        argsMap.put("environment", buildStartupEnvironment());
         argsMap.put("image", testFrameworkProperties.getStartupImage());
         argsMap.put("depends_on", getServiceContainerNames(serviceClusters));
         argsMap.put("command", buildStartupCommand(serviceClusters));
         return composeMap;
+    }
+
+    private String[] buildStartupEnvironment() {
+        return new String[]{"SLEEP_LENGTH=0.005"};
     }
 
     protected String buildStartupContainerId() {

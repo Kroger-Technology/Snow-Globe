@@ -43,7 +43,8 @@ public class ComposeUtility {
     public void start() {
         String fileContents = buildComposeFileContents();
         writeComposeFile(fileContents, testFrameworkProperties);
-        startDockerCompose();
+        startUpstreams();
+        startReverseProxy();
     }
 
     protected String getComposeFileName() {
@@ -84,7 +85,24 @@ public class ComposeUtility {
         }
     }
 
-    private void startDockerCompose() {
+    private void startUpstreams() {
+        try {
+
+            ProcessBuilder processBuilder = new ProcessBuilder("docker-compose", "--file",
+                    getComposeFileName(), "run", "--rm", nginxRpBuilder.buildStartupContainerId());
+            if(testFrameworkProperties.logContainerOutput()) {
+                processBuilder.inheritIO();
+            }
+            Process process = processBuilder.start();
+            process.waitFor();
+            waitForServicesToStart();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    private void startReverseProxy() {
         try {
 
             ProcessBuilder processBuilder = new ProcessBuilder("docker-compose", "--file", getComposeFileName(), "up", "-d");

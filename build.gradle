@@ -28,6 +28,7 @@ test {
     testLogging {
         showStandardStreams = true
     }
+    maxParallelForks = 2
 }
 
 sourceSets {
