@@ -76,9 +76,4 @@ if(runHTTPS) {
 } else {
     server = http.createServer(app);
 }
-const runningServer = server.listen(3000, function () {
-    const host = runningServer.address().address;
-    const port = runningServer.address().port;
-
-    console.log('Fake service app listening at http://%s:%s', host, port);
-});
+const runningServer = server.listen(3000);
