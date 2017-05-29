@@ -26,9 +26,8 @@ task buildContainer(type:Exec) {
 
 test {
     testLogging {
-        showStandardStreams = true
+        showStandardStreams = false
     }
-    maxParallelForks = 2
 }
 
 sourceSets {
@@ -50,6 +49,10 @@ task integrationTest(type: Test) {
     testClassesDir = sourceSets.integrationTest.output.classesDir
     classpath = sourceSets.integrationTest.runtimeClasspath
     outputs.upToDateWhen { false }
+    testLogging {
+        showStandardStreams = true
+    }
+    maxParallelForks = 10
 }
 
 integrationTest.dependsOn buildContainer
