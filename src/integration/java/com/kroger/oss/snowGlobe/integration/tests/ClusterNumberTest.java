@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.kroger.snowGlobe.integration.tests;
+package com.kroger.oss.snowGlobe.integration.tests;
 
 import com.kroger.oss.snowGlobe.AppServiceCluster;
 import com.kroger.oss.snowGlobe.NginxRpBuilder;
@@ -28,16 +28,17 @@ import static com.kroger.oss.snowGlobe.AppServiceCluster.makeHttpsWebService;
 import static com.kroger.oss.snowGlobe.NginxRpBuilder.startNginxRpWithCluster;
 import static com.kroger.oss.snowGlobe.call.CallUtility.make;
 import static com.kroger.oss.snowGlobe.call.TestRequest.getRequest;
+import static java.util.stream.IntStream.range;
 
 /**
- * This integration test verifies that the verification of the app url works correctly for an example setup.  The snow globe
+ * This integration test verifies that the request is returned by a specific instance of the upstream server.  The snow globe
  * configuration is located at the root of the project in "snow-globe.yaml".  The yaml file references
  * the example configuration in the "src/integrationTestNginxConfig"
  */
-public class AppUrlTest {
+public class ClusterNumberTest {
 
     public static NginxRpBuilder nginxReverseProxy;
-    public static AppServiceCluster loginUpstreamApp = makeHttpsWebService("Login_Cluster", 1);
+    public static AppServiceCluster loginUpstreamApp = makeHttpsWebService("Login_Cluster", 10);
 
     @BeforeClass
     public static void setup() {
@@ -50,8 +51,9 @@ public class AppUrlTest {
     }
 
     @Test
-    public void should_properly_pass_url_fields() {
-        make(getRequest("https://www.nginx-test.com/login").to(nginxReverseProxy))
-                .andExpectAppUrl("https://www.nginx-test.com/login-path");
+    public void should_round_robin_each_request_to_each_upstream_instance() {
+        range(0,10).forEach(clusterNumber ->
+                make(getRequest("https://www.nginx-test.com/login").to(nginxReverseProxy))
+                .andExpectClusterNumber(clusterNumber));
     }
 }

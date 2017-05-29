@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.kroger.snowGlobe.integration.tests;
+package com.kroger.oss.snowGlobe.integration.tests;
 
 import com.kroger.oss.snowGlobe.AppServiceCluster;
 import com.kroger.oss.snowGlobe.NginxRpBuilder;
@@ -30,11 +30,11 @@ import static com.kroger.oss.snowGlobe.call.CallUtility.make;
 import static com.kroger.oss.snowGlobe.call.TestRequest.getRequest;
 
 /**
- * This integration test verifies that the status code works correctly for an example setup.  The snow globe
+ * This integration test verifies that the verification of the app url works correctly for an example setup.  The snow globe
  * configuration is located at the root of the project in "snow-globe.yaml".  The yaml file references
  * the example configuration in the "src/integrationTestNginxConfig"
  */
-public class StatusCodeTest {
+public class AppUrlTest {
 
     public static NginxRpBuilder nginxReverseProxy;
     public static AppServiceCluster loginUpstreamApp = makeHttpsWebService("Login_Cluster", 1);
@@ -50,15 +50,8 @@ public class StatusCodeTest {
     }
 
     @Test
-    public void should_return_301_http_to_https() {
-        make(getRequest("http://www.nginx-test.com").to(nginxReverseProxy))
-                .andExpectResponseHeader("Location", "https://www.nginx-test.com/")
-                .andExpectResponseCode(301);
-    }
-
-    @Test
-    public void should_return_200_for_login() {
+    public void should_properly_pass_url_fields() {
         make(getRequest("https://www.nginx-test.com/login").to(nginxReverseProxy))
-                .andExpectResponseCode(200);
+                .andExpectAppUrl("https://www.nginx-test.com/login-path");
     }
 }

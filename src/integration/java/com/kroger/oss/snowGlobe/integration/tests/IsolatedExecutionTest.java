@@ -1,4 +1,4 @@
-package com.kroger.snowGlobe.integration.tests;
+package com.kroger.oss.snowGlobe.integration.tests;
 
 
 import com.kroger.oss.snowGlobe.AppServiceCluster;

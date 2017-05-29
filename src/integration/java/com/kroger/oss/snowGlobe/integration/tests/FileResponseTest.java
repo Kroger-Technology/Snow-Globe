@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.kroger.snowGlobe.integration.tests;
+package com.kroger.oss.snowGlobe.integration.tests;
 
 import com.kroger.oss.snowGlobe.NginxRpBuilder;
 import org.junit.AfterClass;
