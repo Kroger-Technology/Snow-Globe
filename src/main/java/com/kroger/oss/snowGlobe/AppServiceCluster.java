@@ -116,7 +116,7 @@ public class AppServiceCluster {
         this.clusterName = clusterName;
         this.instances = instances;
         this.useHttps = useHttps;
-        randomNamePrefix = Math.abs(new Random(System.currentTimeMillis()).nextInt());
+        randomNamePrefix = GlobalRandom.getRandomPrefix();
     }
 
     protected AppServiceCluster(String clusterName, int instances, int httpResponseCode, String matchingPaths,

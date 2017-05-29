@@ -37,7 +37,7 @@ public class NginxRpBuilder {
 
     AppServiceCluster[] clusters;
     final File environmentFile;
-    final int randomNamePrefix = Math.abs(new Random(System.currentTimeMillis()).nextInt());
+    final int randomNamePrefix = GlobalRandom.getRandomPrefix();
     String environmentOverride = "default";
     ComposeUtility composeUtility;
     PortMapper portMapper = new PortMapper();
