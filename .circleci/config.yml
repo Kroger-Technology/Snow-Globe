@@ -27,6 +27,13 @@ jobs:
              ./gradlew build
 
       - deploy:
+          name: Publish Jar to Maven Central
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              ./gradlew uploadArchives
+            fi
+
+      - deploy:
           name: Publish Upstream Bounce Container
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
