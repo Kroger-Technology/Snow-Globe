@@ -42,7 +42,7 @@ Below is an example snippet for maven:
 </dependency>
 ```
 
-## Step 2: Make sure your Nginx Configuration is setup to be used by the tests.tests.
+## Step 2: Make sure your Nginx Configuration is setup to be used by the testing framework.
 
 SnowGlobe will crawl your configuration for each test and build the temporary upstreams.  So to be able to do that, it
  needs to have the upstreams define in a separate file that are _not_ included in the configuration.  We recommend that
