@@ -12,5 +12,4 @@ nginx.url.port.mapping:
       pattern: "http:.*"
       port: 80
 upstream.bounce.image: "krogersnowglobe/upstream-bounce-app:latest"
-framework.log.output:
-  true
+framework.log.output: true
