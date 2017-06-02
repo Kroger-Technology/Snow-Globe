@@ -8,23 +8,26 @@ const instanceNumber = Number(process.env.INSTANCE_NUMBER);
 const clusterName = process.env.CLUSTER_NAME;
 const matchingPaths = process.env.APP_PATHS;
 const responseCode = Number(process.env.RESPONSE_CODE);
-const responseHeaders = process.env.RESPONSE_HEADERS;
 const runHTTPS = (process.env.USE_HTTPS === 'https');
+const responseHeaders = process.env.RESPONSE_HEADERS;
+
+const privateKey = fs.readFileSync('/app/internal.key');
+const certificate = fs.readFileSync('/app/internal.cert');
 
 
 const getResponseHeaders = () => {
-    if(responseHeaders) {
-        return JSON.parse(JSON.parse(responseHeaders));
+  if(responseHeaders) {
+      return JSON.parse(JSON.parse(responseHeaders));
     }
-    return null;
+  return null;
 };
 
 const respond = (responseCode, req, response) => {
-    const headers = getResponseHeaders();
-    if(headers) {
-       Object.keys(headers).map(function(key) {response.set(key, headers[key])});
+  const headers = getResponseHeaders();
+  if(headers) {
+      Object.keys(headers).map((key) => response.set(key, headers[key]));
     }
-    response.status(responseCode).json({
+  response.status(responseCode).json({
         cluster: clusterName,
         instance: instanceNumber,
         request: {
@@ -46,9 +49,6 @@ const respond = (responseCode, req, response) => {
     });
 };
 
-const privateKey = fs.readFileSync('/app/internal.key');
-const certificate = fs.readFileSync('/app/internal.cert');
-
 const credentials = {key: privateKey, cert: certificate};
 // App
 const app = express();
@@ -60,10 +60,6 @@ if(matchingPaths) {
       app.all(path, function (req, res) { respond(responseCode, req, res); });
     });
 }
-
-app.get("/INTERNALHEALTHCHECKFORSTARTUP", function(req, res) {
-   res.status(200).end();
-});
 
 // Handle all other requests as a 404 with the same information.
 app.use(function (req, res) {
