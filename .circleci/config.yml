@@ -24,7 +24,7 @@ jobs:
              gpg --yes --batch --import certs/private.key
              gpg --import certs/public.key
              rm --force certs/private.key
-             ./gradlew --info --stacktrace build
+             ./gradlew build
 
       - deploy:
           name: Publish Upstream Bounce Container
