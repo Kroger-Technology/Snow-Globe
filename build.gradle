@@ -88,8 +88,6 @@ artifacts {
 task prepSigning << {
     project.ext."signing.password" = System.getenv("SIGNING_PASSWORD")
     project.ext."signing.secretKeyRingFile" = System.getenv("HOME") + "/.gnupg/secring.gpg"
-    project.ext."ossrhUsername" = System.getenv("SONATYPE_USER")
-    project.ext."ossrhPassword" = System.getenv("SONATYPE_PASSWORD")
 }
 
 signing {
