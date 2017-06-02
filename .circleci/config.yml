@@ -24,10 +24,8 @@ jobs:
       - deploy:
           name: Publish Upstream Bounce Container
           command: |
-            if [ "${CIRCLE_BRANCH}" == "master" ];
-              docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-              docker push krogersnowglobe/upstream-bounce-app:latest
-            fi
+            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+            docker push krogersnowglobe/upstream-bounce-app:latest
 
       - store_artifacts:
           path: build/reports/
