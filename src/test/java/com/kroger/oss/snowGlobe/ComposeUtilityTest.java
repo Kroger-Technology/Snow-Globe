@@ -16,7 +16,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ComposeUtilityTest {
 
-    private final String fakeUpstreamImage = "FAKE_UPSTREAM_IMAGE";
+    private final String upstreamBounceApp = "UPSTREAM_BOUNCE_IMAGE";
     @Mock
     TestFrameworkProperties testFrameworkProperties;
     NginxRpBuilder nginxRpBuilder;
@@ -32,7 +32,7 @@ public class ComposeUtilityTest {
         appClusters = clusters.toArray(new AppServiceCluster[1]);
         nginxRpBuilder = new NginxRpBuilder(appClusters);
         composeUtility = new ComposeUtility(nginxRpBuilder, testFrameworkProperties,appClusters);
-        when(testFrameworkProperties.getFakeUpstreamImage()).thenReturn(fakeUpstreamImage);
+        when(testFrameworkProperties.getUpstreamBounceImage()).thenReturn(upstreamBounceApp);
     }
 
     @Test
@@ -59,7 +59,7 @@ public class ComposeUtilityTest {
     @Test
     public void shouldBuildServicesComposeSectionCorrectly() {
         Map<String, Object> servicesMap = (Map<String, Object>) composeUtility.buildServicesMap().get(clusters.get(0).buildContainerId(0));
-        assertThat(servicesMap.get("image"), is(fakeUpstreamImage));
+        assertThat(servicesMap.get("image"), is(upstreamBounceApp));
         assertThat(servicesMap.get("container_name"), is(clusters.get(0).buildContainerId(0)));
         assertThat(servicesMap.get("environment"), is(notNullValue()));
         assertThat(servicesMap.get("expose"), is(notNullValue()));

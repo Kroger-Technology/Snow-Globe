@@ -76,4 +76,4 @@ if(runHTTPS) {
 } else {
     server = http.createServer(app);
 }
-const runningServer = server.listen(3000);
+server.listen(3000);

@@ -79,8 +79,8 @@ public class TestFrameworkProperties {
     }
 
 
-    String getFakeUpstreamImage() {
-        return getStringValue("upstream.fake.container");
+    String getUpstreamBounceImage() {
+        return getStringValue("upstream.bounce.image");
     }
 
     boolean logContainerOutput() {

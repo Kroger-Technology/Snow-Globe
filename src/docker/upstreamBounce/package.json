@@ -1,5 +1,5 @@
 {
-  "name": "fake-upstream-app",
+  "name": "upstream-bounce-app",
   "version": "1.0.0",
   "description": "",
   "main": "service.js",

@@ -179,7 +179,7 @@ public class AppServiceCluster {
         IntStream.range(0, instances).forEach(instance -> {
             Map<String, Object> appArgsMap = new HashMap<>();
             appArgsMap.put("container_name", buildContainerId(instance));
-            appArgsMap.put("image", testFrameworkProperties.getFakeUpstreamImage());
+            appArgsMap.put("image", testFrameworkProperties.getUpstreamBounceImage());
             appArgsMap.put("environment", buildEnvironmentList(instance));
             appArgsMap.put("expose", singletonList(3000));
             composeMap.put(buildContainerId(instance), appArgsMap);

@@ -19,8 +19,8 @@ dependencies {
 }
 
 task buildContainer(type:Exec) {
-    workingDir './src/docker/fakeUpstreamApp/'
-    commandLine 'docker', 'build', '-t', 'fakeupstreamapp:latest', '.'
+    workingDir './src/docker/upstreamBounce/'
+    commandLine 'docker', 'build', '-t', 'stephenshary/upstream-bounce-app:latest', '.'
 }
 
 

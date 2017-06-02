@@ -32,7 +32,7 @@ nginx.env.config.files:
   env2:
     - "src/test/resources/nginx/env2-nginx.conf"
     - "src/test/resources/nginx/env2/"
-upstream.fake.container: "bogus.com/nginx/fake-upstream-service:999"
+upstream.bounce.image: "bogus.com/nginx/upstream-bounce-service:999"
 snowglobe.log.output:  true
 snowglobe.preserve.temp.files: false
 snowglobe.disable.commons.logging: true

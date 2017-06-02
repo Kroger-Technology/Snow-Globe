@@ -114,11 +114,13 @@ nginx.url.port.mapping:
       port: 80
 ```
 
-This next field is the docker container to use for the fake upstream service.
+This next field is the docker container to use for the upstream bounce service.  This is the container that will pretend
+to be your upstream server and will bounce back the request in the body of the response.  This allows the testing
+framework to assert on all parts of the request and response.
 
 ```yaml
-upstream.fake.container:
-  "docker.kroger.com/nginx/fake-upstream-service:1.0"
+upstream.bounce.image:
+  "steveshary/upstream-bounce-service"
 ```
 
 This next field defines how to start nginx.   You may have a custom script that you
@@ -149,9 +151,9 @@ nginx.env.config.files:
     - "/src/integrationTestNginxConfig/nginx.conf"
 ```
 
-The next field indicates where to pull the fake upstream container:
+The next field indicates where to pull the upstream bounce container:
 ```yaml
-upstream.fake.container:[TBD]
+upstream.bounce.image:[TBD]
 ```
 
 This field will when set to true will output all logs from the framework and docker containers:
@@ -425,7 +427,7 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
 #### Verifying the response headers
 
 When Nginx routes a call using the `proxy_pass` directive, this test can verify that the response contains specific 
-headers.  One interesting thing to note is that you can configure your fake upstream servers to respond with specific
+headers.  One interesting thing to note is that you can configure your upstream bounce servers to respond with specific
 headers.  Another test is that you might want Nginx to remove a response header.
 
 **Simple Example**

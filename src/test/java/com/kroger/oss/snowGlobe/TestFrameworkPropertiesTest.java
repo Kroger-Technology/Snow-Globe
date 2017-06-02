@@ -43,7 +43,7 @@ public class TestFrameworkPropertiesTest {
     @Test
     public void shouldReturnCorrectFakeUpstreamImage() {
         testFrameworkProperties.initPropertiesFromFile("src/test/resources/bogus-snow-globe-1.yaml");
-        assertEquals("bogus.com/nginx/fake-upstream-service:999", testFrameworkProperties.getFakeUpstreamImage());
+        assertEquals("bogus.com/nginx/upstream-bounce-service:999", testFrameworkProperties.getUpstreamBounceImage());
     }
 
     @Test
