@@ -25,7 +25,7 @@ nginx.env.config.files:
   dev:
     - "/src/nginx/nginx.conf"
     - "/src/nginx/dev/"
-upstream.bounce.image: "stephenshary/upstream-bounce-app:latest"
+upstream.bounce.image: "krogersnowglobe/upstream-bounce-app:latest"
 snowglobe.log.output:  true
 snowglobe.preserve.temp.files: false
 snowglobe.disable.commons.logging: true

@@ -17,6 +17,11 @@ jobs:
       - run:
           name: Build
           command: ./gradlew build
+      - run:
+          name: Publish Upstream Bounce Container
+          command:
+            - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+            - docker push krogersnowglobe/upstream-bounce-app:latest
       - store_artifacts:
           path: build/reports/
           destination: reports

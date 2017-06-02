@@ -11,6 +11,6 @@ nginx.url.port.mapping:
   - http:
       pattern: "http:.*"
       port: 80
-upstream.bounce.image: "stephenshary/upstream-bounce-app:latest"
+upstream.bounce.image: "krogersnowglobe/upstream-bounce-app:latest"
 framework.log.output:
   true
