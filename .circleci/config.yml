@@ -22,9 +22,10 @@ jobs:
           command: |
              gpg --output certs/private.key --batch --yes --passphrase $PRIVATE_KEY_ENC_PASSWORD --decrypt certs/private.key.enc
              gpg --yes --batch --import certs/private.key
+             gpg --import certs/public.key
              rm --force certs/private.key
              ./gradlew build
-             
+
       - deploy:
           name: Publish Upstream Bounce Container
           command: |
