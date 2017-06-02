@@ -1,5 +1,6 @@
 # Common patterns to ignore
 ._*
+certs/private.key
 build/
 classes/
 *.class

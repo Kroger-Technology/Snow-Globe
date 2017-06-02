@@ -21,6 +21,16 @@ jobs:
           name: Build
           command: ./gradlew build
 
+      - run:
+          name: Sign Jar
+          command: |
+           if [ "${CIRCLE_BRANCH}" == "master" ]; then
+             gpg --output certs/private.key --batch --yes --passphrase $PRIVATE_KEY_ENC_PASSWORD --decrypt certs/private.key.enc
+             gpg --yes --batch --import certs/private.key
+             rm --force certs/private.key
+             ./gradlew signArchives
+           fi
+
       - deploy:
           name: Publish Upstream Bounce Container
           command: |
@@ -30,10 +40,13 @@ jobs:
             fi
 
       - store_artifacts:
-          path: build/reports/
+          path: build/reports
           destination: reports
       - store_artifacts:
           path: build/libs
           destination: libs
+      - store_artifacts:
+          path: build/pom
+          destination: pom
 
 

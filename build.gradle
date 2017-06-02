@@ -82,7 +82,49 @@ task sourcesJar(type: Jar) {
 }
 
 artifacts {
-    archives javadocJar, sourcesJar
+    archives jar, javadocJar, sourcesJar
+}
+
+task prepSigning << {
+    project.ext."signing.password" = System.getenv("SIGNING_PASSWORD")
+    project.ext."signing.secretKeyRingFile" = System.getenv("HOME") + "/.gnupg/secring.gpg"
+    project.ext."ossrhUsername" = System.getenv("SONATYPE_USER")
+    project.ext."ossrhPassword" = System.getenv("SONATYPE_PASSWORD")
+}
+
+signing {
+    sign configurations.archives
+}
+
+signArchives.dependsOn prepSigning
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                def username = System.getenv("SONATYPE_USER")
+                def password = System.getenv("SONATYPE_PASSWORD")
+                authentication(userName: username, password: password)
+            }
+
+            pom.project {
+                name 'snow-globe'
+                packaging 'jar'
+                // optionally artifactId can be defined here
+                description 'An integration testing framework for Nginx using Docker.'
+                url 'https://github.com/Kroger-Technology/Snow-Globe'
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
+        }
+    }
 }
 
 idea {
