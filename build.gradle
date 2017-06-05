@@ -114,6 +114,12 @@ uploadArchives {
                 description 'An integration testing framework for Nginx using Docker.'
                 url 'https://github.com/Kroger-Technology/Snow-Globe'
 
+                scm {
+                    connection 'https://github.com/Kroger-Technology/Snow-Globe.git'
+                    developerConnection 'https://github.com/Kroger-Technology/Snow-Globe.git'
+                    url 'https://github.com/Kroger-Technology/Snow-Globe'
+                }
+
                 licenses {
                     license {
                         name 'The Apache License, Version 2.0'
@@ -124,8 +130,8 @@ uploadArchives {
                 developers {
                     developer {
                         id 'krogerTechnology'
-                        name 'Manfred Moser'
-                        email 'manfred@sonatype.com'
+                        name 'Kroger Technology OSS'
+                        email 'opensource-sonatype@kroger.com'
                     }
                 }
             }
