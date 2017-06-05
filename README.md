@@ -2,6 +2,8 @@
 
 [![Build Status Image](https://circleci.com/gh/Kroger-Technology/Snow-Globe.svg?style=shield&circe-token=bb34e5439f189eb33ad7591f59f768bd257aa0b8)](https://circleci.com/gh/Kroger-Technology/Snow-Globe)
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.kroger.oss/snow-globe/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.kroger.oss/snow-globe)
+
 A end to end testing framework that will simulate your upstream servers and help verify that Nginx properly routes all 
 of your calls.  It verifies that your configuration decorates the request to the upstream servers and the responses back
 work as expected.
