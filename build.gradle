@@ -68,7 +68,7 @@ def getVersionName = { ->
 
 sourceCompatibility = 1.8
 archivesBaseName = "snow-globe"
-group "com.kroger.oss.snowGlobe"
+group "com.kroger.oss"
 version getVersionName()
 
 task javadocJar(type: Jar) {
