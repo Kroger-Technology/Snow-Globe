@@ -16,16 +16,19 @@
  * limitations under the License.
  */
 
-package com.kroger.rp.tests;
+package org.test;
 
-import com.kroger.rp.util.AppServiceCluster;
-import com.kroger.rp.util.NginxRpBuilder;
-import org.junit.*;
 
-import static com.kroger.rp.util.AppServiceCluster.makeHttpWebService;
-import static com.kroger.rp.util.AppServiceCluster.makeHttpsWebService;
-import static com.kroger.rp.util.call.CallUtility.make;
-import static com.kroger.rp.util.call.TestRequest.getRequest;
+import com.kroger.oss.snowGlobe.AppServiceCluster;
+import com.kroger.oss.snowGlobe.NginxRpBuilder;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import static com.kroger.oss.snowGlobe.AppServiceCluster.makeHttpWebService;
+import static com.kroger.oss.snowGlobe.AppServiceCluster.makeHttpsWebService;
+import static com.kroger.oss.snowGlobe.call.CallUtility.make;
+import static com.kroger.oss.snowGlobe.call.TestRequest.getRequest;
 
 public class ExampleTest {
 
@@ -47,7 +50,7 @@ public class ExampleTest {
     @Test
     public void should_301_http_to_https() {
         make(getRequest("http://www.nginx-test.com").to(nginxReverseProxy))
-                .andHasResponseHeader("Location", "https://www.nginx-test.com/")
+                .andExpectResponseHeader("Location", "https://www.nginx-test.com/")
                 .expectResponseCode(301);
     }
 
