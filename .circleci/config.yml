@@ -23,7 +23,7 @@ jobs:
             cd exampleUsage
             ./gradlew test
             cd ..
-            
+
       - run:
           name: Build
           command: |

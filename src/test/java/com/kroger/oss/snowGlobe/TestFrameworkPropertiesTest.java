@@ -37,7 +37,7 @@ public class TestFrameworkPropertiesTest {
     @Before
     public void init() {
         testFrameworkProperties = new TestFrameworkProperties();
-        testFrameworkProperties.initProperties("snow-globe.yml");
+        testFrameworkProperties.initProperties("snow-globe.yaml");
     }
 
     @Test

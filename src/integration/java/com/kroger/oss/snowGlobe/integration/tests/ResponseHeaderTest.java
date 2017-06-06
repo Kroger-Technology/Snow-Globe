@@ -31,7 +31,7 @@ import static com.kroger.oss.snowGlobe.call.TestRequest.getRequest;
 
 /**
  * This integration test verifies response headers are returned.  The snow globe configuration is located at the root
- * of the project in "snow-globe.yml".  The yaml file references the example configuration in the
+ * of the project in "snow-globe.yaml".  The yaml file references the example configuration in the
  * "src/integrationTestNginxConfig"
  */
 public class ResponseHeaderTest {
