@@ -112,7 +112,7 @@ framework to assert on all parts of the request and response.
 
 ```yaml
 upstream.bounce.image:
-  "steveshary/upstream-bounce-service"
+  "krogersnowglobe/upstream-bounce-service:latest"
 ```
 
 This next field defines how to start nginx.   You may have a custom script that you
