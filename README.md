@@ -19,7 +19,7 @@ To use this framework, here are the pre-requisites for your machine:
 You will need to do four things to use this framework:
 1.  Setup a gradle or maven project with the library set.
 2.  Make sure your upstreams are defined in a separate file (or better yet directory).
-3.  Configure `snow-globe.yaml`
+3.  Configure `snow-globe.yml`
 4.  Write your tests.
 
 The sections below will show you how to do this.
@@ -44,7 +44,7 @@ You can see an example Nginx setup in the `exampleUsage` directory.
 
 ## Step 3: Setup the SnowGlobe Yaml file
 
-**Configure `snow-globe.yaml`**
+**Configure `snow-globe.yml`**
 The yaml file has several entries that need to be completed.  Below is the documentation on this.
 
 The first part of the manual is how we map your configuration files into the docker container.  No matter the method, you

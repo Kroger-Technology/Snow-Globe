@@ -32,7 +32,7 @@ import static com.kroger.oss.snowGlobe.call.TestRequest.getRequest;
 
 /**
  * This integration test verifies that the request sent to the upstream server has the given query param.  The snow globe
- * configuration is located at the root of the project in "snow-globe.yaml".  The yaml file references
+ * configuration is located at the root of the project in "snow-globe.yml".  The yaml file references
  * the example configuration in the "src/integrationTestNginxConfig"
  */
 public class QueryParamTest {

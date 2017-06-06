@@ -32,7 +32,7 @@ import static java.util.stream.IntStream.range;
 
 /**
  * This integration test verifies that the request is returned by a specific instance of the upstream server.  The snow globe
- * configuration is located at the root of the project in "snow-globe.yaml".  The yaml file references
+ * configuration is located at the root of the project in "snow-globe.yml".  The yaml file references
  * the example configuration in the "src/integrationTestNginxConfig"
  */
 public class ClusterNumberTest {

@@ -35,7 +35,7 @@ public class TestFrameworkProperties {
     public Map<String, Object> properties;
 
     public TestFrameworkProperties() {
-        initProperties("snow-globe.yaml");
+        initProperties("snow-globe.yml");
         handleLoggingSettings();
     }
 
@@ -50,7 +50,7 @@ public class TestFrameworkProperties {
         try {
             properties = (Map<String, Object>) new Yaml().load(new FileInputStream(path));
         } catch (FileNotFoundException e) {
-            System.err.println("Unable to find 'snow-globe.yaml'.  This is needed to run.");
+            System.err.println("Unable to find 'snow-globe.yml'.  This is needed to run.");
             throw new RuntimeException(e);
         }
     }
