@@ -50,13 +50,9 @@ import java.net.SocketException;
  */
 public class CallUtility {
 
-    static TestFrameworkProperties properties;
 
     private static TestFrameworkProperties getProperties() {
-        if(properties == null) {
-            properties = new TestFrameworkProperties();
-        }
-        return properties;
+        return new TestFrameworkProperties();
     }
 
     /**
