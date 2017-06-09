@@ -24,7 +24,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
@@ -34,8 +33,18 @@ public class TestFrameworkProperties {
 
     public Map<String, Object> properties;
 
+    private static String overrideYmlConfigurationFile;
+
+    public static void setConfigFile(String configFile) {
+        overrideYmlConfigurationFile = configFile;
+    }
+
     public TestFrameworkProperties() {
-        initProperties("snow-globe.yml");
+        if(overrideYmlConfigurationFile != null) {
+            loadFile(overrideYmlConfigurationFile);
+        } else {
+            loadFile("snow-globe.yml");
+        }
         handleLoggingSettings();
     }
 
@@ -46,17 +55,13 @@ public class TestFrameworkProperties {
     }
 
     @SuppressWarnings("unchecked")
-    void initProperties(String path) {
+    void loadFile(String path) {
         try {
             properties = (Map<String, Object>) new Yaml().load(new FileInputStream(path));
         } catch (FileNotFoundException e) {
             System.err.println("Unable to find 'snow-globe.yml'.  This is needed to run.");
             throw new RuntimeException(e);
         }
-    }
-
-    void initPropertiesFromFile(String path) {
-        initProperties(path);
     }
 
     private boolean getBooleanValue(String key) {
@@ -180,5 +185,13 @@ public class TestFrameworkProperties {
         int millis = getIntValue("upstream.startup.pollingTimeMs", 10);
         float seconds = new Float(millis) / 1000;
         return String.format("%.3f", seconds);
+    }
+
+    public int getMaxNginxStartupTime() {
+        return getIntValue("nginx.max.startupTime", 2);
+    }
+
+    public int getMaxNginxStartupPollingTimeMs() {
+        return getIntValue("nginx.startup.PollingTimeMs", 100);
     }
 }

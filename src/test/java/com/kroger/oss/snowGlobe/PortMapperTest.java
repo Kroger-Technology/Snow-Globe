@@ -35,7 +35,7 @@ public class PortMapperTest {
     public void init() {
         portMapper = new PortMapper();
         testFrameworkProperties = new TestFrameworkProperties();
-        testFrameworkProperties.initPropertiesFromFile("src/test/resources/test-snow-globe.yml");
+        testFrameworkProperties.loadFile("src/test/resources/test-snow-globe.yml");
     }
 
     @Test

@@ -37,68 +37,70 @@ public class TestFrameworkPropertiesTest {
     @Before
     public void init() {
         testFrameworkProperties = new TestFrameworkProperties();
-        testFrameworkProperties.initProperties("snow-globe.yml");
+        testFrameworkProperties.loadFile("snow-globe.yml");
     }
+
+
 
     @Test
     public void shouldReturnCorrectFakeUpstreamImage() {
-        testFrameworkProperties.initPropertiesFromFile("src/test/resources/bogus-snow-globe-1.yml");
+        testFrameworkProperties.loadFile("src/test/resources/bogus-snow-globe-1.yml");
         assertEquals("bogus.com/nginx/upstream-bounce-service:999", testFrameworkProperties.getUpstreamBounceImage());
     }
 
     @Test
     public void shouldLogContainerOutput() {
-        testFrameworkProperties.initPropertiesFromFile("src/test/resources/bogus-snow-globe-1.yml");
+        testFrameworkProperties.loadFile("src/test/resources/bogus-snow-globe-1.yml");
         assertTrue(testFrameworkProperties.logContainerOutput());
     }
 
     @Test
     public void shouldNotPreserveTempFiles() {
-        testFrameworkProperties.initPropertiesFromFile("src/test/resources/bogus-snow-globe-1.yml");
+        testFrameworkProperties.loadFile("src/test/resources/bogus-snow-globe-1.yml");
         assertFalse(testFrameworkProperties.preserveTempFiles());
     }
 
     @Test
     public void shouldDefineUpstreamZones() {
-        testFrameworkProperties.initPropertiesFromFile("src/test/resources/bogus-snow-globe-1.yml");
+        testFrameworkProperties.loadFile("src/test/resources/bogus-snow-globe-1.yml");
         assertTrue(testFrameworkProperties.defineUpstreamZones());
     }
 
     @Test
     public void shouldGetNginxContainer() {
-        testFrameworkProperties.initPropertiesFromFile("src/test/resources/bogus-snow-globe-1.yml");
+        testFrameworkProperties.loadFile("src/test/resources/bogus-snow-globe-1.yml");
         assertEquals("bogus.com/library/nginx:999", testFrameworkProperties.getNginxImage());
     }
 
     @Test
     public void shouldGetDefaultUpstreamFilePath() {
-        testFrameworkProperties.initPropertiesFromFile("src/test/resources/bogus-snow-globe-1.yml");
+        testFrameworkProperties.loadFile("src/test/resources/bogus-snow-globe-1.yml");
         assertEquals("/etc/nginx/upstreams.conf", testFrameworkProperties.getUpstreamLocation(null));
     }
 
     @Test
     public void shouldGetUpstreamFilePathForEnvironment() {
-        testFrameworkProperties.initPropertiesFromFile("src/test/resources/bogus-snow-globe-1.yml");
+        testFrameworkProperties.loadFile("src/test/resources/bogus-snow-globe-1.yml");
         assertEquals("/bogus/etc/nginx/upstreams.conf", testFrameworkProperties.getUpstreamLocation("bogus-environment"));
     }
 
     @Test
     public void shouldGetDefaultNginxVolumes() {
-        testFrameworkProperties.initPropertiesFromFile("src/test/resources/bogus-snow-globe-1.yml");
+        testFrameworkProperties.loadFile("src/test/resources/bogus-snow-globe-1.yml");
         List<String> vals = Stream.of("src/test/resources/nginx/nginx.conf:/etc/nginx/nginx.conf", "src/test/resources/nginx/dev/*:/etc/nginx/dev/").collect(Collectors.toList());
         assertTrue(testFrameworkProperties.getNginxVolumes(null).containsAll(vals));
     }
 
     @Test
     public void shouldGetNginxVolumesForEnvironment() {
-        testFrameworkProperties.initPropertiesFromFile("src/test/resources/bogus-snow-globe-1.yml");
+        testFrameworkProperties.loadFile("src/test/resources/bogus-snow-globe-1.yml");
         List<String> vals = Stream.of("vol1:vol1", "vol2:vol2", "vol3:vol3", "vol4:vol4").collect(Collectors.toList());
         assertTrue(testFrameworkProperties.getNginxVolumes("bogus-environment").containsAll(vals));
     }
 
     @Test
     public void shouldGetNginxUrlPortMappings() {
-        testFrameworkProperties.initPropertiesFromFile("src/test/resources/bogus-snow-globe-1.yml");
+        testFrameworkProperties.loadFile("src/test/resources/bogus-snow-globe-1.yml");
         Map<String, Object> sMap = new HashMap<>();
         sMap.put("pattern", "https:.*");
         sMap.put("port", 443);
@@ -114,7 +116,7 @@ public class TestFrameworkPropertiesTest {
 
     @Test
     public void shouldGetNginxConfFilesToScan() {
-        testFrameworkProperties.initPropertiesFromFile("src/test/resources/bogus-snow-globe-1.yml");
+        testFrameworkProperties.loadFile("src/test/resources/bogus-snow-globe-1.yml");
         assertTrue(testFrameworkProperties.getFilesToScan(null).contains("src/test/resources/nginx/nginx.conf"));
 
         List<String> env1 = Stream.of("src/test/resources/nginx/env1-nginx.conf", "src/test/resources/nginx/env1-routing.conf").collect(Collectors.toList());
@@ -126,25 +128,25 @@ public class TestFrameworkPropertiesTest {
 
     @Test
     public void shouldGetSourceDirectory() {
-        testFrameworkProperties.initPropertiesFromFile("src/test/resources/bogus-snow-globe-1.yml");
+        testFrameworkProperties.loadFile("src/test/resources/bogus-snow-globe-1.yml");
         assertEquals("src/test/resources/nginx/", testFrameworkProperties.getSourceDirectory());
     }
 
     @Test
     public void shouldGetDeployedDirectory() {
-        testFrameworkProperties.initPropertiesFromFile("src/test/resources/bogus-snow-globe-1.yml");
+        testFrameworkProperties.loadFile("src/test/resources/bogus-snow-globe-1.yml");
         assertEquals("/etc/nginx/", testFrameworkProperties.getDeployedDirectory());
     }
 
     @Test
     public void shouldGetDefaultStartCommand() {
-        testFrameworkProperties.initPropertiesFromFile("src/test/resources/bogus-snow-globe-1.yml");
+        testFrameworkProperties.loadFile("src/test/resources/bogus-snow-globe-1.yml");
         assertEquals("nginx -g 'daemon off;'", testFrameworkProperties.getStartCommand(null));
     }
 
     @Test
     public void shouldGetStartCommandForEnvironment() {
-        testFrameworkProperties.initPropertiesFromFile("src/test/resources/bogus-snow-globe-1.yml");
+        testFrameworkProperties.loadFile("src/test/resources/bogus-snow-globe-1.yml");
         assertEquals("bogus -a whee!!", testFrameworkProperties.getStartCommand("bogus"));
     }
 
@@ -157,6 +159,16 @@ public class TestFrameworkPropertiesTest {
     @Test
     public void shouldGetDefaultUpstreamPollingTimeInSecondsFormatted() {
         assertThat(testFrameworkProperties.getStartupPollTime(), is("0.010"));
+    }
+
+    @Test
+    public void shouldBeAbleToOverrideProperties() {
+        // This is different because if you set this before your test, then all parts that create the
+        // TestFrameworkProperties object will use the same one.
+        TestFrameworkProperties.setConfigFile("src/test/resources/bogus-snow-globe-1.yml");
+        testFrameworkProperties = new TestFrameworkProperties();
+        assertTrue(testFrameworkProperties.defineUpstreamZones());
+        TestFrameworkProperties.setConfigFile(null);
     }
 
 }

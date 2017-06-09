@@ -20,6 +20,7 @@ package com.kroger.oss.snowGlobe.call;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kroger.oss.snowGlobe.TestFrameworkProperties;
 import org.apache.http.HttpEntity;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.HttpRequestRetryHandler;
@@ -48,6 +49,15 @@ import java.net.SocketException;
  * This is a collections of functions that allows the user to make a call based on the <code>TestRequest</code> class.
  */
 public class CallUtility {
+
+    static TestFrameworkProperties properties;
+
+    private static TestFrameworkProperties getProperties() {
+        if(properties == null) {
+            properties = new TestFrameworkProperties();
+        }
+        return properties;
+    }
 
     /**
      * This is the main method used to execute a call to the nginx reverse proxy in the testing framework.  This method
@@ -88,12 +98,12 @@ public class CallUtility {
                     .setConnectionManager(buildConnectionManager())
                     .setDefaultRequestConfig(RequestConfig.custom()
                             // Waiting for a connection from connection manager
-                            .setConnectionRequestTimeout(10000)
+                            .setConnectionRequestTimeout(100)
                             // Waiting for connection to establish
-                            .setConnectTimeout(5000)
+                            .setConnectTimeout(100)
                             .setExpectContinueEnabled(false)
                             // Waiting for data
-                            .setSocketTimeout(5000)
+                            .setSocketTimeout(200)
                             // Do not allow cookies to be stored between calls.
                             .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
                             .build())
@@ -274,25 +284,24 @@ public class CallUtility {
      *      The retry handler that will be used by the custom http client.
      */
     static HttpRequestRetryHandler buildRetryHandler() {
+        final int maxRetries = calcMaxRetries();
         return (exception, executionCount, context) -> {
-            if (executionCount > 20) {
+            if (executionCount > maxRetries) {
                 // Do not retry if over max retry count
                 return false;
             }
-            if (exception instanceof HttpHostConnectException ||
-                    exception instanceof  NoHttpResponseException ||
-                    exception instanceof SocketException) {
-                try {
-                    Thread.sleep(250);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                // Retry if the server dropped connection on us
-                return true;
+            try {
+                Thread.sleep(getProperties().getMaxNginxStartupPollingTimeMs());
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-            // otherwise do not retry
-            return false;
+            // Retry if the server dropped connection on us
+            return true;
         };
+    }
+
+    private static int calcMaxRetries() {
+        return getProperties().getMaxNginxStartupTime() * 1000 / getProperties().getMaxNginxStartupPollingTimeMs();
     }
 
     /**
