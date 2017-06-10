@@ -288,9 +288,7 @@ public class CallUtility {
             }
             try {
                 Thread.sleep(getProperties().getMaxNginxStartupPollingTimeMs());
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            } catch (InterruptedException e) { }
             // Retry if the server dropped connection on us
             return true;
         };

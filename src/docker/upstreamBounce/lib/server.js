@@ -20,7 +20,7 @@ const startServer = () => {
     res.status(200).end();
   });
 
-  http.createServer(app).listen(3000, () => console.log("Ready to go!"));
+  http.createServer(app).listen(3000);
 };
 
 module.exports = {

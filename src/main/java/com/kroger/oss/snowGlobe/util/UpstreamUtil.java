@@ -97,7 +97,14 @@ public class UpstreamUtil {
             Process process = processBuilder.start();
             process.waitFor();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            // if we have gotten an exception, there is the possibility that another process was setting up this
+            // container. This can happen with multiple parallel forks.
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException ignored) { }
+            if(!upstreamRunning()) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

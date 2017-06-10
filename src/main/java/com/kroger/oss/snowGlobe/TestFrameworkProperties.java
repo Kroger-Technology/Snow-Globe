@@ -188,10 +188,10 @@ public class TestFrameworkProperties {
     }
 
     public int getMaxNginxStartupTime() {
-        return getIntValue("nginx.max.startupTime", 2);
+        return getIntValue("nginx.max.startupTime", 10);
     }
 
     public int getMaxNginxStartupPollingTimeMs() {
-        return getIntValue("nginx.startup.PollingTimeMs", 100);
+        return getIntValue("nginx.startup.PollingTimeMs", 200);
     }
 }
