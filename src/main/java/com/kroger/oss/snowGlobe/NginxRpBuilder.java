@@ -25,6 +25,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -163,7 +164,7 @@ public class NginxRpBuilder {
         argsMap.put("image", testFrameworkProperties.getNginxImage());
         argsMap.put("volumes", buildComposeVolumes());
         argsMap.put("ports", buildComposePorts());
-        argsMap.put("links", getServiceContainerNames(serviceClusters));
+        argsMap.put("links", singletonList("upstream"));
         argsMap.put("command", getStartCommand());
         return composeMap;
     }

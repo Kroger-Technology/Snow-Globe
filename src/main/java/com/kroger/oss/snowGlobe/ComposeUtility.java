@@ -89,12 +89,15 @@ public class ComposeUtility {
     private void startUpstreams() {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder("docker-compose", "--file",
-                    getComposeFileName(), "run", "--rm", nginxRpBuilder.buildStartupContainerId());
+                    getComposeFileName(), "up", "-d", "upstream");
             if(testFrameworkProperties.logContainerOutput()) {
                 processBuilder.inheritIO();
             }
+            long start = System.currentTimeMillis();
             Process process = processBuilder.start();
             process.waitFor();
+            long duration = System.currentTimeMillis() - start;
+            System.out.println("Duration: " + duration);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -103,12 +106,16 @@ public class ComposeUtility {
     private void startReverseProxy() {
         try {
 
-            ProcessBuilder processBuilder = new ProcessBuilder("docker-compose", "--file", getComposeFileName(), "up", "-d");
+            ProcessBuilder processBuilder = new ProcessBuilder("docker-compose", "--file",
+                    getComposeFileName(), "up", "-d", nginxRpBuilder.buildRpContainerId());
             if(testFrameworkProperties.logContainerOutput()) {
                 processBuilder.inheritIO();
             }
+            long start = System.currentTimeMillis();
             Process process = processBuilder.start();
             process.waitFor();
+            long duration = System.currentTimeMillis() - start;
+            System.out.println("Duration: " + duration);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -124,10 +131,8 @@ public class ComposeUtility {
 
     protected Map<String, Object> buildServicesMap() {
         Map<String, Object> nginxServiceMap = buildNginxServiceMap();
-        Map<String, Object> startupMap = buildStartupServiceMap();
         Map<String, Object> allServicesMap = buildUpstreamsMap();
         allServicesMap.putAll(nginxServiceMap);
-        allServicesMap.putAll(startupMap);
         return allServicesMap;
     }
 
