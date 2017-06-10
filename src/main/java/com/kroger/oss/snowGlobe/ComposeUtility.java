@@ -18,6 +18,7 @@
 
 package com.kroger.oss.snowGlobe;
 
+import com.kroger.oss.snowGlobe.util.UpstreamUtil;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -41,6 +42,10 @@ public class ComposeUtility {
     }
 
     public void start() {
+        UpstreamUtil.setupUpstreamService();
+        Arrays.stream(appClusters).forEach(appServiceCluster -> {
+            appServiceCluster.
+        });
         String fileContents = buildComposeFileContents();
         writeComposeFile(fileContents, testFrameworkProperties);
         startUpstreams();
