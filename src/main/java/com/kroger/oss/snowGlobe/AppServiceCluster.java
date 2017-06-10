@@ -232,4 +232,8 @@ public class AppServiceCluster {
     public void assignPort(int port) {
         instancePorts.add(port);
     }
+
+    public List<Integer> getRunningPorts() {
+        return instancePorts;
+    }
 }

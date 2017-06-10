@@ -65,9 +65,9 @@ public class ComposeUtility {
 
     public void stop() {
         try {
-            List<String> serviceNames = getServiceNames();
-            serviceNames.add(nginxRpBuilder.buildRpContainerId());
-            serviceNames.forEach(this::shutDownService);
+            shutDownService(nginxRpBuilder.buildRpContainerId());
+            Arrays.stream(appClusters).forEach(appServiceCluster ->
+                    appServiceCluster.getRunningPorts().forEach(UpstreamUtil::stopUpstream));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
