@@ -62,7 +62,6 @@ task integrationTest(type: Test) {
     testLogging {
         showStandardStreams = true
     }
-    maxParallelForks = 8
 }
 
 integrationTest.dependsOn buildContainer

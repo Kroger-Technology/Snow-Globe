@@ -197,12 +197,6 @@ public class AppServiceCluster {
         return environmentVariables;
     }
 
-    List<String> getInstanceNames() {
-        return IntStream.range(0, instances)
-                .mapToObj(this::buildContainerId)
-                .collect(Collectors.toList());
-    }
-
     public List<UpstreamAppInfo> getAppInstanceInfos() {
         return instancePorts.stream()
                 .map(instanceNumber ->  new UpstreamAppInfo("upstream", instanceNumber))

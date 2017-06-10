@@ -27,7 +27,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -91,10 +90,6 @@ public class NginxRpBuilder {
         composeUtility = new ComposeUtility(this, testFrameworkProperties, clusters);
         composeUtility.start();
         return this;
-    }
-
-    private void startNginxContainer() {
-
     }
 
 
@@ -163,7 +158,7 @@ public class NginxRpBuilder {
         }
     }
 
-    public Map<String, Object> buildComposeMap(List<AppServiceCluster> serviceClusters) {
+    public Map<String, Object> buildComposeMap() {
         Map<String, Object> composeMap = new HashMap<>();
         Map<String, Object> argsMap = new HashMap<>();
         composeMap.put(buildRpContainerId(), argsMap);
@@ -173,22 +168,6 @@ public class NginxRpBuilder {
         argsMap.put("ports", buildComposePorts());
         argsMap.put("command", getStartCommand());
         return composeMap;
-    }
-
-    protected Map<String, Object> buildDependenciesStartupMap(List<AppServiceCluster> serviceClusters) {
-        Map<String, Object> composeMap = new HashMap<>();
-        Map<String, Object> argsMap = new HashMap<>();
-        composeMap.put(buildStartupContainerId(), argsMap);
-        argsMap.put("container_name", buildStartupContainerId());
-        argsMap.put("environment", buildStartupEnvironment());
-        argsMap.put("image", testFrameworkProperties.getStartupImage());
-        argsMap.put("depends_on", getServiceContainerNames(serviceClusters));
-        argsMap.put("command", buildStartupCommand(serviceClusters));
-        return composeMap;
-    }
-
-    private String[] buildStartupEnvironment() {
-        return new String[]{"SLEEP_LENGTH=" + testFrameworkProperties.getStartupPollTime()};
     }
 
     protected String buildStartupContainerId() {
@@ -243,13 +222,6 @@ public class NginxRpBuilder {
 
     private String buildEnvironmentFileMapping() {
         return environmentFile.getName() + ":" + testFrameworkProperties.getUpstreamLocation(environmentOverride);
-    }
-
-    private List<String> getServiceContainerNames(List<AppServiceCluster> serviceClusters) {
-        return serviceClusters.stream()
-                .map(AppServiceCluster::getInstanceNames)
-                .flatMap(Collection::stream)
-                .collect(toList());
     }
 
     private List<String> buildComposePorts() {

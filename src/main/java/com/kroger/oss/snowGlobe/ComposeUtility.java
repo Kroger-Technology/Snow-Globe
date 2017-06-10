@@ -22,12 +22,13 @@ import com.kroger.oss.snowGlobe.util.UpstreamUtil;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.*;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ComposeUtility {
 
@@ -85,36 +86,12 @@ public class ComposeUtility {
         }
     }
 
-    private void startUpstreams() {
-        try {
-            ProcessBuilder processBuilder = new ProcessBuilder("docker-compose", "--file",
-                    getComposeFileName(), "up", "-d", "upstream");
-            if(testFrameworkProperties.logContainerOutput()) {
-                processBuilder.inheritIO();
-            }
-            long start = System.currentTimeMillis();
-            Process process = processBuilder.start();
-            process.waitFor();
-            long duration = System.currentTimeMillis() - start;
-            System.out.println("Duration: " + duration);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private void startReverseProxy() {
         try {
 
             ProcessBuilder processBuilder = new ProcessBuilder("docker-compose", "--file",
                     getComposeFileName(), "up", "-d", nginxRpBuilder.buildRpContainerId());
-            if(testFrameworkProperties.logContainerOutput()) {
-                processBuilder.inheritIO();
-            }
-            long start = System.currentTimeMillis();
-            Process process = processBuilder.start();
-            process.waitFor();
-            long duration = System.currentTimeMillis() - start;
-            System.out.println("Duration: " + duration);
+            processBuilder.start().waitFor();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -123,7 +100,7 @@ public class ComposeUtility {
     protected String buildComposeFileContents() {
         Map<String, Object> composeYaml = new HashMap<>();
         String prefix = "version: '2'\n\n";
-        composeYaml.put("services", buildServicesMap());
+        composeYaml.put("services", buildNginxServiceMap());
         String body = new Yaml(buildDumperOptions()).dump(composeYaml) + "\n\n";
         return prefix + body;
     }
@@ -134,31 +111,12 @@ public class ComposeUtility {
     }
 
     private Map<String, Object> buildNginxServiceMap() {
-        return nginxRpBuilder.buildComposeMap(asList(appClusters));
-    }
-
-    private Map<String, Object> buildStartupServiceMap() {
-        return nginxRpBuilder.buildDependenciesStartupMap(asList(appClusters));
+        return nginxRpBuilder.buildComposeMap();
     }
 
     private DumperOptions buildDumperOptions() {
         DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         return options;
-    }
-
-    private Map<String, Object> buildUpstreamsMap() {
-        return stream(appClusters)
-                    .map(c -> c.buildComposeMap(testFrameworkProperties))
-                    .flatMap(m -> m.entrySet().stream())
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-
-    private List<String> getServiceNames() {
-        List<String> serviceNames = new ArrayList<>();
-        stream(appClusters)
-                .forEach(appServiceCluster -> appServiceCluster.getAppInstanceInfos().stream()
-                        .forEach(upstreamAppInfo -> serviceNames.add(upstreamAppInfo.containerName())));
-        return serviceNames;
     }
 }

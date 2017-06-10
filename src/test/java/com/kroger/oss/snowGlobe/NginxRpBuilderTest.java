@@ -62,7 +62,7 @@ public class NginxRpBuilderTest {
         List<AppServiceCluster> clusters = new ArrayList<>();
         clusters.add(new AppServiceCluster("cluster1", 1, false));
         clusters.add(new AppServiceCluster("cluster2", 1, false));
-        Map<String, Object> composeMap = nginxRpBuilder.buildComposeMap(clusters);
+        Map<String, Object> composeMap = nginxRpBuilder.buildComposeMap();
         assertThat(composeMap, Matchers.hasKey(nginxRpBuilder.buildRpContainerId()));
         Map<String, Object> argsMap = (Map<String, Object>) composeMap.get(nginxRpBuilder.buildRpContainerId());
         assertThat(argsMap, hasKey("container_name"));
