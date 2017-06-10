@@ -42,13 +42,8 @@ public class ComposeUtility {
     }
 
     public void start() {
-        UpstreamUtil.setupUpstreamService();
-        Arrays.stream(appClusters).forEach(appServiceCluster -> {
-            appServiceCluster.
-        });
         String fileContents = buildComposeFileContents();
         writeComposeFile(fileContents, testFrameworkProperties);
-        startUpstreams();
         startReverseProxy();
     }
 
@@ -72,7 +67,6 @@ public class ComposeUtility {
         try {
             List<String> serviceNames = getServiceNames();
             serviceNames.add(nginxRpBuilder.buildRpContainerId());
-            serviceNames.add(nginxRpBuilder.buildStartupContainerId());
             serviceNames.forEach(this::shutDownService);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -136,9 +130,7 @@ public class ComposeUtility {
 
     protected Map<String, Object> buildServicesMap() {
         Map<String, Object> nginxServiceMap = buildNginxServiceMap();
-        Map<String, Object> allServicesMap = buildUpstreamsMap();
-        allServicesMap.putAll(nginxServiceMap);
-        return allServicesMap;
+        return nginxServiceMap;
     }
 
     private Map<String, Object> buildNginxServiceMap() {

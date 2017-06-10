@@ -43,6 +43,7 @@ public class AppServiceCluster {
     private int httpResponseCode = 200;
     private String matchingPaths = "*";
     private Map<String, String> responseHeaders = new HashMap<>();
+    private List<Integer> instancePorts = new ArrayList<>();
     private final boolean useHttps;
 
     /**
@@ -203,8 +204,8 @@ public class AppServiceCluster {
     }
 
     public List<UpstreamAppInfo> getAppInstanceInfos() {
-        return IntStream.range(0, instances)
-                .mapToObj(instance -> new UpstreamAppInfo(buildContainerId(instance), 3000))
+        return instancePorts.stream()
+                .map(instanceNumber ->  new UpstreamAppInfo("upstream", instanceNumber))
                 .collect(Collectors.toList());
     }
 
@@ -226,5 +227,9 @@ public class AppServiceCluster {
 
     public boolean isUseHttps() {
         return useHttps;
+    }
+
+    public void assignPort(int port) {
+        instancePorts.add(port);
     }
 }

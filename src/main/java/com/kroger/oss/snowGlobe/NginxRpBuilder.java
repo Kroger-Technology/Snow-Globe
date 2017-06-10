@@ -18,6 +18,8 @@
 
 package com.kroger.oss.snowGlobe;
 
+import com.kroger.oss.snowGlobe.util.UpstreamUtil;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -83,12 +85,17 @@ public class NginxRpBuilder {
     public NginxRpBuilder start() {
         buildCopyOfServices();
         portMapper.initMapping(testFrameworkProperties);
+        UpstreamUtil.setupUpstreamService();
+        UpstreamUtil.initializeUpstreamInstances(clusters);
         buildEnvironmentFile();
         composeUtility = new ComposeUtility(this, testFrameworkProperties, clusters);
         composeUtility.start();
         return this;
     }
 
+    private void startNginxContainer() {
+
+    }
 
 
     private void buildCopyOfServices() {
@@ -164,7 +171,6 @@ public class NginxRpBuilder {
         argsMap.put("image", testFrameworkProperties.getNginxImage());
         argsMap.put("volumes", buildComposeVolumes());
         argsMap.put("ports", buildComposePorts());
-        argsMap.put("links", singletonList("upstream"));
         argsMap.put("command", getStartCommand());
         return composeMap;
     }

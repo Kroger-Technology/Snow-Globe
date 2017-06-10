@@ -28,6 +28,6 @@ nginx.env.config.files:
     - "/src/nginxIntegrationConfig/dev/"
 upstream.bounce.image: "krogersnowglobe/upstream-bounce-app:latest"
 snowglobe.log.output:  true
-snowglobe.preserve.temp.files: true
+snowglobe.preserve.temp.files: false
 snowglobe.disable.commons.logging: true
 nginx.define.upstream.zones: false
