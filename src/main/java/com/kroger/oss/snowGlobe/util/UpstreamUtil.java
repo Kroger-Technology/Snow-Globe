@@ -92,7 +92,7 @@ public class UpstreamUtil {
     private static void startUpstream() {
         try {
             ProcessBuilder processBuilder =
-                    new ProcessBuilder("docker", "run", "-p", "30010:3000", "--network=snowglobe_default",
+                    new ProcessBuilder("docker", "run", "-p", "30010:3000", "--network=snow-globe",
                             "--name", "upstream", "--detach", "krogersnowglobe/upstream-bounce-app:latest");
             Process process = processBuilder.start();
             process.waitFor();

@@ -15,7 +15,7 @@ public class DockerNetworking {
 
     private static void makeNetwork() {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("docker", "network", "create", "snowGlobe");
+            ProcessBuilder processBuilder = new ProcessBuilder("docker", "network", "create", "snow-globe");
             Process process = processBuilder.start();
             process.waitFor();
         } catch (Exception e) {
@@ -30,7 +30,7 @@ public class DockerNetworking {
             process.waitFor();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             while (reader.ready()) {
-                if (reader.readLine().contains("snowGlobe")) {
+                if (reader.readLine().contains("snow-globe")) {
                     return true;
                 }
             }

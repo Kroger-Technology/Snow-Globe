@@ -30,6 +30,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.util.Collections.singletonMap;
+
 public class ComposeUtility {
 
     private final NginxRpBuilder nginxRpBuilder;
@@ -101,8 +103,13 @@ public class ComposeUtility {
         Map<String, Object> composeYaml = new HashMap<>();
         String prefix = "version: '2'\n\n";
         composeYaml.put("services", buildNginxServiceMap());
+        composeYaml.put("networks", buildNetworks());
         String body = new Yaml(buildDumperOptions()).dump(composeYaml) + "\n\n";
         return prefix + body;
+    }
+
+    private Map<String, Object> buildNetworks() {
+        return singletonMap("default", singletonMap("external", singletonMap("name", "snow-globe")));
     }
 
     protected Map<String, Object> buildServicesMap() {
