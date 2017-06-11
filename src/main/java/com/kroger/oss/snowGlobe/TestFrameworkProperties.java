@@ -181,12 +181,6 @@ public class TestFrameworkProperties {
         }
     }
 
-    public String getStartupPollTime() {
-        int millis = getIntValue("upstream.startup.pollingTimeMs", 10);
-        float seconds = new Float(millis) / 1000;
-        return String.format("%.3f", seconds);
-    }
-
     public int getMaxNginxStartupTime() {
         return getIntValue("nginx.max.startupTime", 10);
     }

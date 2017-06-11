@@ -151,17 +151,6 @@ public class TestFrameworkPropertiesTest {
     }
 
     @Test
-    public void shouldGetUpstreamPollingTimeInSecondsFormatted() {
-        testFrameworkProperties.setPropertyForTesting("upstream.startup.pollingTimeMs", "50");
-        assertThat(testFrameworkProperties.getStartupPollTime(), is("0.050"));
-    }
-
-    @Test
-    public void shouldGetDefaultUpstreamPollingTimeInSecondsFormatted() {
-        assertThat(testFrameworkProperties.getStartupPollTime(), is("0.010"));
-    }
-
-    @Test
     public void shouldBeAbleToOverrideProperties() {
         // This is different because if you set this before your test, then all parts that create the
         // TestFrameworkProperties object will use the same one.
