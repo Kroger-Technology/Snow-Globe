@@ -59,33 +59,12 @@ public class NginxRpBuilderTest {
     @SuppressWarnings("unchecked")
     public void shouldBuildComposeInformation() {
         nginxRpBuilder = new NginxRpBuilder(null);
-        List<AppServiceCluster> clusters = new ArrayList<>();
-        clusters.add(new AppServiceCluster("cluster1", 1, false));
-        clusters.add(new AppServiceCluster("cluster2", 1, false));
         Map<String, Object> composeMap = nginxRpBuilder.buildComposeMap();
         assertThat(composeMap, Matchers.hasKey(nginxRpBuilder.buildRpContainerId()));
         Map<String, Object> argsMap = (Map<String, Object>) composeMap.get(nginxRpBuilder.buildRpContainerId());
         assertThat(argsMap, hasKey("container_name"));
         assertThat(argsMap, hasKey("volumes"));
         assertThat(argsMap, hasKey("ports"));
-        assertThat(argsMap, hasKey("links"));
         assertThat(argsMap, hasKey("command"));
     }
-
-    @Test
-    public void shouldbuildListOfDependentContainersAndPortsForStartup() {
-        nginxRpBuilder = new NginxRpBuilder(null);
-        List<AppServiceCluster> clusters = new ArrayList<>();
-        clusters.add(new AppServiceCluster("cluster1", 1, false));
-        clusters.add(new AppServiceCluster("cluster2", 2, false));
-        assertThat(nginxRpBuilder.buildStartupCommand(clusters),
-                is(clusters.get(0).getAppInstanceInfos().get(0).containerName() + ":"
-                        + clusters.get(0).getAppInstanceInfos().get(0).port() + " "
-                        + clusters.get(1).getAppInstanceInfos().get(0).containerName() + ":"
-                        + clusters.get(1).getAppInstanceInfos().get(0).port() + " "
-                        + clusters.get(1).getAppInstanceInfos().get(1).containerName() + ":"
-                        + clusters.get(1).getAppInstanceInfos().get(1).port()));
-
-    }
-
 }

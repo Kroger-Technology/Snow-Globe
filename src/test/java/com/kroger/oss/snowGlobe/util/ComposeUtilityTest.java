@@ -1,5 +1,9 @@
-package com.kroger.oss.snowGlobe;
+package com.kroger.oss.snowGlobe.util;
 
+import com.kroger.oss.snowGlobe.AppServiceCluster;
+import com.kroger.oss.snowGlobe.NginxRpBuilder;
+import com.kroger.oss.snowGlobe.TestFrameworkProperties;
+import com.kroger.oss.snowGlobe.util.ComposeUtility;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -38,8 +42,6 @@ public class ComposeUtilityTest {
     @Test
     public void shouldBuildComposeServicesCorrectly() {
         Map<String, Object> composeMap = composeUtility.buildServicesMap();
-        assertThat(composeMap.get(clusters.get(0).buildContainerId(0)), is(notNullValue()));
-        assertThat(composeMap.get(nginxRpBuilder.buildStartupContainerId()), is(notNullValue()));
         assertThat(composeMap.get(nginxRpBuilder.buildRpContainerId()), is(notNullValue()));
     }
 
@@ -50,28 +52,7 @@ public class ComposeUtilityTest {
         assertThat(rpMap.get("image"), is("nginx"));
         assertThat(rpMap.get("container_name"), is(nginxRpBuilder.buildRpContainerId()));
         assertThat(rpMap.get("volumes"), is(notNullValue()));
-        assertThat(rpMap.get("links"), is(notNullValue()));
         assertThat(rpMap.get("ports"), is(notNullValue()));
         assertThat(rpMap.get("command"), is(notNullValue()));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void shouldBuildServicesComposeSectionCorrectly() {
-        Map<String, Object> servicesMap = (Map<String, Object>) composeUtility.buildServicesMap().get(clusters.get(0).buildContainerId(0));
-        assertThat(servicesMap.get("image"), is(upstreamBounceApp));
-        assertThat(servicesMap.get("container_name"), is(clusters.get(0).buildContainerId(0)));
-        assertThat(servicesMap.get("environment"), is(notNullValue()));
-        assertThat(servicesMap.get("expose"), is(notNullValue()));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void shouldBuildStartupComposeSectionCorrectly() {
-        Map<String, Object> servicesMap = (Map<String, Object>) composeUtility.buildServicesMap().get(nginxRpBuilder.buildStartupContainerId());
-        assertThat(servicesMap.get("image"), is("dadarek/wait-for-dependencies"));
-        assertThat(servicesMap.get("container_name"), is(nginxRpBuilder.buildStartupContainerId()));
-        assertThat(servicesMap.get("depends_on"), is(notNullValue()));
-        assertThat(servicesMap.get("command"), is(notNullValue()));
     }
 }

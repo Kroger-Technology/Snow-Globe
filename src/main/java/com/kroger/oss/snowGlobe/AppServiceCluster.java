@@ -36,8 +36,6 @@ import static java.util.Collections.singletonList;
  */
 public class AppServiceCluster {
 
-    private final int randomNamePrefix;
-
     private final String clusterName;
     private final int instances;
     private int httpResponseCode = 200;
@@ -117,7 +115,6 @@ public class AppServiceCluster {
         this.clusterName = clusterName;
         this.instances = instances;
         this.useHttps = useHttps;
-        randomNamePrefix = GlobalRandom.getRandomPrefix();
     }
 
     protected AppServiceCluster(String clusterName, int instances, int httpResponseCode, String matchingPaths,
@@ -162,10 +159,6 @@ public class AppServiceCluster {
         return this;
     }
 
-    String buildContainerId(int instance) {
-        return clusterName + "-" + randomNamePrefix + "-" + Integer.toString(instance);
-    }
-
     public String getClusterName() {
         return this.clusterName;
     }
@@ -173,17 +166,6 @@ public class AppServiceCluster {
     public AppServiceCluster withResponseHeader(String key, String value) {
         responseHeaders.put(key, value);
         return this;
-    }
-
-    public Map<String, Object> buildComposeMap(TestFrameworkProperties testFrameworkProperties) {
-        Map<String, Object> composeMap = new HashMap<>();
-        Map<String, Object> appArgsMap = new HashMap<>();
-        appArgsMap.put("container_name", "upstream");
-        appArgsMap.put("image", testFrameworkProperties.getUpstreamBounceImage());
-        appArgsMap.put("expose", singletonList("40000-41000"));
-        appArgsMap.put("ports", singletonList("30010:3000"));
-        composeMap.put("upstream", appArgsMap);
-        return composeMap;
     }
 
     List<String> buildEnvironmentList(int instance) {

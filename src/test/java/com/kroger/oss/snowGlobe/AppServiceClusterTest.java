@@ -111,17 +111,6 @@ public class AppServiceClusterTest {
         assertThat(cluster.getMatchingPaths(), is(expectedPath1 + "|" + expectedPath2));
     }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void shouldBuildComposeMap() {
-        String clusterName = "clusterName";
-        AppServiceCluster cluster = AppServiceCluster.makeHttpsWebService(clusterName);
-        Map<String, Object> composeMap = (Map<String, Object>) cluster.buildComposeMap(testFrameworkProperties)
-                .get(cluster.buildContainerId(0));
-        assertThat(composeMap, IsMapContaining.hasEntry("container_name", cluster.buildContainerId(0)));
-        assertThat(composeMap, hasEntry("expose", singletonList(3000)));
-    }
-
     @Test
     public void shouldBuildHttpsEnvironmentList() {
         String clusterName = "clusterName";

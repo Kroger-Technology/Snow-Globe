@@ -18,6 +18,7 @@
 
 package com.kroger.oss.snowGlobe;
 
+import com.kroger.oss.snowGlobe.util.ComposeUtility;
 import com.kroger.oss.snowGlobe.util.UpstreamUtil;
 
 import java.io.File;
@@ -27,7 +28,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
-import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -166,6 +166,7 @@ public class NginxRpBuilder {
         argsMap.put("container_name", buildRpContainerId());
         argsMap.put("image", testFrameworkProperties.getNginxImage());
         argsMap.put("volumes", buildComposeVolumes());
+        argsMap.put("restart", "always");
         argsMap.put("ports", buildComposePorts());
         argsMap.put("command", getStartCommand());
         return composeMap;

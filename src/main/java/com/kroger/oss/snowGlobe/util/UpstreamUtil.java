@@ -1,7 +1,6 @@
 package com.kroger.oss.snowGlobe.util;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kroger.oss.snowGlobe.AppServiceCluster;
 import org.apache.http.HttpEntity;
@@ -26,7 +25,14 @@ public class UpstreamUtil {
         DockerNetworking.createNetwork();
         if (!upstreamRunning()) {
             startUpstream();
+            setupUpstreamShutdownHook();
         }
+    }
+
+    private static void setupUpstreamShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            ComposeUtility.shutdownContainer("upstream");
+        }));
     }
 
     public static int addUpstream(int instance, String clusterName, String matchingPaths, int httpResponseCode,

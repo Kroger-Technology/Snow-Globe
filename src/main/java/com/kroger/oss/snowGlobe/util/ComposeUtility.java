@@ -16,9 +16,11 @@
  * limitations under the License.
  */
 
-package com.kroger.oss.snowGlobe;
+package com.kroger.oss.snowGlobe.util;
 
-import com.kroger.oss.snowGlobe.util.UpstreamUtil;
+import com.kroger.oss.snowGlobe.AppServiceCluster;
+import com.kroger.oss.snowGlobe.NginxRpBuilder;
+import com.kroger.oss.snowGlobe.TestFrameworkProperties;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -68,19 +70,16 @@ public class ComposeUtility {
 
     public void stop() {
         try {
-            shutDownService(nginxRpBuilder.buildRpContainerId());
-            Arrays.stream(appClusters).forEach(appServiceCluster ->
-                    appServiceCluster.getRunningPorts().forEach(UpstreamUtil::stopUpstream));
+            shutdownContainer(nginxRpBuilder.buildRpContainerId());
+            Arrays.stream(appClusters).forEach(appCluster ->
+                    appCluster.getRunningPorts().forEach(UpstreamUtil::stopUpstream));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void shutDownService(String serviceName) {
-        ProcessBuilder shutdownProcess = new ProcessBuilder("docker", "rm", "-f", serviceName);
-        if(testFrameworkProperties.logContainerOutput()) {
-            shutdownProcess.inheritIO();
-        }
+    public static void shutdownContainer(String containerName) {
+        ProcessBuilder shutdownProcess = new ProcessBuilder("docker", "rm", "-f", containerName);
         try {
             shutdownProcess.start();
         } catch (IOException e) {
