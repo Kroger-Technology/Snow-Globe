@@ -1,5 +1,5 @@
 /*
- * Nginx Snow Globe
+ * Snow-Globe
  *
  * Copyright 2017 The Kroger Co.
  *
@@ -16,17 +16,23 @@
  * limitations under the License.
  */
 
-package com.kroger.oss.snowGlobe;
+package com.kroger.oss.snowGlobe.util;
 
+import com.kroger.oss.snowGlobe.AppServiceCluster;
+import com.kroger.oss.snowGlobe.NginxRpBuilder;
+import com.kroger.oss.snowGlobe.TestFrameworkProperties;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.*;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
-import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
+import static java.util.Collections.singletonMap;
 
 public class ComposeUtility {
 
@@ -43,7 +49,6 @@ public class ComposeUtility {
     public void start() {
         String fileContents = buildComposeFileContents();
         writeComposeFile(fileContents, testFrameworkProperties);
-        startUpstreams();
         startReverseProxy();
     }
 
@@ -65,20 +70,16 @@ public class ComposeUtility {
 
     public void stop() {
         try {
-            List<String> serviceNames = getServiceNames();
-            serviceNames.add(nginxRpBuilder.buildRpContainerId());
-            serviceNames.add(nginxRpBuilder.buildStartupContainerId());
-            serviceNames.forEach(this::shutDownService);
+            shutdownContainer(nginxRpBuilder.buildRpContainerId());
+            Arrays.stream(appClusters).forEach(appCluster ->
+                    appCluster.getRunningPorts().forEach(UpstreamUtil::stopUpstream));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void shutDownService(String serviceName) {
-        ProcessBuilder shutdownProcess = new ProcessBuilder("docker", "rm", "-f", serviceName);
-        if(testFrameworkProperties.logContainerOutput()) {
-            shutdownProcess.inheritIO();
-        }
+    public static void shutdownContainer(String containerName) {
+        ProcessBuilder shutdownProcess = new ProcessBuilder("docker", "rm", "-f", containerName);
         try {
             shutdownProcess.start();
         } catch (IOException e) {
@@ -86,29 +87,12 @@ public class ComposeUtility {
         }
     }
 
-    private void startUpstreams() {
-        try {
-            ProcessBuilder processBuilder = new ProcessBuilder("docker-compose", "--file",
-                    getComposeFileName(), "run", "--rm", nginxRpBuilder.buildStartupContainerId());
-            if(testFrameworkProperties.logContainerOutput()) {
-                processBuilder.inheritIO();
-            }
-            Process process = processBuilder.start();
-            process.waitFor();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private void startReverseProxy() {
         try {
 
-            ProcessBuilder processBuilder = new ProcessBuilder("docker-compose", "--file", getComposeFileName(), "up", "-d");
-            if(testFrameworkProperties.logContainerOutput()) {
-                processBuilder.inheritIO();
-            }
-            Process process = processBuilder.start();
-            process.waitFor();
+            ProcessBuilder processBuilder = new ProcessBuilder("docker-compose", "--file",
+                    getComposeFileName(), "up", "-d", nginxRpBuilder.buildRpContainerId());
+            processBuilder.start().waitFor();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -117,46 +101,28 @@ public class ComposeUtility {
     protected String buildComposeFileContents() {
         Map<String, Object> composeYaml = new HashMap<>();
         String prefix = "version: '2'\n\n";
-        composeYaml.put("services", buildServicesMap());
+        composeYaml.put("services", buildNginxServiceMap());
+        composeYaml.put("networks", buildNetworks());
         String body = new Yaml(buildDumperOptions()).dump(composeYaml) + "\n\n";
         return prefix + body;
     }
 
+    private Map<String, Object> buildNetworks() {
+        return singletonMap("default", singletonMap("external", singletonMap("name", "snow-globe")));
+    }
+
     protected Map<String, Object> buildServicesMap() {
         Map<String, Object> nginxServiceMap = buildNginxServiceMap();
-        Map<String, Object> startupMap = buildStartupServiceMap();
-        Map<String, Object> allServicesMap = buildUpstreamsMap();
-        allServicesMap.putAll(nginxServiceMap);
-        allServicesMap.putAll(startupMap);
-        return allServicesMap;
+        return nginxServiceMap;
     }
 
     private Map<String, Object> buildNginxServiceMap() {
-        return nginxRpBuilder.buildComposeMap(asList(appClusters));
-    }
-
-    private Map<String, Object> buildStartupServiceMap() {
-        return nginxRpBuilder.buildDependenciesStartupMap(asList(appClusters));
+        return nginxRpBuilder.buildComposeMap();
     }
 
     private DumperOptions buildDumperOptions() {
         DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         return options;
-    }
-
-    private Map<String, Object> buildUpstreamsMap() {
-        return stream(appClusters)
-                    .map(c -> c.buildComposeMap(testFrameworkProperties))
-                    .flatMap(m -> m.entrySet().stream())
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-
-    private List<String> getServiceNames() {
-        List<String> serviceNames = new ArrayList<>();
-        stream(appClusters)
-                .forEach(appServiceCluster -> appServiceCluster.getAppInstanceInfos().stream()
-                        .forEach(upstreamAppInfo -> serviceNames.add(upstreamAppInfo.containerName())));
-        return serviceNames;
     }
 }

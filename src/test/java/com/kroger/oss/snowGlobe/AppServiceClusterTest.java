@@ -1,5 +1,5 @@
 /*
- * Nginx Snow Globe
+ * Snow-Globe
  *
  * Copyright 2017 The Kroger Co.
  *
@@ -109,17 +109,6 @@ public class AppServiceClusterTest {
                 .makeHttpsWebService(clusterName)
                 .withExpectedPaths(expectedPath1, expectedPath2);
         assertThat(cluster.getMatchingPaths(), is(expectedPath1 + "|" + expectedPath2));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void shouldBuildComposeMap() {
-        String clusterName = "clusterName";
-        AppServiceCluster cluster = AppServiceCluster.makeHttpsWebService(clusterName);
-        Map<String, Object> composeMap = (Map<String, Object>) cluster.buildComposeMap(testFrameworkProperties)
-                .get(cluster.buildContainerId(0));
-        assertThat(composeMap, IsMapContaining.hasEntry("container_name", cluster.buildContainerId(0)));
-        assertThat(composeMap, hasEntry("expose", singletonList(3000)));
     }
 
     @Test

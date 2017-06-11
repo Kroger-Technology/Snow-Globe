@@ -1,5 +1,5 @@
 /*
- * Nginx Snow Globe
+ * Snow-Globe
  *
  * Copyright 2017 The Kroger Co.
  *
@@ -69,6 +69,13 @@ public class TestFrameworkProperties {
                 properties.get(key).toString().equalsIgnoreCase("true");
     }
 
+    private boolean getBooleanValue(String key, boolean defaultValue) {
+        if(properties.get(key) == null) {
+            return defaultValue;
+        }
+        return properties.get(key).toString().equalsIgnoreCase("true");
+    }
+
     private String getStringValue(String key) {
         if(properties.get(key) != null) {
             return properties.get(key).toString();
@@ -84,7 +91,7 @@ public class TestFrameworkProperties {
     }
 
 
-    String getUpstreamBounceImage() {
+    public String getUpstreamBounceImage() {
         return getStringValue("upstream.bounce.image");
     }
 
@@ -102,10 +109,6 @@ public class TestFrameworkProperties {
 
     String getNginxImage() {
         return getStringValue("nginx.container", "nginx");
-    }
-
-    String getStartupImage() {
-        return getStringValue("startup.container", "dadarek/wait-for-dependencies");
     }
 
     String getUpstreamLocation(String environment) {
@@ -181,17 +184,11 @@ public class TestFrameworkProperties {
         }
     }
 
-    public String getStartupPollTime() {
-        int millis = getIntValue("upstream.startup.pollingTimeMs", 10);
-        float seconds = new Float(millis) / 1000;
-        return String.format("%.3f", seconds);
-    }
-
     public int getMaxNginxStartupTime() {
-        return getIntValue("nginx.max.startupTime", 2);
+        return getIntValue("nginx.max.startupTime", 10);
     }
 
     public int getMaxNginxStartupPollingTimeMs() {
-        return getIntValue("nginx.startup.PollingTimeMs", 100);
+        return getIntValue("nginx.startup.PollingTimeMs", 200);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Nginx Snow Globe
+ * Snow-Globe
  *
  * Copyright 2017 The Kroger Co.
  *
@@ -148,17 +148,6 @@ public class TestFrameworkPropertiesTest {
     public void shouldGetStartCommandForEnvironment() {
         testFrameworkProperties.loadFile("src/test/resources/bogus-snow-globe-1.yml");
         assertEquals("bogus -a whee!!", testFrameworkProperties.getStartCommand("bogus"));
-    }
-
-    @Test
-    public void shouldGetUpstreamPollingTimeInSecondsFormatted() {
-        testFrameworkProperties.setPropertyForTesting("upstream.startup.pollingTimeMs", "50");
-        assertThat(testFrameworkProperties.getStartupPollTime(), is("0.050"));
-    }
-
-    @Test
-    public void shouldGetDefaultUpstreamPollingTimeInSecondsFormatted() {
-        assertThat(testFrameworkProperties.getStartupPollTime(), is("0.010"));
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
- * Nginx Snow Globe
+ * Snow-Globe
  *
  * Copyright 2017 The Kroger Co.
  *
@@ -36,13 +36,12 @@ import static java.util.Collections.singletonList;
  */
 public class AppServiceCluster {
 
-    private final int randomNamePrefix;
-
     private final String clusterName;
     private final int instances;
     private int httpResponseCode = 200;
     private String matchingPaths = "*";
     private Map<String, String> responseHeaders = new HashMap<>();
+    private List<Integer> instancePorts = new ArrayList<>();
     private final boolean useHttps;
 
     /**
@@ -116,7 +115,6 @@ public class AppServiceCluster {
         this.clusterName = clusterName;
         this.instances = instances;
         this.useHttps = useHttps;
-        randomNamePrefix = GlobalRandom.getRandomPrefix();
     }
 
     protected AppServiceCluster(String clusterName, int instances, int httpResponseCode, String matchingPaths,
@@ -161,10 +159,6 @@ public class AppServiceCluster {
         return this;
     }
 
-    String buildContainerId(int instance) {
-        return clusterName + "-" + randomNamePrefix + "-" + Integer.toString(instance);
-    }
-
     public String getClusterName() {
         return this.clusterName;
     }
@@ -172,19 +166,6 @@ public class AppServiceCluster {
     public AppServiceCluster withResponseHeader(String key, String value) {
         responseHeaders.put(key, value);
         return this;
-    }
-
-    public Map<String, Object> buildComposeMap(TestFrameworkProperties testFrameworkProperties) {
-        Map<String, Object> composeMap = new HashMap<>();
-        IntStream.range(0, instances).forEach(instance -> {
-            Map<String, Object> appArgsMap = new HashMap<>();
-            appArgsMap.put("container_name", buildContainerId(instance));
-            appArgsMap.put("image", testFrameworkProperties.getUpstreamBounceImage());
-            appArgsMap.put("environment", buildEnvironmentList(instance));
-            appArgsMap.put("expose", singletonList(3000));
-            composeMap.put(buildContainerId(instance), appArgsMap);
-        });
-        return composeMap;
     }
 
     List<String> buildEnvironmentList(int instance) {
@@ -198,15 +179,9 @@ public class AppServiceCluster {
         return environmentVariables;
     }
 
-    List<String> getInstanceNames() {
-        return IntStream.range(0, instances)
-                .mapToObj(this::buildContainerId)
-                .collect(Collectors.toList());
-    }
-
     public List<UpstreamAppInfo> getAppInstanceInfos() {
-        return IntStream.range(0, instances)
-                .mapToObj(instance -> new UpstreamAppInfo(buildContainerId(instance), 3000))
+        return instancePorts.stream()
+                .map(instanceNumber ->  new UpstreamAppInfo("upstream", instanceNumber))
                 .collect(Collectors.toList());
     }
 
@@ -228,5 +203,13 @@ public class AppServiceCluster {
 
     public boolean isUseHttps() {
         return useHttps;
+    }
+
+    public void assignPort(int port) {
+        instancePorts.add(port);
+    }
+
+    public List<Integer> getRunningPorts() {
+        return instancePorts;
     }
 }

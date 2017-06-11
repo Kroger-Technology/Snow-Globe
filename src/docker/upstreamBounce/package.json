@@ -6,6 +6,8 @@
   "author": "stephen.shary@kroger.com",
   "license": "Apache-2.0",
   "dependencies": {
+    "bluebird": "^3.5.0",
+    "body-parser": "^1.17.2",
     "express": "^4.15.2"
   }
 }

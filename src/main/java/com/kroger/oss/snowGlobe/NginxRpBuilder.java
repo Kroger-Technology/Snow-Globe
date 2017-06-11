@@ -1,5 +1,5 @@
 /*
- * Nginx Snow Globe
+ * Snow-Globe
  *
  * Copyright 2017 The Kroger Co.
  *
@@ -17,6 +17,9 @@
  */
 
 package com.kroger.oss.snowGlobe;
+
+import com.kroger.oss.snowGlobe.util.ComposeUtility;
+import com.kroger.oss.snowGlobe.util.UpstreamUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,12 +85,13 @@ public class NginxRpBuilder {
     public NginxRpBuilder start() {
         buildCopyOfServices();
         portMapper.initMapping(testFrameworkProperties);
+        UpstreamUtil.setupUpstreamService();
+        UpstreamUtil.initializeUpstreamInstances(clusters);
         buildEnvironmentFile();
         composeUtility = new ComposeUtility(this, testFrameworkProperties, clusters);
         composeUtility.start();
         return this;
     }
-
 
 
     private void buildCopyOfServices() {
@@ -155,33 +159,17 @@ public class NginxRpBuilder {
         }
     }
 
-    public Map<String, Object> buildComposeMap(List<AppServiceCluster> serviceClusters) {
+    public Map<String, Object> buildComposeMap() {
         Map<String, Object> composeMap = new HashMap<>();
         Map<String, Object> argsMap = new HashMap<>();
         composeMap.put(buildRpContainerId(), argsMap);
         argsMap.put("container_name", buildRpContainerId());
         argsMap.put("image", testFrameworkProperties.getNginxImage());
         argsMap.put("volumes", buildComposeVolumes());
+        argsMap.put("restart", "always");
         argsMap.put("ports", buildComposePorts());
-        argsMap.put("links", getServiceContainerNames(serviceClusters));
         argsMap.put("command", getStartCommand());
         return composeMap;
-    }
-
-    protected Map<String, Object> buildDependenciesStartupMap(List<AppServiceCluster> serviceClusters) {
-        Map<String, Object> composeMap = new HashMap<>();
-        Map<String, Object> argsMap = new HashMap<>();
-        composeMap.put(buildStartupContainerId(), argsMap);
-        argsMap.put("container_name", buildStartupContainerId());
-        argsMap.put("environment", buildStartupEnvironment());
-        argsMap.put("image", testFrameworkProperties.getStartupImage());
-        argsMap.put("depends_on", getServiceContainerNames(serviceClusters));
-        argsMap.put("command", buildStartupCommand(serviceClusters));
-        return composeMap;
-    }
-
-    private String[] buildStartupEnvironment() {
-        return new String[]{"SLEEP_LENGTH=" + testFrameworkProperties.getStartupPollTime()};
     }
 
     protected String buildStartupContainerId() {
@@ -236,13 +224,6 @@ public class NginxRpBuilder {
 
     private String buildEnvironmentFileMapping() {
         return environmentFile.getName() + ":" + testFrameworkProperties.getUpstreamLocation(environmentOverride);
-    }
-
-    private List<String> getServiceContainerNames(List<AppServiceCluster> serviceClusters) {
-        return serviceClusters.stream()
-                .map(AppServiceCluster::getInstanceNames)
-                .flatMap(Collection::stream)
-                .collect(toList());
     }
 
     private List<String> buildComposePorts() {
