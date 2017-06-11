@@ -18,6 +18,13 @@ jobs:
           command: ./gradlew integrationTest
 
       - run:
+          name: Verify Example Usage
+          command: |
+            cd exampleUsage
+            ./gradlew test
+            cd ..
+
+      - run:
           name: Build
           command: |
              gpg --output certs/private.key --batch --yes --passphrase $PRIVATE_KEY_ENC_PASSWORD --decrypt certs/private.key.enc

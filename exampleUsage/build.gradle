@@ -9,7 +9,7 @@ dependencies {
     // Here you are going to want to put in the latest version found here:
     // http://search.maven.org/#search%7Cga%7C1%7Ca%3A%20%22snow-globe%22%20g%3A%20%22com.kroger.oss%22
     testCompile 'junit:junit'
-    testCompile 'com.kroger.oss:snow-globe:1.0-138-g3a519cf'
+    testCompile 'com.kroger.oss:snow-globe:1.0-161-gcf8ef87'
 }
 
 test {
