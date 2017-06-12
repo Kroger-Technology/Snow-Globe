@@ -152,6 +152,8 @@ uploadArchives {
 nexusStaging {
     username=System.getenv("SONATYPE_USER")
     password=System.getenv("SONATYPE_PASSWORD")
+    numberOfRetries = 20
+    delayBetweenRetriesInMillis = 10000
 }
 
 idea {
