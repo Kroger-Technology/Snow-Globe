@@ -11,7 +11,7 @@ We move beyond the "-t" option to validate the configuration.  This framework bu
 
 ## How To Use Snow-Globe
 To use this framework, here are the pre-requisites for your machine:
-- Docker (1.11.0 or greater)
+- Docker (1.12.0 or greater)
 - Docker Compose (1.7.0 or greater)
 - Java JDK (version 1.8.0 or greater)
 
