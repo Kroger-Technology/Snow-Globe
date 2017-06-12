@@ -1,8 +1,27 @@
+/*
+ * Snow-Globe
+ *
+ * Copyright 2017 The Kroger Co.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.kroger.oss.snowGlobe.util;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kroger.oss.snowGlobe.AppServiceCluster;
+import com.kroger.oss.snowGlobe.TestFrameworkProperties;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -19,7 +38,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
 
+import static com.kroger.oss.snowGlobe.util.DockerNetworking.SNOW_GLOBE_NETWORK;
+
 public class UpstreamUtil {
+
+    private static final String UPSTREAM_SERVICE_PORT = "30010";
+    private static final String UPSTREAM_NAME = "upstream";
 
     public static void setupUpstreamService() {
         DockerNetworking.createNetwork();
@@ -31,7 +55,7 @@ public class UpstreamUtil {
 
     private static void setupUpstreamShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            ComposeUtility.shutdownContainer("upstream");
+            ComposeUtility.shutdownContainer(UPSTREAM_NAME);
         }));
     }
 
@@ -54,7 +78,7 @@ public class UpstreamUtil {
         try {
             StringEntity body = new StringEntity(Integer.toString(port));
             CloseableHttpClient client = HttpClients.createDefault();
-            HttpPost httpPost = new HttpPost("http://localhost:30010");
+            HttpPost httpPost = new HttpPost("http://localhost:" + UPSTREAM_SERVICE_PORT);
             httpPost.setHeader("Content-type", "application/json");
             httpPost.setEntity(body);
             client.execute(httpPost);
@@ -65,7 +89,7 @@ public class UpstreamUtil {
     }
 
     private static HttpPost buildRequest(StringEntity json) {
-        HttpPost httpPost = new HttpPost("http://localhost:30010/startServer");
+        HttpPost httpPost = new HttpPost("http://localhost:" + UPSTREAM_SERVICE_PORT + "/startServer");
         httpPost.setHeader("Content-type", "application/json");
         httpPost.setEntity(json);
         return httpPost;
@@ -96,10 +120,11 @@ public class UpstreamUtil {
     }
 
     private static void startUpstream() {
+        TestFrameworkProperties props = new TestFrameworkProperties();
         try {
             ProcessBuilder processBuilder =
-                    new ProcessBuilder("docker", "run", "-p", "30010:3000", "--network=snow-globe",
-                            "--name", "upstream", "--detach", "krogersnowglobe/upstream-bounce-app:latest");
+                    new ProcessBuilder("docker", "run", "-p", UPSTREAM_SERVICE_PORT + ":3000", "--network=" + SNOW_GLOBE_NETWORK,
+                            "--name", UPSTREAM_NAME, "--detach", props.getUpstreamBounceImage());
             Process process = processBuilder.start();
             process.waitFor();
         } catch (Exception e) {
@@ -116,7 +141,7 @@ public class UpstreamUtil {
 
     private static boolean upstreamRunning() {
         try {
-            URL url = new URL("http://localhost:30010");
+            URL url = new URL("http://localhost:" + UPSTREAM_SERVICE_PORT);
             URLConnection uc = url.openConnection();
             uc.connect();
             return true;
