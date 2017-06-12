@@ -32,3 +32,4 @@ snowglobe.preserve.temp.files: false
 snowglobe.disable.commons.logging: true
 nginx.define.upstream.zones: false
 upstream.preserveForPerformance: false
+snowGlobe.outputStartupLogs: true

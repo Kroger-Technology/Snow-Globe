@@ -95,7 +95,7 @@ public class TestFrameworkProperties {
         return getStringValue("upstream.bounce.image");
     }
 
-    boolean logContainerOutput() {
+    public boolean logContainerOutput() {
         return getBooleanValue("snowglobe.log.output");
     }
 
@@ -190,5 +190,9 @@ public class TestFrameworkProperties {
 
     public int getMaxNginxStartupPollingTimeMs() {
         return getIntValue("nginx.startup.PollingTimeMs", 200);
+    }
+
+    public boolean getShowContainerStartupLogs() {
+        return getBooleanValue("snowGlobe.outputStartupLogs", false);
     }
 }

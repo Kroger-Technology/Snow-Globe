@@ -122,11 +122,9 @@ public class UpstreamUtil {
     private static void startUpstream() {
         TestFrameworkProperties props = new TestFrameworkProperties();
         try {
-            ProcessBuilder processBuilder =
-                    new ProcessBuilder("docker", "run", "-p", UPSTREAM_SERVICE_PORT + ":3000", "--network=" + SNOW_GLOBE_NETWORK,
+            ContainerUtil.startContainer("docker", "run", "-p", UPSTREAM_SERVICE_PORT + ":3000", "--network=" + SNOW_GLOBE_NETWORK,
                             "--name", UPSTREAM_NAME, "--detach", props.getUpstreamBounceImage());
-            Process process = processBuilder.start();
-            process.waitFor();
+            waitForUpstreamToStart();
         } catch (Exception e) {
             // if we have gotten an exception, there is the possibility that another process was setting up this
             // container. This can happen with multiple parallel forks.
@@ -137,6 +135,17 @@ public class UpstreamUtil {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    private static void waitForUpstreamToStart() throws InterruptedException {
+        for(int i = 0; i < 25; i++) {
+            if(upstreamRunning()) {
+                return;
+            }
+            Thread.sleep(200);
+        }
+        System.out.println("Timed out waiting on upstream container to start.");
+        ContainerUtil.logContainerOutput(UPSTREAM_NAME);
     }
 
     private static boolean upstreamRunning() {

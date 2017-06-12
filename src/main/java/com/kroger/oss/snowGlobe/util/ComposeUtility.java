@@ -92,6 +92,9 @@ public class ComposeUtility {
 
             ProcessBuilder processBuilder = new ProcessBuilder("docker-compose", "--file",
                     getComposeFileName(), "up", "-d", nginxRpBuilder.buildRpContainerId());
+            if(testFrameworkProperties.getShowContainerStartupLogs()) {
+                processBuilder.inheritIO();
+            }
             processBuilder.start().waitFor();
         } catch (Exception e) {
             throw new RuntimeException(e);

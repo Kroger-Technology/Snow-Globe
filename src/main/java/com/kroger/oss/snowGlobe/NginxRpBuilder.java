@@ -19,6 +19,7 @@
 package com.kroger.oss.snowGlobe;
 
 import com.kroger.oss.snowGlobe.util.ComposeUtility;
+import com.kroger.oss.snowGlobe.util.ContainerUtil;
 import com.kroger.oss.snowGlobe.util.UpstreamUtil;
 
 import java.io.File;
@@ -102,10 +103,6 @@ public class NginxRpBuilder {
         return "RP-" + randomNamePrefix;
     }
 
-    public String getRpNetworkName() {
-        return "rp" + randomNamePrefix + "_default";
-    }
-
     private void buildEnvironmentFile() {
         try {
             if (environmentFile.exists()) {
@@ -138,26 +135,13 @@ public class NginxRpBuilder {
 
     public void stop() {
         if(testFrameworkProperties.logContainerOutput()) {
-            logContainerOutput(buildRpContainerId());
+            ContainerUtil.logContainerOutput(buildRpContainerId());
         }
         if(composeUtility != null) {
             composeUtility.stop();
         }
     }
 
-    private void logContainerOutput(String containerName) {
-        try {
-            System.out.println("\n\tLogging output for container: " + containerName);
-            System.out.println("----------------------------------------------------");
-            ProcessBuilder processBuilder = new ProcessBuilder("docker", "logs", containerName);
-            processBuilder.inheritIO();
-            Process process = processBuilder.start();
-            process.waitFor();
-            System.out.println("----------------------------------------------------");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public Map<String, Object> buildComposeMap() {
         Map<String, Object> composeMap = new HashMap<>();
@@ -170,18 +154,6 @@ public class NginxRpBuilder {
         argsMap.put("ports", buildComposePorts());
         argsMap.put("command", getStartCommand());
         return composeMap;
-    }
-
-    protected String buildStartupContainerId() {
-        return "startup-" + randomNamePrefix;
-    }
-
-    protected String buildStartupCommand(List<AppServiceCluster> serviceClusters) {
-        return serviceClusters.stream()
-                .map(AppServiceCluster::getAppInstanceInfos)
-                .flatMap(Collection::stream)
-                .map(upstreamAppInfo -> upstreamAppInfo.containerName() + ":" + upstreamAppInfo.port())
-                .collect(Collectors.joining(" "));
     }
 
     private List<String> buildComposeVolumes() {
