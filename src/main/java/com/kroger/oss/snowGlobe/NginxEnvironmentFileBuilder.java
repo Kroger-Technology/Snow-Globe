@@ -51,7 +51,7 @@ public class NginxEnvironmentFileBuilder {
                 .stream()
                 .map(serverName -> buildUpstreamServerEntry(serverName, upstreamServers.get(serverName)))
                 .reduce(String::concat)
-                .get();
+                .orElse("");
     }
 
 

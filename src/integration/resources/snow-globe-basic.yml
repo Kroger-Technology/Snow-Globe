@@ -1,0 +1,25 @@
+nginx.volume.mounts:
+  default:
+    - "src/integration/resources/nginx-basic.conf:/etc/nginx/nginx.conf"
+    - "src/integration/resources/static/*:/etc/nginx/static/"
+nginx.container: "nginx"
+nginx.url.port.mapping:
+  - https:
+      pattern: "https:.*"
+      port: 443
+  - http:
+      pattern: "http:.*"
+      port: 80
+nginx.start.command:
+  default: ["nginx", "-g", "'daemon off;'"]
+nginx.source.base.directory: "src/integration/resources/"
+nginx.deploy.base.directory: "/etc/nginx/"
+nginx.env.config.files:
+  default:
+    - "/src/integration/resources/nginx-basic.conf"
+upstream.bounce.image: "krogersnowglobe/upstream-bounce-app:latest"
+snowglobe.log.output:  true
+snowglobe.preserve.temp.files: false
+snowglobe.disable.commons.logging: true
+nginx.define.upstream.zones: false
+nginx.max.startupTime: 5

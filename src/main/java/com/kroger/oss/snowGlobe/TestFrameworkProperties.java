@@ -112,7 +112,7 @@ public class TestFrameworkProperties {
     }
 
     String getUpstreamLocation(String environment) {
-        return getEnvironmentString(environment, "nginx.upstream.file.path");
+        return getEnvironmentString(environment, "nginx.upstream.file.path", "/tmp/emptyUpstream.conf");
     }
 
     @SuppressWarnings("unchecked")
@@ -151,6 +151,21 @@ public class TestFrameworkProperties {
                     valueOf(configMap.get("default"));
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    private String getEnvironmentString(String environment, String key, String defaultValue) {
+        try {
+            Map<String, Object> configMap = (Map<String, Object>) properties.get(key);
+            if(configMap.containsKey(environment)) {
+                return valueOf(configMap.get(environment));
+            } else if(configMap.containsKey("default")) {
+                return valueOf(configMap.get("default"));
+            } else {
+                return defaultValue;
+            }
+        } catch (Exception e) {
+            return defaultValue;
         }
     }
 
