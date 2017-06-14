@@ -38,6 +38,9 @@ jobs:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               ./gradlew uploadArchives
+              // Wait two minutes for the upload to be processed before the close and release.
+              sleep 120
+              ./gradlew closeAndReleaseRepository
             fi
 
       - deploy:
