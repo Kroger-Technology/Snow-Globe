@@ -78,19 +78,29 @@ just the "default" mapping.
 
 Next up, you need to help SnowGlobe tell us where you put you upstream file(s).  This is done because SnowGlobe will 
 generate one for you and drop it in for you.  This is the file location on the deployed configuration, not the path
-for the source code.  Here is an example:
+for the source code.  
+
+This value is optional and only needed if the configuration contains upstream blocks in the configuration.
 
 ```yaml
-nginx.upstream.file.path:
-  "/etc/nginx/upstreams.conf"
+nginx.upstream.file.path: "/etc/nginx/upstreams.conf"
 ```
 
-After that, we need to know what container you are using to run Nginx.  This is an optional parameter with a default
-of `nginx`
+The next two fields define the "base" directory for you configuration.  It is popular to
+use relative paths for includes and such.  This gives SnowGlobe advice on how to interpret 
+includes using a relative path:
 
 ```yaml
-nginx.container:
-  "docker.kroger.com/library/nginx:1.11.3"
+nginx.source.base.directory: "src/integrationTestNginxConfig/"
+nginx.deploy.base.directory: "/etc/nginx/"
+```
+
+After that, we need to know what container you are using to run Nginx.  
+
+This is an optional parameter with a default value being the one below:
+
+```yaml
+nginx.container: "nginx"
 ```
 
 This next part is the port mapping for traffic.  Most people send HTTPS -> 443 and HTTP -> 80.   But we have had
@@ -128,15 +138,6 @@ This is optional and below is the default value:
 ```yaml
 nginx.start.command:
   default: ["nginx", "-g", "'daemon off;'"]
-```
-
-The next two fields define the "base" directory for you configuration.  It is popular to
-use relative paths for includes and such.  This gives SnowGlobe advice on how to interpret 
-includes using a relative path:
-
-```yaml
-nginx.source.base.directory: "src/integrationTestNginxConfig/"
-nginx.deploy.base.directory: "/etc/nginx/"
 ```
 
 This next field tells SnowGlobe where to search when inspecting the configuration.  Many times, this is
