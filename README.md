@@ -85,7 +85,8 @@ nginx.upstream.file.path:
   "/etc/nginx/upstreams.conf"
 ```
 
-After that, we need to know what container you are using to run Nginx.
+After that, we need to know what container you are using to run Nginx.  This is an optional parameter with a default
+of `nginx`
 
 ```yaml
 nginx.container:
@@ -94,7 +95,9 @@ nginx.container:
 
 This next part is the port mapping for traffic.  Most people send HTTPS -> 443 and HTTP -> 80.   But we have had
 cases where this is not true.  This section allows you to define the traffic and how you want to map it.  You can
-define multiple patterns for the url and which port you route traffic to.
+define multiple patterns for the url and which port you route traffic.  
+
+This value is optional an below is the default setting:
 
 ```yaml
 nginx.url.port.mapping:
@@ -110,14 +113,17 @@ This next field is the docker container to use for the upstream bounce service. 
 to be your upstream server and will bounce back the request in the body of the response.  This allows the testing
 framework to assert on all parts of the request and response.
 
+This is optional and below is the default:
+
 ```yaml
-upstream.bounce.image:
-  "krogersnowglobe/upstream-bounce-service:latest"
+upstream.bounce.image: "krogersnowglobe/upstream-bounce-service:latest"
 ```
 
 This next field defines how to start nginx.   You may have a custom script that you
 use and this is where you run that.  This can have environment specific startup commands
 so the `default` field is needed for the base run command.
+
+This is optional and below is the default value:
 
 ```yaml
 nginx.start.command:
@@ -143,26 +149,28 @@ nginx.env.config.files:
     - "/src/integrationTestNginxConfig/nginx.conf"
 ```
 
-The next field indicates where to pull the upstream bounce container:
-```yaml
-upstream.bounce.image:[TBD]
-```
 
-This field will when set to true will output all logs from the framework and docker containers:
+This field will when set to true will output all logs from the framework and docker containers.
+
+This is optional and below is the default value:
+
 ```yaml
 snowglobe.log.output:  false
 ```
 This field will preserve the compose and upstream files for help in investigating a problem:
+
+This is optional and below is the default value:
+
  ```yaml
 snowglobe.preserve.temp.files: false
 ```
-This field will disable extra logging that is mostly not needed:
+
+This last field will add upstream zones if you are using Nginx Plus.
+ 
+This is optional and below is the default value:
+
 ```yaml
-snowglobe.disable.commons.logging: true
-```
-This last field will add upstream zones if you are using Nginx Plus. 
-```yaml
-nginx.define.upstream.zones: true
+nginx.define.upstream.zones: false
 ```
 
 ## Step 4: Write the tests.

@@ -66,7 +66,7 @@ public class ComposeUtility {
     }
 
     public void stop() {
-        if (testFrameworkProperties.getShowContainerStartupLogs()) {
+        if (testFrameworkProperties.logContainerOutput()) {
             ContainerUtil.shutdownContainerWithLogs(nginxRpBuilder.buildRpContainerId());
         } else {
             ContainerUtil.shutdownContainer(nginxRpBuilder.buildRpContainerId());
@@ -78,7 +78,7 @@ public class ComposeUtility {
     private void startReverseProxy() {
         String[] command = {"docker-compose", "--file", getComposeFileName(), "up", "-d",
                 nginxRpBuilder.buildRpContainerId()};
-        if (testFrameworkProperties.getShowContainerStartupLogs()) {
+        if (testFrameworkProperties.logContainerOutput()) {
             ContainerUtil.runCommandWithLogs(command);
         } else {
             ContainerUtil.runCommand(command);

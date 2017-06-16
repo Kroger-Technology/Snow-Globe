@@ -22,6 +22,8 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +42,7 @@ public class TestFrameworkProperties {
     }
 
     public TestFrameworkProperties() {
-        if(overrideYmlConfigurationFile != null) {
+        if (overrideYmlConfigurationFile != null) {
             loadFile(overrideYmlConfigurationFile);
         } else {
             loadFile("snow-globe.yml");
@@ -49,7 +51,7 @@ public class TestFrameworkProperties {
     }
 
     private void handleLoggingSettings() {
-        if(properties.getOrDefault("snowglobe.disable.commons.logging", "false").toString().equalsIgnoreCase("true")) {
+        if (properties.getOrDefault("snowglobe.log.output", "false").toString().equalsIgnoreCase("true")) {
             System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
         }
     }
@@ -70,14 +72,14 @@ public class TestFrameworkProperties {
     }
 
     private boolean getBooleanValue(String key, boolean defaultValue) {
-        if(properties.get(key) == null) {
+        if (properties.get(key) == null) {
             return defaultValue;
         }
         return properties.get(key).toString().equalsIgnoreCase("true");
     }
 
     private String getStringValue(String key) {
-        if(properties.get(key) != null) {
+        if (properties.get(key) != null) {
             return properties.get(key).toString();
         } else {
             return null;
@@ -92,7 +94,7 @@ public class TestFrameworkProperties {
 
 
     public String getUpstreamBounceImage() {
-        return getStringValue("upstream.bounce.image");
+        return getStringValue("upstream.bounce.image", "krogersnowglobe/upstream-bounce-service:latest");
     }
 
     public boolean logContainerOutput() {
@@ -122,7 +124,22 @@ public class TestFrameworkProperties {
 
     @SuppressWarnings("unchecked")
     List<Map<String, Object>> getNginxPortMapping() {
-        return (List<Map<String, Object>>) properties.get("nginx.url.port.mapping");
+        if (properties.containsKey("nginx.url.port.mapping")) {
+            return (List<Map<String, Object>>) properties.get("nginx.url.port.mapping");
+        } else {
+            return getDefaultPortMapping();
+        }
+    }
+
+    public List<Map<String, Object>> getDefaultPortMapping() {
+        Map<String, Object> https = new HashMap<>();
+        https.put("pattern", "https:.*");
+        https.put("port", 443);
+
+        Map<String, Object> http = new HashMap<>();
+        http.put("pattern", "http:.*");
+        http.put("port", 80);
+        return Arrays.asList(https, http);
     }
 
 
@@ -135,20 +152,8 @@ public class TestFrameworkProperties {
         try {
             Map<String, Object> configMap = (Map<String, Object>) properties.get(key);
             return (configMap.containsKey(environment)) ?
-                        (List<String>) configMap.get(environment) :
-                        (List<String>) configMap.get("default");
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private String getEnvironmentString(String environment, String key) {
-        try {
-            Map<String, Object> configMap = (Map<String, Object>) properties.get(key);
-            return (configMap.containsKey(environment)) ?
-                    valueOf(configMap.get(environment)) :
-                    valueOf(configMap.get("default"));
+                    (List<String>) configMap.get(environment) :
+                    (List<String>) configMap.get("default");
         } catch (Exception e) {
             return null;
         }
@@ -157,9 +162,9 @@ public class TestFrameworkProperties {
     private String getEnvironmentString(String environment, String key, String defaultValue) {
         try {
             Map<String, Object> configMap = (Map<String, Object>) properties.get(key);
-            if(configMap.containsKey(environment)) {
+            if (configMap.containsKey(environment)) {
                 return valueOf(configMap.get(environment));
-            } else if(configMap.containsKey("default")) {
+            } else if (configMap.containsKey("default")) {
                 return valueOf(configMap.get("default"));
             } else {
                 return defaultValue;
@@ -179,11 +184,19 @@ public class TestFrameworkProperties {
 
     @SuppressWarnings("unchecked")
     public String getStartCommand(String environment) {
-        Map<String, List<String>> startCommands = (Map<String, List<String>>) properties.get("nginx.start.command");
-        if(!startCommands.containsKey(environment)) {
-            environment = "default";
+        try {
+            Map<String, List<String>> startCommands = (Map<String, List<String>>) properties.get("nginx.start.command");
+            if (!startCommands.containsKey(environment)) {
+                environment = "default";
+            }
+            return startCommands.get(environment).stream().collect(joining(" "));
+        } catch (Exception e) {
+            return defaultStartCommand();
         }
-        return startCommands.get(environment).stream().collect(joining(" "));
+    }
+
+    private String defaultStartCommand() {
+        return "nginx, -g, 'daemon off;'";
     }
 
 
@@ -194,7 +207,7 @@ public class TestFrameworkProperties {
     private int getIntValue(String key, int defaultValue) {
         try {
             return Integer.parseInt(properties.get(key).toString());
-        }catch(Exception ignored) {
+        } catch (Exception ignored) {
             return defaultValue;
         }
     }
@@ -205,9 +218,5 @@ public class TestFrameworkProperties {
 
     public int getMaxNginxStartupPollingTimeMs() {
         return getIntValue("nginx.startup.PollingTimeMs", 200);
-    }
-
-    public boolean getShowContainerStartupLogs() {
-        return getBooleanValue("snowGlobe.outputStartupLogs", false);
     }
 }

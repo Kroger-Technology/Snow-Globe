@@ -40,8 +40,6 @@ public class TestFrameworkPropertiesTest {
         testFrameworkProperties.loadFile("snow-globe.yml");
     }
 
-
-
     @Test
     public void shouldReturnCorrectFakeUpstreamImage() {
         testFrameworkProperties.loadFile("src/test/resources/bogus-snow-globe-1.yml");

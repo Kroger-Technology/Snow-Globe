@@ -37,7 +37,7 @@ public class ContainerUtil {
                 }
                 Thread.sleep(10);
             }
-            System.out.println("[RETURN CODE: " + process.exitValue() + "]");
+            System.out.println("[EXIT CODE: " + process.exitValue() + "]");
             System.out.println("----------------------------------------------------");
             process.waitFor();
         } catch (Exception e) {
