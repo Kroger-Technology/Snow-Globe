@@ -24,10 +24,7 @@ import com.kroger.oss.snowGlobe.TestFrameworkProperties;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,7 +55,7 @@ public class ComposeUtility {
 
     private void writeComposeFile(String fileContents, TestFrameworkProperties testFrameworkProperties) {
         File composeFile = new File(getComposeFileName());
-        if(!testFrameworkProperties.preserveTempFiles()) {
+        if (!testFrameworkProperties.preserveTempFiles()) {
             composeFile.deleteOnExit();
         }
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(getComposeFileName()))) {
@@ -69,35 +66,22 @@ public class ComposeUtility {
     }
 
     public void stop() {
-        try {
-            shutdownContainer(nginxRpBuilder.buildRpContainerId());
-            Arrays.stream(appClusters).forEach(appCluster ->
-                    appCluster.getRunningPorts().forEach(UpstreamUtil::stopUpstream));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (testFrameworkProperties.getShowContainerStartupLogs()) {
+            ContainerUtil.shutdownContainerWithLogs(nginxRpBuilder.buildRpContainerId());
+        } else {
+            ContainerUtil.shutdownContainer(nginxRpBuilder.buildRpContainerId());
         }
-    }
-
-    public static void shutdownContainer(String containerName) {
-        ProcessBuilder shutdownProcess = new ProcessBuilder("docker", "rm", "-f", containerName);
-        try {
-            shutdownProcess.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Arrays.stream(appClusters).forEach(appCluster ->
+                appCluster.getRunningPorts().forEach(UpstreamUtil::stopUpstream));
     }
 
     private void startReverseProxy() {
-        try {
-
-            ProcessBuilder processBuilder = new ProcessBuilder("docker-compose", "--file",
-                    getComposeFileName(), "up", "-d", nginxRpBuilder.buildRpContainerId());
-            if(testFrameworkProperties.getShowContainerStartupLogs()) {
-                processBuilder.inheritIO();
-            }
-            processBuilder.start().waitFor();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        String[] command = {"docker-compose", "--file", getComposeFileName(), "up", "-d",
+                nginxRpBuilder.buildRpContainerId()};
+        if (testFrameworkProperties.getShowContainerStartupLogs()) {
+            ContainerUtil.runCommandWithLogs(command);
+        } else {
+            ContainerUtil.runCommand(command);
         }
     }
 

@@ -54,9 +54,7 @@ public class UpstreamUtil {
     }
 
     private static void setupUpstreamShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            ComposeUtility.shutdownContainer(UPSTREAM_NAME);
-        }));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> ContainerUtil.shutdownContainer(UPSTREAM_NAME)));
     }
 
     public static int addUpstream(int instance, String clusterName, String matchingPaths, int httpResponseCode,
@@ -122,7 +120,7 @@ public class UpstreamUtil {
     private static void startUpstream() {
         TestFrameworkProperties props = new TestFrameworkProperties();
         try {
-            ContainerUtil.startContainer("docker", "run", "-p", UPSTREAM_SERVICE_PORT + ":3000", "--network=" + SNOW_GLOBE_NETWORK,
+            ContainerUtil.runCommand("docker", "run", "-p", UPSTREAM_SERVICE_PORT + ":3000", "--network=" + SNOW_GLOBE_NETWORK,
                             "--name", UPSTREAM_NAME, "--detach", props.getUpstreamBounceImage());
             waitForUpstreamToStart();
         } catch (Exception e) {
