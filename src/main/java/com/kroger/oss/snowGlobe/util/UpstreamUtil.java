@@ -120,8 +120,13 @@ public class UpstreamUtil {
     private static void startUpstream() {
         TestFrameworkProperties props = new TestFrameworkProperties();
         try {
-            ContainerUtil.runCommand("docker", "run", "-p", UPSTREAM_SERVICE_PORT + ":3000", "--network=" + SNOW_GLOBE_NETWORK,
-                            "--name", UPSTREAM_NAME, "--detach", props.getUpstreamBounceImage());
+            String[] command = {"docker", "run", "-p", UPSTREAM_SERVICE_PORT + ":3000", "--network=" + SNOW_GLOBE_NETWORK,
+                    "--name", UPSTREAM_NAME, "--detach", props.getUpstreamBounceImage()};
+            if(props.logContainerOutput()) {
+                ContainerUtil.runCommandWithLogs(command);
+            } else {
+                ContainerUtil.runCommand(command);
+            }
             waitForUpstreamToStart();
         } catch (Exception e) {
             // if we have gotten an exception, there is the possibility that another process was setting up this
