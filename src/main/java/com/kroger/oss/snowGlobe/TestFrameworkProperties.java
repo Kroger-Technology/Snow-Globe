@@ -109,6 +109,10 @@ public class TestFrameworkProperties {
         return getBooleanValue("nginx.define.upstream.zones");
     }
 
+    public String getDockerNetworkName() {
+        return getStringValue("snowglobe.network.name", "snow-globe");
+    }
+
     String getNginxImage() {
         return getStringValue("nginx.container", "nginx");
     }

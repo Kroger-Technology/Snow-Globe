@@ -120,7 +120,7 @@ public class UpstreamUtil {
     private static void startUpstream() {
         TestFrameworkProperties props = new TestFrameworkProperties();
         try {
-            String[] command = {"docker", "run", "-p", UPSTREAM_SERVICE_PORT + ":3000", "--network=" + SNOW_GLOBE_NETWORK,
+            String[] command = {"docker", "run", "-p", UPSTREAM_SERVICE_PORT + ":3000", "--network=" + props.getDockerNetworkName(),
                     "--name", UPSTREAM_NAME, "--detach", props.getUpstreamBounceImage()};
             if(props.logContainerOutput()) {
                 ContainerUtil.runCommandWithLogs(command);

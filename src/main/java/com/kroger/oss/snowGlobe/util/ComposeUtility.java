@@ -95,7 +95,7 @@ public class ComposeUtility {
     }
 
     private Map<String, Object> buildNetworks() {
-        return singletonMap("default", singletonMap("external", singletonMap("name", "snow-globe")));
+        return singletonMap("default", singletonMap("external", singletonMap("name", testFrameworkProperties.getDockerNetworkName())));
     }
 
     protected Map<String, Object> buildServicesMap() {
