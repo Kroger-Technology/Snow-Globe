@@ -22,10 +22,13 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
@@ -222,5 +225,18 @@ public class TestFrameworkProperties {
 
     public int getMaxNginxStartupPollingTimeMs() {
         return getIntValue("nginx.startup.PollingTimeMs", 200);
+    }
+
+    public byte[] getLocalHostResolvedIp() {
+        String rawResolvedIpEnvVariable = getStringValue("snowGlobe.localhost.resolvedIpEnvVariable");
+        try {
+            String resolvedIp = System.getenv(rawResolvedIpEnvVariable);
+            if(resolvedIp.contains(":")) {
+                resolvedIp = resolvedIp.substring(0, resolvedIp.indexOf(":"));
+            }
+            return InetAddress.getByName(resolvedIp).getAddress();
+        } catch (Exception e) {
+            return new byte[] {127, 0, 0, 1};
+        }
     }
 }

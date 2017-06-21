@@ -117,7 +117,11 @@ public class CallUtility {
      */
     static BasicHttpClientConnectionManager buildConnectionManager() {
         return new BasicHttpClientConnectionManager(getDefaultRegistry(), null,
-                    null, host -> new InetAddress[] { InetAddress.getByAddress(new byte[] {127, 0, 0, 1}) });
+                    null, host -> new InetAddress[] { InetAddress.getByAddress(getResolvedIpAddress()) });
+    }
+
+    private static byte[] getResolvedIpAddress() {
+        return getProperties().getLocalHostResolvedIp();
     }
 
     /**

@@ -157,5 +157,4 @@ public class TestFrameworkPropertiesTest {
         assertTrue(testFrameworkProperties.defineUpstreamZones());
         TestFrameworkProperties.setConfigFile(null);
     }
-
 }
