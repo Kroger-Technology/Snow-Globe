@@ -99,14 +99,18 @@ public class NginxEnvironmentFileBuilder {
      * upstream servers the configuration will be looking for.  We just add an empty one so it doesn't
      * complain and shutdown.
      *
+     * NOTE:  Any proxy_pass with a variable set will be ignored since that variable will be resolved at the request.
+     *
      * @param line a line from the nginx.conf file that should be of the format:
      *             "   proxy_pass http://[CLUSTER NAME]/..."
      */
     void addEmptyCluster(String line) {
+        if(line.contains("$")) {
+            return;
+        }
         String prefixRemoved = line.substring(line.indexOf("://") + 3);
         String clusterName = prefixRemoved;
         clusterName = handleClusterNameChar(prefixRemoved, clusterName, "/");
-        clusterName = handleClusterNameChar(prefixRemoved, clusterName, "$");
         clusterName = handleClusterNameChar(prefixRemoved, clusterName, ";");
         clusterName = handleClusterNameChar(prefixRemoved, clusterName, "/");
         addUpstreamServer(clusterName, singletonList(new UpstreamAppInfo("127.0.0.1", 65534)));

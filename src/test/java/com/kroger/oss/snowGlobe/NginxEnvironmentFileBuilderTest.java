@@ -28,6 +28,7 @@ import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -94,7 +95,7 @@ public class NginxEnvironmentFileBuilderTest {
         String cluster1 = "cluster1";
         final String upstreamLine = "proxy_pass http://" + cluster1 + "$";
         fileBuilder.addEmptyCluster(upstreamLine);
-        assertThat(fileBuilder.upstreamServers, hasKey(cluster1));
+        assertThat(fileBuilder.upstreamServers, not(hasKey(cluster1)));
     }
 
     @Test
