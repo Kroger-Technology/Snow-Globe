@@ -105,7 +105,8 @@ nginx.container: "nginx"
 
 This next part is the port mapping for traffic.  Most people send HTTPS -> 443 and HTTP -> 80.   But we have had
 cases where this is not true.  This section allows you to define the traffic and how you want to map it.  You can
-define multiple patterns for the url and which port you route traffic.  
+define multiple patterns for the url and which port you route traffic.  This will choose the first matching url pattern
+defined in the list.  Order is important here.
 
 This value is optional an below is the default setting:
 

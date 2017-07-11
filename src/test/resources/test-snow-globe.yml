@@ -6,12 +6,18 @@ nginx.upstream.file.path:
   default: "/etc/nginx/upstreams.conf"
 nginx.container: "docker.kroger.com/library/nginx:1.11.3"
 nginx.url.port.mapping:
+  - subdomain:
+      pattern: "https://sub\\..*"
+      port: 10443
   - https:
       pattern: "https:.*"
       port: 443
   - http:
       pattern: "http:.*"
       port: 80
+  - lowerOrderDomain:
+      pattern: "http://lower\\..*"
+      port: 10080
 nginx.start.command:
   default: ["nginx", "-g", "'daemon off;'"]
 nginx.source.base.directory: "src/nginx/"

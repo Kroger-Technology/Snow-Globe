@@ -20,9 +20,7 @@ package com.kroger.oss.snowGlobe;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
@@ -31,6 +29,7 @@ import static java.util.stream.Collectors.toMap;
 
 class PortMapper {
 
+    private List<String> mappingOrder = new ArrayList<>();
     private Map<Integer, Integer> nginxToDockerPortMap = new HashMap<>();
     private Map<String, Integer> urlRegexToNginxPortMap = new HashMap<>();
 
@@ -46,6 +45,7 @@ class PortMapper {
 
     void initMapping(TestFrameworkProperties testFrameworkProperties) {
         List<Map<String, Object>> yamlMapping = testFrameworkProperties.getNginxPortMapping();
+        yamlMapping.forEach(mapping -> mappingOrder.add(valueOf(getActualMappingForPort(mapping).get("pattern"))));
         urlRegexToNginxPortMap = yamlMapping.stream()
                 .collect(toMap(mapping -> valueOf(getActualMappingForPort(mapping).get("pattern")),
                         mapping -> parseInt(valueOf(getActualMappingForPort(mapping).get("port")))));
@@ -60,9 +60,18 @@ class PortMapper {
                 .getValue();
     }
 
+    /**
+     * Determines the Nginx port to use for the incoming call.  This looks at the array of ports and
+     * urls and finds the matching ones and then chooses the first one defined in the yaml file.
+     *
+     * @param url The url to test
+     * @return
+     *      The first matching url in the list of urls to test.
+     */
     private Integer getNginxPort(String url) {
         return urlRegexToNginxPortMap.entrySet().stream()
                 .filter(entry -> url.matches(entry.getKey()))
+                .sorted(Comparator.comparingInt(o -> mappingOrder.indexOf(o.getKey())))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Unable to map url request: \"" + url + "\" to known port in the yaml configuration."))
                 .getValue();

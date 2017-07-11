@@ -41,12 +41,15 @@ public class PortMapperTest {
     @Test
     public void shouldConsistentlyAssignCorrectPortToSecureAndInsecureUrls() {
         portMapper.initMapping(testFrameworkProperties);
+        int subdomainPort = portMapper.getMappedPortForUrl("https://sub.secureurl.com");
         int securePort = portMapper.getMappedPortForUrl("https://secureurl.com");
         int inSecurePort = portMapper.getMappedPortForUrl("http://insecureurl.com");
         assertNotEquals(securePort, inSecurePort);
 
         IntStream.rangeClosed(1, 1000).forEach(i -> assertEquals(securePort, (int) portMapper.getMappedPortForUrl("https://" + i + ".com")));
         IntStream.rangeClosed(1, 1000).forEach(i -> assertEquals(inSecurePort, (int) portMapper.getMappedPortForUrl("http://" + i + ".com")));
+        IntStream.rangeClosed(1, 1000).forEach(i -> assertEquals(subdomainPort, (int) portMapper.getMappedPortForUrl("https://sub." + i + ".com")));
+        IntStream.rangeClosed(1, 1000).forEach(i -> assertEquals(inSecurePort, (int) portMapper.getMappedPortForUrl("http://lower." + i + ".com")));
     }
 
     @Test(expected = RuntimeException.class)
