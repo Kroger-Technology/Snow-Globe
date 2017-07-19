@@ -230,6 +230,15 @@ public class ResponseVerification {
         return expectResponseHeader(key, value);
     }
 
+    public ResponseVerification andExpectResponseHeaderMatches(String key, String matchingValue) {
+        assertThat("Call from Reverse Proxy to: " +  this.serviceResponseBody.getRequest().getUrlToApplication()
+                        + " originating from: " + this.testRequest.getPrettyUrl()
+                        + " does have the header : '" + key + "' with a matching value: '" + matchingValue + "' in the " +
+                        "  response sent from the upstream application.",
+                this.responseHeaders.get(key), matchesPattern(matchingValue));
+        return this;
+    }
+
     @Deprecated
     public ResponseVerification hasResponseHeader(String key, String value) {
         assertThat("Call to " + this.testRequest.getPrettyUrl() + " did not have the matching response header.",

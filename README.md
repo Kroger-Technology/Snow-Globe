@@ -469,6 +469,12 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
         make(getRequest("https://www.nginx-test.com/checkout").to(nginxReverseProxy))
                 .andExpectMissingResponseHeader("internal-secret_key");
     }
+    
+    @Test
+    public void should_have_matching_response_header() {
+        make(getRequest("https://www.nginx-test.com/checkout").to(nginxReverseProxy))
+                .andExpectResponseHeaderMatches("internal-secret-key", "[0-9]+");
+    }
 
 ```
 

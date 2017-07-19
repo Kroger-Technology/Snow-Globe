@@ -29,6 +29,7 @@ import org.mockito.Mock;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.lang.String.valueOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
@@ -160,5 +161,16 @@ public class ResponseVerificationTest {
         when(requestToService.getHeaders()).thenReturn(headers);
 
         buildVerification().andExpectMissingResponseHeader("otherKey");
+    }
+
+    @Test
+    public void shouldVerifyResponseHeaderMatchesRegex() {
+        String key = "key";
+        String value = valueOf(System.currentTimeMillis());
+        Header header = new BasicHeader(key, value);
+        Header[] allHeaders  = {header};
+        when(response.getAllHeaders()).thenReturn(allHeaders);
+
+        buildVerification().andExpectResponseHeaderMatches(key, "[0-9]+");
     }
 }
