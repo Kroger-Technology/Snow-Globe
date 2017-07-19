@@ -213,6 +213,8 @@ to set their behavior to test non-200 scenarios.
 Below are example test scenarios that include configuration and testing examples.  All of the examples below are used as 
 integration tests for the project and pass for each build.
 
+---
+
 #### Verifying the HTTP status code response to the client.
 
 There are times where nginx or the upstream server set the HTTP response code and we can verify the response code whether
@@ -241,6 +243,7 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
 ```
 
 ---
+
 ***HTTP -> HTTPS redirect Example***
 
 This is an example that an http call will return a HTTP `301` and have a location header to use HTTPS
@@ -269,6 +272,7 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
     }
 ```
 
+---
 
 #### Adding health checks to your requests
 
@@ -304,6 +308,9 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
                 .expectSuccessfulHealthCheck();
     }
 ```
+
+---
+
 #### Verifying the call was routed to the correct upstream cluster
 
 When Nginx routes a call using the `proxy_pass` directive, this test can verify that it was sent to the correct cluster.
@@ -342,6 +349,7 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
     }
 ```
 
+---
 
 #### Verifying the call sent to the upstream app uses the correct path
 
@@ -369,6 +377,8 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
                 .andExpectAppPath("/login-path");
     }
 ```
+
+---
 
 #### Verifying the call to the upstream application contains a specific header
 
@@ -399,6 +409,8 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
     }
 ```
 
+---
+
 #### Verifying the call to the upstream application has the url fields properly set.
 
 When Nginx routes a call using the `proxy_pass` directive, this test can verify that it was sent to the upstream app with
@@ -425,6 +437,8 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
                 .andExpectAppUrl("https://www.nginx-test.com/login-path");
     }
 ```
+
+---
 
 #### Verifying the response headers
 
@@ -478,6 +492,7 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
 
 ```
 
+---
 
 #### Verifying the call is made to a specific upstream server
 
@@ -513,6 +528,7 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
     }
 ```
 
+---
 
 #### Verifying the call made to an upstream server contains a query param
 
@@ -539,6 +555,7 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
     }
 ```
 
+---
 
 #### Verifying the response matches a file or string
 
