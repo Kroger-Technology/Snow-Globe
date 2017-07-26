@@ -26,17 +26,11 @@ public class ContainerUtil {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(command);
             processBuilder.redirectErrorStream(true);
-            Process process = processBuilder.start();
+            processBuilder.inheritIO();
             System.out.println("\n\tRunning Command: " + Arrays.stream(command).collect(Collectors.joining(" ")));
             System.out.println("----------------------------------------------------");
-            InputStream stream = process.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-            while (process.isAlive()) {
-                if (reader.ready()) {
-                    System.out.println(reader.readLine());
-                }
-                Thread.sleep(10);
-            }
+            Process process = processBuilder.start();
+            process.waitFor();
             System.out.println("[EXIT CODE: " + process.exitValue() + "]");
             System.out.println("----------------------------------------------------");
             process.waitFor();
