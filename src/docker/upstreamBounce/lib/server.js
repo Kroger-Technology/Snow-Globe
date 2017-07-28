@@ -20,6 +20,10 @@ const startServer = () => {
     res.status(200).end();
   });
 
+  app.get('/health', (req, res) => {
+    res.status(200).end();
+  })
+
   http.createServer(app).listen(3000);
 };
 

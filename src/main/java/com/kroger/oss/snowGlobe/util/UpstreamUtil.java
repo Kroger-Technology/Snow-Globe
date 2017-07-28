@@ -153,10 +153,11 @@ public class UpstreamUtil {
 
     private static boolean upstreamRunning() {
         try {
-            URL url = new URL("http://localhost:" + UPSTREAM_SERVICE_PORT);
+            URL url = new URL("http://localhost:" + UPSTREAM_SERVICE_PORT + "/health");
             URLConnection uc = url.openConnection();
             uc.connect();
-            return true;
+            String status = uc.getHeaderField(0);
+            return status.contains("200");
 
         } catch (Exception e) {
             return false;
