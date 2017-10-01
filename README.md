@@ -2,11 +2,9 @@
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.kroger.oss/snow-globe/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.kroger.oss/snow-globe) [![Build Status Image](https://circleci.com/gh/Kroger-Technology/Snow-Globe.svg?style=shield&circe-token=bb34e5439f189eb33ad7591f59f768bd257aa0b8)](https://circleci.com/gh/Kroger-Technology/Snow-Globe) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A end to end testing framework that will simulate your upstream servers and help verify that Nginx properly routes all 
-of your calls.  It verifies that your configuration decorates the request to the upstream servers and the responses back
-work as expected.
+A end to end testing framework for Nginx that will test your configuration.  Every test involves verifying that a request will correctly flow through Nginx, to an upstream cluster and properly handles the response.
 
-We move beyond the "-t" option to validate the configuration.  This framework builds an isolated environment of upstream servers and then sends a request into the NGINX instance.  This "magic" is done by parsing the configuration, dynamically building an upstream file, and with the power of Docker Compose, simulating an actual flow through your NGINX configuration.
+This is done by parsing the configuration, dynamically building an upstream file, and with Docker starts up Nginx with the configuration and verifies an actual request/response flow.
 
 
 ## How To Use Snow-Globe
