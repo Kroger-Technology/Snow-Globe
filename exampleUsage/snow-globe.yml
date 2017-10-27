@@ -1,7 +1,6 @@
 nginx.volume.mounts:
   default:
     - "src/nginx/nginx.conf:/etc/nginx/nginx.conf"
-    - "src/nginx/upstreams.conf:/etc/nginx/upstreams.conf"
 nginx.upstream.file.path:
   default: "/etc/nginx/upstreams.conf"
 nginx.container: "nginx"
