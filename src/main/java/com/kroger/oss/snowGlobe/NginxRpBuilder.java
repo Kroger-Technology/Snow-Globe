@@ -161,7 +161,7 @@ public class NginxRpBuilder {
         nginxVolumes.addAll(buildNginxVolumeMounts());
         nginxVolumes.add(buildEnvironmentFileMapping());
         return nginxVolumes.stream()
-                .map(volume -> (volume.startsWith("/") ? "." : "./") + volume + ":ro")
+                .map(volume -> (volume.startsWith("/") ? "." : "./") + volume + ":rw")
                 .collect(toList());
     }
 
