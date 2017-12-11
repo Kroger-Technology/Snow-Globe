@@ -50,7 +50,7 @@ public class ComposeUtility {
     }
 
     protected String getComposeFileName() {
-        return nginxRpBuilder.buildRpContainerId() + "-compose.yml";
+        return "./build/" + nginxRpBuilder.buildRpContainerId() + "-compose.yml";
     }
 
     private void writeComposeFile(String fileContents, TestFrameworkProperties testFrameworkProperties) {
