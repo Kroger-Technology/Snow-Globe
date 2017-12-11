@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
@@ -58,7 +57,9 @@ public class NginxRpBuilder {
     public NginxRpBuilder(AppServiceCluster[] clusters) {
         this.clusters = clusters;
         testFrameworkProperties = new TestFrameworkProperties();
-        environmentFile = new File(new File(System.getProperty("user.dir")), "NGINX_ENV-"+ randomNamePrefix + ".conf");
+        final String buildDirectory = System.getProperty("user.dir") + File.separator + "build";
+        new File(buildDirectory).mkdirs();
+        environmentFile = new File(new File(buildDirectory), "NGINX_ENV-"+ randomNamePrefix + ".conf");
         if(!testFrameworkProperties.preserveTempFiles()) {
             environmentFile.deleteOnExit();
         }
@@ -157,12 +158,11 @@ public class NginxRpBuilder {
     }
 
     private List<String> buildComposeVolumes() {
-        List<String> nginxVolumes = new ArrayList<>();
-        nginxVolumes.addAll(buildNginxVolumeMounts());
-        nginxVolumes.add(buildEnvironmentFileMapping());
-        return nginxVolumes.stream()
-                .map(volume -> (volume.startsWith("/") ? "." : "./") + volume + ":rw")
+        List<String> nginxVolumes = buildNginxVolumeMounts().stream()
+                .map(volume -> (volume.startsWith("/") ? ".." : "../") + volume + ":rw")
                 .collect(toList());
+        nginxVolumes.add(buildEnvironmentFileMapping());
+        return nginxVolumes;
     }
 
     private List<String> buildNginxVolumeMounts() {
@@ -195,7 +195,7 @@ public class NginxRpBuilder {
     }
 
     private String buildEnvironmentFileMapping() {
-        return environmentFile.getName() + ":" + testFrameworkProperties.getUpstreamLocation(environmentOverride);
+        return "./" + environmentFile.getName() + ":" + testFrameworkProperties.getUpstreamLocation(environmentOverride);
     }
 
     private List<String> buildComposePorts() {
