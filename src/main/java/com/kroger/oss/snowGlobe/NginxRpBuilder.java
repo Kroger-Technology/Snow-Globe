@@ -39,12 +39,12 @@ import static java.util.stream.Collectors.toList;
 public class NginxRpBuilder {
 
     AppServiceCluster[] clusters;
-    final File environmentFile;
-    final int randomNamePrefix = GlobalRandom.getRandomPrefix();
     String environmentOverride = "default";
     ComposeUtility composeUtility;
     PortMapper portMapper = new PortMapper();
     TestFrameworkProperties testFrameworkProperties;
+    private String upstreamFileContents;
+    String configurationHash = null;
 
 
     /**
@@ -57,12 +57,6 @@ public class NginxRpBuilder {
     public NginxRpBuilder(AppServiceCluster[] clusters) {
         this.clusters = clusters;
         testFrameworkProperties = new TestFrameworkProperties();
-        final String buildDirectory = System.getProperty("user.dir") + File.separator + "build";
-        new File(buildDirectory).mkdirs();
-        environmentFile = new File(new File(buildDirectory), "NGINX_ENV-"+ randomNamePrefix + ".conf");
-        if(!testFrameworkProperties.preserveTempFiles()) {
-            environmentFile.deleteOnExit();
-        }
     }
 
     public static NginxRpBuilder configureRp(AppServiceCluster... clusters) {
@@ -100,17 +94,35 @@ public class NginxRpBuilder {
         stream(clusters).map(AppServiceCluster::clone).collect(toList()).toArray(clusters);
     }
 
+    public String getHashedPrefix() {
+        if(configurationHash == null) {
+            calculateNginxConfig();
+        }
+        return configurationHash;
+    }
+
     public String buildRpContainerId() {
-        return "RP-" + randomNamePrefix;
+        return "RP-" + getHashedPrefix();
+    }
+
+    private File getEnvironmentFile() {
+        final String buildDirectory = System.getProperty("user.dir") + File.separator + "build";
+        new File(buildDirectory).mkdirs();
+        return  new File(new File(buildDirectory), "NGINX_ENV-"+ getHashedPrefix() + ".conf");
     }
 
     private void buildEnvironmentFile() {
+        File environmentFile = getEnvironmentFile();
+        if(!testFrameworkProperties.preserveTempFiles()) {
+            environmentFile.deleteOnExit();
+        }
         try {
             if (environmentFile.exists()) {
                 environmentFile.delete();
                 environmentFile.createNewFile();
             }
-            String contents = buildFileContents();
+            calculateNginxConfig();
+            String contents = upstreamFileContents;
             PrintWriter pw = new PrintWriter(environmentFile);
             pw.write(contents);
             pw.close();
@@ -119,8 +131,14 @@ public class NginxRpBuilder {
         }
     }
 
-    private String buildFileContents() {
+    private void calculateNginxConfig() {
         NginxEnvironmentFileBuilder builder = new NginxEnvironmentFileBuilder();
+        upstreamFileContents =  buildFileContents(builder);
+        configurationHash = builder.finishedFileScanning();
+        configurationHash = builder.getConfigHash();
+    }
+
+    private String buildFileContents(NginxEnvironmentFileBuilder builder) {
         if(hasFilesToScan()) {
             testFrameworkProperties.getFilesToScan(environmentOverride).stream()
                     .forEach(additionalFile ->
@@ -195,7 +213,7 @@ public class NginxRpBuilder {
     }
 
     private String buildEnvironmentFileMapping() {
-        return "./" + environmentFile.getName() + ":" + testFrameworkProperties.getUpstreamLocation(environmentOverride);
+        return "./" + getEnvironmentFile().getName() + ":" + testFrameworkProperties.getUpstreamLocation(environmentOverride);
     }
 
     private List<String> buildComposePorts() {
@@ -208,5 +226,9 @@ public class NginxRpBuilder {
 
     public String getStartCommand() {
         return testFrameworkProperties.getStartCommand(environmentOverride);
+    }
+
+    public void assignPortFormRunningContainer(Map<Integer, Integer> existingPorts) {
+        portMapper.useExistingPorts(existingPorts);
     }
 }
