@@ -64,7 +64,7 @@ task integrationTest(type: Test) {
     }
 }
 
-integrationTest.dependsOn buildContainer
+//integrationTest.dependsOn buildContainer
 integrationTest.mustRunAfter test
 
 def getVersionName = { ->

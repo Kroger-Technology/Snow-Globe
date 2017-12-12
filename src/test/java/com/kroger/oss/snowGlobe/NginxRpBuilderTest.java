@@ -42,13 +42,6 @@ public class NginxRpBuilderTest {
     }
 
     @Test
-    public void shouldGetRPInstanceName() {
-        nginxRpBuilder = new NginxRpBuilder(null);
-        int randomSuffix = nginxRpBuilder.randomNamePrefix;
-        assertThat(nginxRpBuilder.buildRpContainerId(), is("RP-" + randomSuffix));
-    }
-
-    @Test
     public void shouldBeAbleToSetAnEnvironment() {
         String environmentOverride = "non-prod";
         nginxRpBuilder = new NginxRpBuilder(null).withEnvOverrides(environmentOverride);

@@ -87,4 +87,8 @@ class PortMapper {
             throw new RuntimeException(e);
         }
     }
+
+    public void useExistingPorts(Map<Integer, Integer> existingPorts) {
+        nginxToDockerPortMap = existingPorts;
+    }
 }

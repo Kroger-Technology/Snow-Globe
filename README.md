@@ -1,12 +1,26 @@
-# Snow-Globe
+<h1 align="center">Snow-Globe</h1>
+
+An integration testing framework for Nginx that will test your configuration.  Every test involves verifying that a request will correctly flow through Nginx, to an upstream cluster and properly handles the response.
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.kroger.oss/snow-globe/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.kroger.oss/snow-globe) [![Build Status Image](https://circleci.com/gh/Kroger-Technology/Snow-Globe.svg?style=shield&circe-token=bb34e5439f189eb33ad7591f59f768bd257aa0b8)](https://circleci.com/gh/Kroger-Technology/Snow-Globe) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A end to end testing framework that will simulate your upstream servers and help verify that Nginx properly routes all 
-of your calls.  It verifies that your configuration decorates the request to the upstream servers and the responses back
-work as expected.
 
-We move beyond the "-t" option to validate the configuration.  This framework builds an isolated environment of upstream servers and then sends a request into the NGINX instance.  This "magic" is done by parsing the configuration, dynamically building an upstream file, and with the power of Docker Compose, simulating an actual flow through your NGINX configuration.
+
+Snow-Globe completes an integration test by parsing the configuration, dynamically building an upstream file, and with Docker, it starts up Nginx with the configuration and verifies an actual request/response flow matches the test specifications.  Snow-Globe stubs the upstreams so that the entire environment can be fully controlled.
+
+
+## Getting Started
+
+These instructions show you how to get started using our example project provided.
+
+### Prerequisites
+This project uses Java to run the tests and framework, and Docker to build the isolated enviornment for each test.
+
+Below are the version requirements:
+
+- Docker (1.12.0 or greater)
+- Docker Compose (1.7.0 or greater)
+- Java JDK (version 1.8.0 or greater)
 
 
 ## How To Use Snow-Globe
