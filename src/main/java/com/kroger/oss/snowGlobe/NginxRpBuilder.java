@@ -144,7 +144,9 @@ public class NginxRpBuilder {
                     .forEach(additionalFile ->
                             builder.readEnvConfig(System.getProperty("user.dir") + additionalFile));
         }
-        stream(clusters).forEach(builder::addUpstreamServer);
+        if(clusters != null && clusters.length > 0) {
+            stream(clusters).forEach(builder::addUpstreamServer);
+        }
         return builder.buildClusterFileContents();
     }
 
