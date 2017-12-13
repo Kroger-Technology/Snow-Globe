@@ -19,13 +19,13 @@ repositories {
 
 dependencies {
 
-    compile 'junit:junit:4.11',
-            'org.hamcrest:hamcrest-junit:2.0.0.0',
+    compile 'org.hamcrest:hamcrest-junit:2.0.0.0',
+            'junit:junit:4.11',
             'com.fasterxml.jackson.core:jackson-databind:2.8.5',
             'org.apache.httpcomponents:httpclient:4.5.1',
             'org.yaml:snakeyaml:1.17'
 
-    testCompile 'org.mockito:mockito-all:1.9.5'
+    testCompile 'org.mockito:mockito-core:2.10.0'
 }
 
 task buildContainer(type:Exec) {

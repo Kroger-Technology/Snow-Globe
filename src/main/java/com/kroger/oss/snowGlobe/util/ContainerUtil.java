@@ -109,10 +109,10 @@ public class ContainerUtil {
 
     public static void restartNginx(String containerId, int reloadWaitMs) {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("docker", "exec", containerId, "nginx", "-s", "reload");
+            ProcessBuilder processBuilder = new ProcessBuilder("docker", "restart", "-t", "0", containerId);
             Process process = processBuilder.start();
             process.waitFor();
-            Thread.sleep(reloadWaitMs);
+//            Thread.sleep(reloadWaitMs);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
