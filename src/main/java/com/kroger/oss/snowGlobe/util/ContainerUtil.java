@@ -1,12 +1,8 @@
 package com.kroger.oss.snowGlobe.util;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ContainerUtil {
@@ -109,10 +105,37 @@ public class ContainerUtil {
 
     public static void restartNginx(String containerId, int reloadWaitMs) {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("docker", "restart", "-t", "0", containerId);
-            Process process = processBuilder.start();
+            List<String> originalWorkerThreads = getNginxWorkerThreads(containerId);
+            runCommandWithLogs("docker", "exec", containerId, "nginx", "-s", "reload");
+            Thread.sleep(reloadWaitMs);
+            List<String> postReloadWorkerThreads = getNginxWorkerThreads(containerId);
+            // We are going to wait until all original worker threads are retired.
+            while(hasOriginalWorkerPidsRunning(originalWorkerThreads, postReloadWorkerThreads)) {
+                postReloadWorkerThreads = getNginxWorkerThreads(containerId);
+                Thread.sleep(reloadWaitMs);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static boolean hasOriginalWorkerPidsRunning(List<String> originalWorkerPids, List<String> postReloadWorkerPids) {
+        return originalWorkerPids.stream().anyMatch(pid -> postReloadWorkerPids.contains(pid));
+    }
+
+    private static List<String> getNginxWorkerThreads(String containerId) {
+        try {
+            Process process = new ProcessBuilder("docker", "top", containerId, "-e", "-o", "pid,command").start();
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             process.waitFor();
-//            Thread.sleep(reloadWaitMs);
+            List<String> allLines = new ArrayList<>();
+            while (bufferedReader.ready()) {
+                allLines.add(bufferedReader.readLine());
+            }
+            return allLines.stream()
+                    .filter((line) -> line.contains("nginx: worker process"))
+                    .map(line -> line.substring(0, line.indexOf("nginx")).trim())
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

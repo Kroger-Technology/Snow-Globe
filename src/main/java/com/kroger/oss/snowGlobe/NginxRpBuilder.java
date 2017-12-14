@@ -117,10 +117,6 @@ public class NginxRpBuilder {
             environmentFile.deleteOnExit();
         }
         try {
-            if (environmentFile.exists()) {
-                environmentFile.delete();
-                environmentFile.createNewFile();
-            }
             calculateNginxConfig();
             String contents = upstreamFileContents;
             PrintWriter pw = new PrintWriter(environmentFile);
