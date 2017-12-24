@@ -22,8 +22,6 @@ import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.hasKey;
@@ -37,7 +35,7 @@ public class NginxRpBuilderTest {
     @After
     public void teardown() {
         if (nginxRpBuilder != null) {
-            nginxRpBuilder.stop();
+            nginxRpBuilder.outputNginxLogs();
         }
     }
 

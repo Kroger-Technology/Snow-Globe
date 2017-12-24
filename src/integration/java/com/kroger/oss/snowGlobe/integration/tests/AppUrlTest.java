@@ -46,7 +46,7 @@ public class AppUrlTest {
 
     @AfterClass
     public static void teardown() {
-        nginxReverseProxy.stop();
+        nginxReverseProxy.outputNginxLogs();
     }
 
     @Test

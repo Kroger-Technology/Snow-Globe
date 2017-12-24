@@ -48,7 +48,7 @@ public class ResponseHeaderTest {
 
     @AfterClass
     public static void teardown() {
-        nginxReverseProxy.stop();
+        nginxReverseProxy.outputNginxLogs();
     }
 
     @Test

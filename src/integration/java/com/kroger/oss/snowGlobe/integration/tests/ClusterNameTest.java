@@ -48,7 +48,7 @@ public class ClusterNameTest {
 
     @AfterClass
     public static void teardown() {
-        nginxReverseProxy.stop();
+        nginxReverseProxy.outputNginxLogs();
     }
 
     @Test

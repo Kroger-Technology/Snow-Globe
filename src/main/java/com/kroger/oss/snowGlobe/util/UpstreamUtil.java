@@ -50,6 +50,8 @@ public class UpstreamUtil {
         if (!upstreamRunning()) {
             startUpstream();
             setupUpstreamShutdownHook();
+        } else {
+            resetUpstreams();
         }
     }
 
@@ -172,5 +174,16 @@ public class UpstreamUtil {
                 cluster.assignPort(port);
             });
         });
+    }
+
+    public static void resetUpstreams() {
+        try {
+            CloseableHttpClient client = HttpClients.createDefault();
+            HttpPost httpPost = new HttpPost("http://localhost:" + UPSTREAM_SERVICE_PORT + "/reset");
+            client.execute(httpPost);
+            client.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

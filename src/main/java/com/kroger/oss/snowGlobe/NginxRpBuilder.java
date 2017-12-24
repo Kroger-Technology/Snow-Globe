@@ -84,7 +84,7 @@ public class NginxRpBuilder {
         UpstreamUtil.setupUpstreamService();
         UpstreamUtil.initializeUpstreamInstances(clusters);
         buildEnvironmentFile();
-        composeUtility = new ComposeUtility(this, testFrameworkProperties, clusters);
+        composeUtility = new ComposeUtility(this, testFrameworkProperties);
         composeUtility.start();
         return this;
     }
@@ -150,13 +150,8 @@ public class NginxRpBuilder {
         return testFrameworkProperties.getFilesToScan(environmentOverride) != null;
     }
 
-    public void stop() {
-        if(testFrameworkProperties.logContainerOutput()) {
-            ContainerUtil.logContainerOutput(buildRpContainerId());
-        }
-        if(composeUtility != null) {
-            composeUtility.stop();
-        }
+    public void outputNginxLogs() {
+        ContainerUtil.logContainerOutput(buildRpContainerId());
     }
 
 

@@ -2,7 +2,6 @@ package com.kroger.oss.snowGlobe.integration.tests;
 
 import com.kroger.oss.snowGlobe.AppServiceCluster;
 import com.kroger.oss.snowGlobe.NginxRpBuilder;
-import com.kroger.oss.snowGlobe.TestFrameworkProperties;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -23,15 +22,13 @@ public class SlowStartupTest {
 
     @BeforeClass
     public static void setup() {
-        TestFrameworkProperties.setConfigFile("src/integration/resources/snow-globe-slow-start.yml");
         loginUpstreamApp = makeHttpsWebService("Login_Cluster", 1);
-        nginxReverseProxy = runNginxWithUpstreams(loginUpstreamApp);
+        nginxReverseProxy = runNginxWithUpstreams("src/integration/resources/snow-globe-slow-start.yml", loginUpstreamApp);
     }
 
     @AfterClass
     public static void teardown() {
-        nginxReverseProxy.stop();
-        TestFrameworkProperties.setConfigFile(null);
+        nginxReverseProxy.outputNginxLogs();
     }
 
     @Test

@@ -33,13 +33,11 @@ public class ComposeUtility {
 
     private final NginxRpBuilder nginxRpBuilder;
     private TestFrameworkProperties testFrameworkProperties;
-    private final AppServiceCluster[] appClusters;
     private static List<String> containersWithShutDownHooks = new ArrayList<>();
 
-    public ComposeUtility(NginxRpBuilder nginxRpBuilder, TestFrameworkProperties testFrameworkProperties, AppServiceCluster... appClusters) {
+    public ComposeUtility(NginxRpBuilder nginxRpBuilder, TestFrameworkProperties testFrameworkProperties) {
         this.nginxRpBuilder = nginxRpBuilder;
         this.testFrameworkProperties = testFrameworkProperties;
-        this.appClusters = appClusters;
     }
 
     public void start() {
@@ -51,6 +49,7 @@ public class ComposeUtility {
             nginxRpBuilder.assignPortFormRunningContainer(ContainerUtil.getMappedPorts(containerId));
         } else {
             startReverseProxy();
+            addNginxShutDownHook(containerId);
         }
     }
 
@@ -71,7 +70,9 @@ public class ComposeUtility {
     }
 
     public void stop() {
-        final String runningContainer = nginxRpBuilder.buildRpContainerId();
+    }
+
+    private void addNginxShutDownHook(String runningContainer) {
         final boolean logShutdown = testFrameworkProperties.logContainerOutput();
         if(!containersWithShutDownHooks.contains(runningContainer)) {
             containersWithShutDownHooks.add(runningContainer);
@@ -83,8 +84,6 @@ public class ComposeUtility {
                 }
             }));
         }
-        Arrays.stream(appClusters).forEach(appCluster ->
-                appCluster.getRunningPorts().forEach(UpstreamUtil::stopUpstream));
     }
 
     private void startReverseProxy() {

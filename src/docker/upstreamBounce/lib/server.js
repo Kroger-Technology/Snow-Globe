@@ -14,6 +14,11 @@ const startServer = () => {
         });
   });
 
+  app.post('/reset', (req, res) => {
+    manager.reset();
+    res.status(200).end();
+  });
+
   app.post('/stopServer', (req, res) => {
     const stopRequestPort = req.body;
     manager.shutDownInstance(stopRequestPort);

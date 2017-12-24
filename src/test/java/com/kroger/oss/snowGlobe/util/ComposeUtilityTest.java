@@ -3,7 +3,6 @@ package com.kroger.oss.snowGlobe.util;
 import com.kroger.oss.snowGlobe.AppServiceCluster;
 import com.kroger.oss.snowGlobe.NginxRpBuilder;
 import com.kroger.oss.snowGlobe.TestFrameworkProperties;
-import com.kroger.oss.snowGlobe.util.ComposeUtility;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -35,7 +34,7 @@ public class ComposeUtilityTest {
         clusters.add(new AppServiceCluster("cluster1", 1, false));
         appClusters = clusters.toArray(new AppServiceCluster[1]);
         nginxRpBuilder = new NginxRpBuilder("snow-globe.yml", appClusters);
-        composeUtility = new ComposeUtility(nginxRpBuilder, testFrameworkProperties,appClusters);
+        composeUtility = new ComposeUtility(nginxRpBuilder, testFrameworkProperties);
         when(testFrameworkProperties.getUpstreamBounceImage()).thenReturn(upstreamBounceApp);
     }
 

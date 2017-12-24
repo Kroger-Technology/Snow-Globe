@@ -11,11 +11,17 @@ const buildInstance = (config) => {
       });
 };
 
+const reset = () => {
+  runningInstances.forEach(inst => inst.close());
+  runningInstances = {};
+};
+
 const shutDownInstance = (port) => {
   runningInstances[port].close();
 };
 
 module.exports = {
   buildInstance,
-  shutDownInstance
+  shutDownInstance,
+  reset,
 };

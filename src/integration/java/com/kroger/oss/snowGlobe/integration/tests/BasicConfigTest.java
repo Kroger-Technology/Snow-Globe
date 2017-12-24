@@ -20,14 +20,12 @@ public class BasicConfigTest {
 
     @BeforeClass
     public static void setup() {
-        TestFrameworkProperties.setConfigFile("src/integration/resources/snow-globe-basic.yml");
-        nginxReverseProxy = runNginxWithUpstreams();
+        nginxReverseProxy = runNginxWithUpstreams("src/integration/resources/snow-globe-basic.yml");
     }
 
     @AfterClass
     public static void teardown() {
-        nginxReverseProxy.stop();
-        TestFrameworkProperties.setConfigFile(null);
+        nginxReverseProxy.outputNginxLogs();
     }
 
     @Test
