@@ -26,7 +26,7 @@ import org.junit.Test;
 
 import static com.kroger.oss.snowGlobe.AppServiceCluster.makeHttpWebService;
 import static com.kroger.oss.snowGlobe.AppServiceCluster.makeHttpsWebService;
-import static com.kroger.oss.snowGlobe.NginxRpBuilder.startNginxRpWithCluster;
+import static com.kroger.oss.snowGlobe.NginxRpBuilder.runNginxWithUpstreams;
 import static com.kroger.oss.snowGlobe.call.CallUtility.make;
 import static com.kroger.oss.snowGlobe.call.TestRequest.getRequest;
 
@@ -42,7 +42,7 @@ public class QueryParamTest {
 
     @BeforeClass
     public static void setup() {
-        nginxReverseProxy = startNginxRpWithCluster(searchCluster);
+        nginxReverseProxy = runNginxWithUpstreams(searchCluster);
     }
 
     @AfterClass

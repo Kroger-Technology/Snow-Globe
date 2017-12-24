@@ -54,28 +54,28 @@ public class NginxRpBuilder {
      * @param clusters
      *      Zero or more upstream clusters that will be used. These represent one or more instances in an upstream.
      */
-    public NginxRpBuilder(AppServiceCluster[] clusters) {
+    public NginxRpBuilder(String snowGlobeConfig, AppServiceCluster[] clusters) {
         this.clusters = clusters;
-        testFrameworkProperties = new TestFrameworkProperties();
+        testFrameworkProperties = new TestFrameworkProperties(snowGlobeConfig);
     }
+
 
     public static NginxRpBuilder configureRp(AppServiceCluster... clusters) {
-        return new NginxRpBuilder(clusters);
+        return new NginxRpBuilder("snow-globe.yml", clusters);
     }
 
-    public static NginxRpBuilder startNginxRpWithCluster(AppServiceCluster... clusters) {
+    public static NginxRpBuilder configureRp(String configFile, AppServiceCluster... clusters) {
+        return new NginxRpBuilder(configFile, clusters);
+    }
+
+    public static NginxRpBuilder runNginxWithUpstreams(AppServiceCluster... clusters) {
         NginxRpBuilder reverseProxy = configureRp(clusters);
         return reverseProxy.start();
     }
 
-    public static NginxRpBuilder startNginxRpInEnvWithCluster(String environmentOverride, AppServiceCluster... clusters) {
-        NginxRpBuilder reverseProxy = configureRp(clusters);
-        return reverseProxy.withEnvOverrides(environmentOverride).start();
-    }
-
-    public NginxRpBuilder withEnvOverrides(String environment) {
-        this.environmentOverride = environment;
-        return this;
+    public static NginxRpBuilder runNginxWithUpstreams(String configFile, AppServiceCluster... clusters) {
+        NginxRpBuilder reverseProxy = configureRp(configFile, clusters);
+        return reverseProxy.start();
     }
 
     public NginxRpBuilder start() {

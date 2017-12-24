@@ -8,7 +8,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static com.kroger.oss.snowGlobe.AppServiceCluster.makeHttpsWebService;
-import static com.kroger.oss.snowGlobe.NginxRpBuilder.startNginxRpWithCluster;
+import static com.kroger.oss.snowGlobe.NginxRpBuilder.runNginxWithUpstreams;
 import static com.kroger.oss.snowGlobe.call.CallUtility.make;
 import static com.kroger.oss.snowGlobe.call.TestRequest.getRequest;
 
@@ -25,7 +25,7 @@ public class SlowStartupTest {
     public static void setup() {
         TestFrameworkProperties.setConfigFile("src/integration/resources/snow-globe-slow-start.yml");
         loginUpstreamApp = makeHttpsWebService("Login_Cluster", 1);
-        nginxReverseProxy = startNginxRpWithCluster(loginUpstreamApp);
+        nginxReverseProxy = runNginxWithUpstreams(loginUpstreamApp);
     }
 
     @AfterClass

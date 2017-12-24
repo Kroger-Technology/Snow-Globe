@@ -22,11 +22,10 @@ import com.kroger.oss.snowGlobe.AppServiceCluster;
 import com.kroger.oss.snowGlobe.NginxRpBuilder;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.kroger.oss.snowGlobe.AppServiceCluster.makeHttpsWebService;
-import static com.kroger.oss.snowGlobe.NginxRpBuilder.startNginxRpWithCluster;
+import static com.kroger.oss.snowGlobe.NginxRpBuilder.runNginxWithUpstreams;
 import static com.kroger.oss.snowGlobe.call.CallUtility.make;
 import static com.kroger.oss.snowGlobe.call.TestRequest.getRequest;
 import static java.util.stream.IntStream.range;
@@ -43,7 +42,7 @@ public class ClusterNumberTest {
 
     @BeforeClass
     public static void setup() {
-        nginxReverseProxy = startNginxRpWithCluster(loginUpstreamApp);
+        nginxReverseProxy = runNginxWithUpstreams(loginUpstreamApp);
     }
 
     @AfterClass

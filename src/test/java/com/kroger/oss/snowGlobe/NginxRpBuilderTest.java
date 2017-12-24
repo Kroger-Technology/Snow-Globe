@@ -41,17 +41,11 @@ public class NginxRpBuilderTest {
         }
     }
 
-    @Test
-    public void shouldBeAbleToSetAnEnvironment() {
-        String environmentOverride = "non-prod";
-        nginxRpBuilder = new NginxRpBuilder(null).withEnvOverrides(environmentOverride);
-        assertThat(nginxRpBuilder.environmentOverride, is(environmentOverride));
-    }
 
     @Test
     @SuppressWarnings("unchecked")
     public void shouldBuildComposeInformation() {
-        nginxRpBuilder = new NginxRpBuilder(null);
+        nginxRpBuilder = new NginxRpBuilder("snow-globe.yml", null);
         Map<String, Object> composeMap = nginxRpBuilder.buildComposeMap();
         assertThat(composeMap, Matchers.hasKey(nginxRpBuilder.buildRpContainerId()));
         Map<String, Object> argsMap = (Map<String, Object>) composeMap.get(nginxRpBuilder.buildRpContainerId());

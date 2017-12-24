@@ -44,13 +44,17 @@ public class TestFrameworkProperties {
         overrideYmlConfigurationFile = configFile;
     }
 
-    public TestFrameworkProperties() {
+    public TestFrameworkProperties(String configurationFile) {
         if (overrideYmlConfigurationFile != null) {
             loadFile(overrideYmlConfigurationFile);
         } else {
-            loadFile("snow-globe.yml");
+            loadFile(configurationFile);
         }
         handleLoggingSettings();
+    }
+
+    public TestFrameworkProperties() {
+        this("snow-globe.yml");
     }
 
     private void handleLoggingSettings() {

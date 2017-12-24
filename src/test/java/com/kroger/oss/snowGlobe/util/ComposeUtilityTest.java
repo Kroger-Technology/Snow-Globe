@@ -34,7 +34,7 @@ public class ComposeUtilityTest {
         initMocks(this);
         clusters.add(new AppServiceCluster("cluster1", 1, false));
         appClusters = clusters.toArray(new AppServiceCluster[1]);
-        nginxRpBuilder = new NginxRpBuilder(appClusters);
+        nginxRpBuilder = new NginxRpBuilder("snow-globe.yml", appClusters);
         composeUtility = new ComposeUtility(nginxRpBuilder, testFrameworkProperties,appClusters);
         when(testFrameworkProperties.getUpstreamBounceImage()).thenReturn(upstreamBounceApp);
     }
