@@ -22,7 +22,6 @@ import com.kroger.oss.snowGlobe.AppServiceCluster;
 import com.kroger.oss.snowGlobe.NginxRpBuilder;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.kroger.oss.snowGlobe.AppServiceCluster.makeHttpsWebService;

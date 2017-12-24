@@ -23,10 +23,10 @@ import com.kroger.oss.snowGlobe.environment.UpstreamAppInfo;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
@@ -34,17 +34,10 @@ import static java.util.stream.Collectors.toList;
 
 public class NginxEnvironmentFileBuilder {
 
-    MessageDigest md5;
-    String contentsHash = null;
     TestFrameworkProperties testFrameworkProperties;
 
     public NginxEnvironmentFileBuilder() {
         testFrameworkProperties = new TestFrameworkProperties();
-        try {
-            md5 = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     Map<String, List<UpstreamAppInfo>> upstreamServers = new HashMap<>();
@@ -75,18 +68,12 @@ public class NginxEnvironmentFileBuilder {
             FileReader fileReader = new FileReader(confFile);
             BufferedReader reader = new BufferedReader(fileReader);
             while (reader.ready()) {
-                String line = reader.readLine();
-                md5.update(line.getBytes());
-                parseNginxFileLine(prefix, line);
+                parseNginxFileLine(prefix, reader.readLine());
             }
             fileReader.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public String getConfigHash() {
-        return contentsHash;
     }
 
     private void parseNginxFileLine(String prefix, String line) {
@@ -187,12 +174,5 @@ public class NginxEnvironmentFileBuilder {
 
     TestFrameworkProperties getPropertiesForTest() {
         return testFrameworkProperties;
-    }
-
-    public String finishedFileScanning() {
-        byte[] digest = md5.digest();
-        BigInteger bigInt = new BigInteger(1,digest);
-        contentsHash = bigInt.toString(16);
-        return contentsHash;
     }
 }

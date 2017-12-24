@@ -239,8 +239,4 @@ public class TestFrameworkProperties {
             return new byte[] {127, 0, 0, 1};
         }
     }
-
-    public int getReloadWait() {
-        return getIntValue("nginx.reload.waitTimeMs", 100);
-    }
 }

@@ -25,7 +25,9 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.util.Collections.singletonMap;
 
@@ -34,7 +36,6 @@ public class ComposeUtility {
     private final NginxRpBuilder nginxRpBuilder;
     private TestFrameworkProperties testFrameworkProperties;
     private final AppServiceCluster[] appClusters;
-    private static List<String> containersWithShutDownHooks = new ArrayList<>();
 
     public ComposeUtility(NginxRpBuilder nginxRpBuilder, TestFrameworkProperties testFrameworkProperties, AppServiceCluster... appClusters) {
         this.nginxRpBuilder = nginxRpBuilder;
@@ -45,17 +46,11 @@ public class ComposeUtility {
     public void start() {
         String fileContents = buildComposeFileContents();
         writeComposeFile(fileContents, testFrameworkProperties);
-        String containerId = nginxRpBuilder.buildRpContainerId();
-        if(ContainerUtil.isContainerRunning(containerId)) {
-            ContainerUtil.restartNginx(containerId, testFrameworkProperties.getReloadWait());
-            nginxRpBuilder.assignPortFormRunningContainer(ContainerUtil.getMappedPorts(containerId));
-        } else {
-            startReverseProxy();
-        }
+        startReverseProxy();
     }
 
     protected String getComposeFileName() {
-        return "./build/" + nginxRpBuilder.buildRpContainerId() + "-compose.yml";
+        return nginxRpBuilder.buildRpContainerId() + "-compose.yml";
     }
 
     private void writeComposeFile(String fileContents, TestFrameworkProperties testFrameworkProperties) {
@@ -71,17 +66,10 @@ public class ComposeUtility {
     }
 
     public void stop() {
-        final String runningContainer = nginxRpBuilder.buildRpContainerId();
-        final boolean logShutdown = testFrameworkProperties.logContainerOutput();
-        if(!containersWithShutDownHooks.contains(runningContainer)) {
-            containersWithShutDownHooks.add(runningContainer);
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                if(logShutdown) {
-                    ContainerUtil.shutdownContainerWithLogs(runningContainer);
-                } else {
-                    ContainerUtil.shutdownContainer(runningContainer);
-                }
-            }));
+        if (testFrameworkProperties.logContainerOutput()) {
+            ContainerUtil.shutdownContainerWithLogs(nginxRpBuilder.buildRpContainerId());
+        } else {
+            ContainerUtil.shutdownContainer(nginxRpBuilder.buildRpContainerId());
         }
         Arrays.stream(appClusters).forEach(appCluster ->
                 appCluster.getRunningPorts().forEach(UpstreamUtil::stopUpstream));
