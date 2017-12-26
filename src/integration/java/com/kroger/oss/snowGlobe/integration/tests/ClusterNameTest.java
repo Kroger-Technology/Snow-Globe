@@ -38,8 +38,8 @@ import static com.kroger.oss.snowGlobe.call.TestRequest.getRequest;
 public class ClusterNameTest {
 
     public static NginxRpBuilder nginxReverseProxy;
-    public static AppServiceCluster loginUpstreamApp = makeHttpsWebService("Login_Cluster", 1);
-    public static AppServiceCluster itemUpstreamApp = makeHttpWebService("Item_Cluster", 1);
+    public static AppServiceCluster loginUpstreamApp = makeHttpsWebService("Login_Cluster");
+    public static AppServiceCluster itemUpstreamApp = makeHttpWebService("Item_Cluster");
 
     @BeforeClass
     public static void setup() {

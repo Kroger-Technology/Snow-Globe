@@ -29,7 +29,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 import static java.util.Arrays.stream;
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
 public class NginxEnvironmentFileBuilder {
@@ -47,10 +46,10 @@ public class NginxEnvironmentFileBuilder {
         }
     }
 
-    Map<String, List<UpstreamAppInfo>> upstreamServers = new HashMap<>();
+    Map<String, UpstreamAppInfo> upstreamServers = new HashMap<>();
 
-    public void addUpstreamServer(String clusterName, List<UpstreamAppInfo> appInfos) {
-        upstreamServers.put(clusterName.trim(), appInfos);
+    public void addUpstreamServer(String clusterName, UpstreamAppInfo appInfo) {
+        upstreamServers.put(clusterName.trim(), appInfo);
     }
 
     public String buildClusterFileContents() {
@@ -85,10 +84,6 @@ public class NginxEnvironmentFileBuilder {
         }
     }
 
-    public String getConfigHash() {
-        return contentsHash;
-    }
-
     private void parseNginxFileLine(String prefix, String line) {
         if (line.contains(prefix)) {
             addEmptyCluster(line);
@@ -107,35 +102,45 @@ public class NginxEnvironmentFileBuilder {
                 testFrameworkProperties.getSourceDirectory() + File.separator + filePath;
     }
 
+    public void computeUpstreamPorts() {
+        SortedSet<String> keys = new TreeSet<>(upstreamServers.keySet());
+        int currentPort = 10000;
+        for (String key : keys) {
+            UpstreamAppInfo upstreamInstance = upstreamServers.get(key);
+            upstreamInstance.setPort(currentPort);
+            currentPort++;
+        }
+    }
+
     /**
      * Here, we expect each line to be in a specific format that gives us a hint as to which
      * upstream servers the configuration will be looking for.  We just add an empty one so it doesn't
      * complain and shutdown.
-     *
+     * <p>
      * NOTE:  Any proxy_pass with a variable set will be ignored since that variable will be resolved at the request.
      *
      * @param line a line from the nginx.conf file that should be of the format:
      *             "   proxy_pass http://[CLUSTER NAME]/..."
      */
     void addEmptyCluster(String line) {
-        if(line.contains("$")) {
-            return;
-        }
         String prefixRemoved = line.substring(line.indexOf("://") + 3);
         String clusterName = prefixRemoved;
         clusterName = handleClusterNameChar(prefixRemoved, clusterName, "/");
         clusterName = handleClusterNameChar(prefixRemoved, clusterName, ";");
         clusterName = handleClusterNameChar(prefixRemoved, clusterName, "/");
-        addUpstreamServer(clusterName, singletonList(new UpstreamAppInfo("127.0.0.1", 65534)));
+        if(clusterName.contains("$")) {
+            return;
+        }
+        addUpstreamServer(clusterName, new UpstreamAppInfo("upstream", 65534));
     }
 
     private String handleClusterNameChar(String prefixRemoved, String clusterName, String character) {
         return (prefixRemoved.indexOf(character) > 0) ?
-            prefixRemoved.substring(0, prefixRemoved.indexOf(character)) : clusterName;
+                prefixRemoved.substring(0, prefixRemoved.indexOf(character)) : clusterName;
     }
 
     public void addUpstreamServer(AppServiceCluster appServiceCluster) {
-        this.addUpstreamServer(appServiceCluster.getClusterName(), appServiceCluster.getAppInstanceInfos());
+        this.addUpstreamServer(appServiceCluster.getClusterName(), appServiceCluster.getAppInstanceInfo());
     }
 
     public void readEnvConfig(String envConfig) {
@@ -151,21 +156,19 @@ public class NginxEnvironmentFileBuilder {
         }
     }
 
-    String buildUpstreamServerEntry(String serverName, List<UpstreamAppInfo> infos) {
+    String buildUpstreamServerEntry(String serverName, UpstreamAppInfo info) {
         StringBuilder sb = new StringBuilder();
         sb.append("\n")
                 .append("  upstream ").append(serverName).append(" { \n");
         if (testFrameworkProperties.defineUpstreamZones()) {
             sb.append("    zone " + serverName + " 64k;\n");
         }
-        infos.stream()
-                .forEach(app ->
-                        sb.append("    server ")
-                                .append(app.containerName())
-                                .append(":")
-                                .append(app.port())
-                                .append(";\n"));
-        sb.append("  }")
+        sb.append("    server ")
+                .append(info.containerName())
+                .append(":")
+                .append(info.port())
+                .append(";\n")
+                .append("  }")
                 .append("\n")
                 .append("\n");
         return sb.toString();
@@ -189,10 +192,19 @@ public class NginxEnvironmentFileBuilder {
         return testFrameworkProperties;
     }
 
-    public String finishedFileScanning() {
+    public String computeConfigurationHash() {
         byte[] digest = md5.digest();
-        BigInteger bigInt = new BigInteger(1,digest);
+        BigInteger bigInt = new BigInteger(1, digest);
         contentsHash = bigInt.toString(16);
         return contentsHash;
+    }
+
+    public void setUpstreamPorts(AppServiceCluster[] upstreamInstance) {
+        Arrays.stream(upstreamInstance).forEach(upstream -> {
+            UpstreamAppInfo upstreamAppInfo = upstreamServers.get(upstream.getClusterName());
+            if(upstreamAppInfo != null) {
+                upstream.assignPort(upstreamAppInfo.port());
+            }
+        });
     }
 }

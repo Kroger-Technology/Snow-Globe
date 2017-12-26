@@ -18,7 +18,6 @@
 
 package com.kroger.oss.snowGlobe.util;
 
-import com.kroger.oss.snowGlobe.AppServiceCluster;
 import com.kroger.oss.snowGlobe.NginxRpBuilder;
 import com.kroger.oss.snowGlobe.TestFrameworkProperties;
 import org.yaml.snakeyaml.DumperOptions;
@@ -69,9 +68,6 @@ public class ComposeUtility {
         }
     }
 
-    public void stop() {
-    }
-
     private void addNginxShutDownHook(String runningContainer) {
         final boolean logShutdown = testFrameworkProperties.logContainerOutput();
         if(!containersWithShutDownHooks.contains(runningContainer)) {
@@ -99,7 +95,7 @@ public class ComposeUtility {
     protected String buildComposeFileContents() {
         Map<String, Object> composeYaml = new HashMap<>();
         String prefix = "version: '2'\n\n";
-        composeYaml.put("services", buildNginxServiceMap());
+        composeYaml.put("services", nginxRpBuilder.buildComposeMap());
         composeYaml.put("networks", buildNetworks());
         String body = new Yaml(buildDumperOptions()).dump(composeYaml) + "\n\n";
         return prefix + body;
@@ -110,11 +106,6 @@ public class ComposeUtility {
     }
 
     protected Map<String, Object> buildServicesMap() {
-        Map<String, Object> nginxServiceMap = buildNginxServiceMap();
-        return nginxServiceMap;
-    }
-
-    private Map<String, Object> buildNginxServiceMap() {
         return nginxRpBuilder.buildComposeMap();
     }
 

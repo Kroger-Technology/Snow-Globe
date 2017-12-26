@@ -23,11 +23,8 @@ import com.kroger.oss.snowGlobe.environment.UpstreamAppInfo;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static java.util.Arrays.stream;
-import static java.util.Collections.singletonList;
 
 /**
  * This represents the upstream service that will be dynamically created.  This represents a "fake" upstream cluster as
@@ -37,11 +34,10 @@ import static java.util.Collections.singletonList;
 public class AppServiceCluster {
 
     private final String clusterName;
-    private final int instances;
     private int httpResponseCode = 200;
     private String matchingPaths = "*";
     private Map<String, String> responseHeaders = new HashMap<>();
-    private List<Integer> instancePorts = new ArrayList<>();
+    private int port;
     private final boolean useHttps;
 
     /**
@@ -54,23 +50,10 @@ public class AppServiceCluster {
      *      test.
      */
     public static AppServiceCluster makeHttpWebService(String clusterName) {
-        return new AppServiceCluster(clusterName, 1, false);
+        return new AppServiceCluster(clusterName, false);
     }
 
-    /**
-     * Helper method that will build a cluster that accepts http traffic.
-     *
-     * @param clusterName
-     *      The name of the cluster that matches the Nginx Cluster Name.
-     * @param instances
-     *      The number of instances to create in the cluster.
-     * @return
-     *      The appServiceCluster object that can be used with the <code>NginxRpBuilder</code> to run as part of the
-     *      test.
-     */
-    public static AppServiceCluster makeHttpWebService(String clusterName, int instances) {
-        return new AppServiceCluster(clusterName, instances, false);
-    }
+
 
     /**
      * Helper method that will build a single cluster instance that accepts https traffic.
@@ -82,44 +65,28 @@ public class AppServiceCluster {
      *      test.
      */
     public static AppServiceCluster makeHttpsWebService(String clusterName) {
-        return new AppServiceCluster(clusterName, 1, true);
+        return new AppServiceCluster(clusterName, true);
     }
 
-    /**
-     * Helper method that will build a cluster that accepts https traffic.
-     *
-     * @param clusterName
-     *      The name of the cluster that matches the Nginx Cluster Name.
-     * @param instances
-     *      The number of instances to create in the cluster.
-     * @return
-     *      The appServiceCluster object that can be used with the <code>NginxRpBuilder</code> to run as part of the
-     *      test.
-     */
-    public static AppServiceCluster makeHttpsWebService(String clusterName, int instances) {
-        return new AppServiceCluster(clusterName, instances, true);
-    }
+
 
     /**
      * The constructor that stores the basic state of the service.
      *
      * @param clusterName
      *      The name of the cluster that matches the Nginx Cluster Name.
-     * @param instances
-     *      The number of instances to create in the cluster.
      * @param useHttps
      *      if true, then this cluster should accept https traffic, otherwise if false, then it will only accept http
      *      traffic
      */
-    public AppServiceCluster(String clusterName, int instances, boolean useHttps) {
+    public AppServiceCluster(String clusterName, boolean useHttps) {
         this.clusterName = clusterName;
-        this.instances = instances;
         this.useHttps = useHttps;
     }
 
-    protected AppServiceCluster(String clusterName, int instances, int httpResponseCode, String matchingPaths,
+    protected AppServiceCluster(String clusterName, int httpResponseCode, String matchingPaths,
                                 Map<String, String> responseHeaders, boolean useHttps) {
-        this(clusterName, instances, useHttps);
+        this(clusterName, useHttps);
         this.httpResponseCode = httpResponseCode;
         this.matchingPaths = matchingPaths;
         this.responseHeaders = responseHeaders;
@@ -150,7 +117,7 @@ public class AppServiceCluster {
     }
 
     public AppServiceCluster clone() {
-        return new AppServiceCluster(this.clusterName, instances, httpResponseCode, matchingPaths,
+        return new AppServiceCluster(this.clusterName, httpResponseCode, matchingPaths,
                 responseHeaders, useHttps);
     }
 
@@ -168,9 +135,9 @@ public class AppServiceCluster {
         return this;
     }
 
-    List<String> buildEnvironmentList(int instance) {
+    List<String> buildEnvironmentList() {
         List<String> environmentVariables = new ArrayList<>();
-        environmentVariables.add("INSTANCE_NUMBER=" + instance);
+        environmentVariables.add("INSTANCE_NUMBER=1");
         environmentVariables.add("CLUSTER_NAME=" + getClusterName());
         environmentVariables.add("APP_PATHS=" + matchingPaths);
         environmentVariables.add("RESPONSE_CODE=" + httpResponseCode);
@@ -179,14 +146,8 @@ public class AppServiceCluster {
         return environmentVariables;
     }
 
-    public List<UpstreamAppInfo> getAppInstanceInfos() {
-        return instancePorts.stream()
-                .map(instanceNumber ->  new UpstreamAppInfo("upstream", instanceNumber))
-                .collect(Collectors.toList());
-    }
-
-    public int getInstances() {
-        return instances;
+    public UpstreamAppInfo getAppInstanceInfo() {
+        return new UpstreamAppInfo("upstream", 1);
     }
 
     public int getHttpResponseCode() {
@@ -206,10 +167,10 @@ public class AppServiceCluster {
     }
 
     public void assignPort(int port) {
-        instancePorts.add(port);
+        this.port = port;
     }
 
-    public List<Integer> getRunningPorts() {
-        return instancePorts;
+    public int getPort() {
+        return port;
     }
 }

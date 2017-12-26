@@ -38,7 +38,7 @@ import static java.util.stream.Collectors.toList;
  */
 public class NginxRpBuilder {
 
-    AppServiceCluster[] clusters;
+    final AppServiceCluster[] clusters;
     String environmentOverride = "default";
     ComposeUtility composeUtility;
     PortMapper portMapper = new PortMapper();
@@ -55,7 +55,11 @@ public class NginxRpBuilder {
      *      Zero or more upstream clusters that will be used. These represent one or more instances in an upstream.
      */
     public NginxRpBuilder(String snowGlobeConfig, AppServiceCluster[] clusters) {
-        this.clusters = clusters;
+        if(clusters != null && clusters.length > 0) {
+            this.clusters = stream(clusters).map(AppServiceCluster::clone).collect(toList()).toArray(clusters);
+        } else {
+            this.clusters = new AppServiceCluster[0];
+        }
         testFrameworkProperties = new TestFrameworkProperties(snowGlobeConfig);
     }
 
@@ -79,24 +83,24 @@ public class NginxRpBuilder {
     }
 
     public NginxRpBuilder start() {
-        buildCopyOfServices();
-        portMapper.initMapping(testFrameworkProperties);
-        UpstreamUtil.setupUpstreamService();
-        UpstreamUtil.initializeUpstreamInstances(clusters);
+        analyzeNginxConfig();
+        initializeUpstreamInstances();
         buildEnvironmentFile();
         composeUtility = new ComposeUtility(this, testFrameworkProperties);
         composeUtility.start();
         return this;
     }
 
-
-    private void buildCopyOfServices() {
-        stream(clusters).map(AppServiceCluster::clone).collect(toList()).toArray(clusters);
+    private void initializeUpstreamInstances() {
+        portMapper.initMapping(testFrameworkProperties);
+        UpstreamUtil.setupUpstreamService();
+        UpstreamUtil.initializeUpstreamInstances(clusters);
     }
+
 
     public String getHashedPrefix() {
         if(configurationHash == null) {
-            calculateNginxConfig();
+            analyzeNginxConfig();
         }
         return configurationHash;
     }
@@ -117,7 +121,6 @@ public class NginxRpBuilder {
             environmentFile.deleteOnExit();
         }
         try {
-            calculateNginxConfig();
             String contents = upstreamFileContents;
             PrintWriter pw = new PrintWriter(environmentFile);
             pw.write(contents);
@@ -127,23 +130,22 @@ public class NginxRpBuilder {
         }
     }
 
-    private void calculateNginxConfig() {
+    private void analyzeNginxConfig() {
         NginxEnvironmentFileBuilder builder = new NginxEnvironmentFileBuilder();
-        upstreamFileContents =  buildFileContents(builder);
-        configurationHash = builder.finishedFileScanning();
-        configurationHash = builder.getConfigHash();
+        determineUpstreamClusters(builder);
+        builder.computeUpstreamPorts();
+        upstreamFileContents = builder.buildClusterFileContents();
+        configurationHash = builder.computeConfigurationHash();
+        builder.setUpstreamPorts(clusters);
     }
 
-    private String buildFileContents(NginxEnvironmentFileBuilder builder) {
+
+    private void determineUpstreamClusters(NginxEnvironmentFileBuilder builder) {
         if(hasFilesToScan()) {
             testFrameworkProperties.getFilesToScan(environmentOverride).stream()
                     .forEach(additionalFile ->
                             builder.readEnvConfig(System.getProperty("user.dir") + additionalFile));
         }
-        if(clusters != null && clusters.length > 0) {
-            stream(clusters).forEach(builder::addUpstreamServer);
-        }
-        return builder.buildClusterFileContents();
     }
 
     private boolean hasFilesToScan() {

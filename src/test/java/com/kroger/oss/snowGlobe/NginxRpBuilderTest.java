@@ -19,31 +19,19 @@
 package com.kroger.oss.snowGlobe;
 
 import org.hamcrest.Matchers;
-import org.junit.After;
 import org.junit.Test;
 
 import java.util.Map;
 
 import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 public class NginxRpBuilderTest {
 
-    NginxRpBuilder nginxRpBuilder;
-
-    @After
-    public void teardown() {
-        if (nginxRpBuilder != null) {
-            nginxRpBuilder.outputNginxLogs();
-        }
-    }
-
-
     @Test
     @SuppressWarnings("unchecked")
     public void shouldBuildComposeInformation() {
-        nginxRpBuilder = new NginxRpBuilder("snow-globe.yml", null);
+        NginxRpBuilder nginxRpBuilder = new NginxRpBuilder("snow-globe.yml", null);
         Map<String, Object> composeMap = nginxRpBuilder.buildComposeMap();
         assertThat(composeMap, Matchers.hasKey(nginxRpBuilder.buildRpContainerId()));
         Map<String, Object> argsMap = (Map<String, Object>) composeMap.get(nginxRpBuilder.buildRpContainerId());

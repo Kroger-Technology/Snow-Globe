@@ -37,7 +37,7 @@ import static com.kroger.oss.snowGlobe.call.TestRequest.getRequest;
 public class ResponseHeaderTest {
 
     public static NginxRpBuilder nginxReverseProxy;
-    public static AppServiceCluster cartUpstreamApp = makeHttpsWebService("Cart_Cluster", 1)
+    public static AppServiceCluster cartUpstreamApp = makeHttpsWebService("Cart_Cluster")
             .withResponseHeader("got-cart", "success")
             .withResponseHeader("internal-secret-key", "42");
 

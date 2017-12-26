@@ -37,7 +37,7 @@ import static com.kroger.oss.snowGlobe.call.TestRequest.getRequest;
 public class StatusCodeTest {
 
     public static NginxRpBuilder nginxReverseProxy;
-    public static AppServiceCluster loginUpstreamApp = makeHttpsWebService("Login_Cluster", 1);
+    public static AppServiceCluster loginUpstreamApp = makeHttpsWebService("Login_Cluster");
 
     @BeforeClass
     public static void setup() {

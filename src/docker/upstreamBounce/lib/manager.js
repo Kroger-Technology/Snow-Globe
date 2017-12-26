@@ -12,7 +12,7 @@ const buildInstance = (config) => {
 };
 
 const reset = () => {
-  runningInstances.forEach(inst => inst.close());
+  Object.keys(runningInstances).forEach(key => runningInstances[key].close());
   runningInstances = {};
 };
 

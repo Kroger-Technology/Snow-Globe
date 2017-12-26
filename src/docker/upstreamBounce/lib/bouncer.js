@@ -49,7 +49,7 @@ function setupRoutes(matchingPaths, app, responseHandler, responseCode) {
   });
 }
 
-const buildServerInstance = ({instanceNumber, clusterName, matchingPaths, responseCode, runHTTPS, responseHeaders}) => {
+const buildServerInstance = ({instanceNumber, clusterName, matchingPaths, responseCode, runHTTPS, responseHeaders, port}) => {
 
   // App
   const app = express();
@@ -64,7 +64,24 @@ const buildServerInstance = ({instanceNumber, clusterName, matchingPaths, respon
   } else {
     server = http.createServer(app);
   }
-  return new Promise((resolve) => server.listen(0, () => resolve(server)));
+  return new Promise((res, err) => {
+    server.listen(port);
+    server.on('listening', () => {
+      console.log('Server listening on: ' + port + '...');
+      res(server)
+    });
+    server.on('error', (e) => {
+      if (e.code === 'EADDRINUSE') {
+        console.log('Address in use, retrying...');
+        setTimeout(() => {
+          server.close();
+          server.listen(port);
+        }, 50);
+      } else {
+         err(e);
+      }
+    });
+  });
 };
 
 module.exports = {

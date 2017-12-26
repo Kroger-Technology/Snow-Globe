@@ -27,7 +27,7 @@ package com.kroger.oss.snowGlobe.environment;
 public class UpstreamAppInfo {
 
     private final String containerName;
-    private final int containerPort;
+    private int containerPort;
 
     /**
      * Constructor to build the POJO.
@@ -60,5 +60,9 @@ public class UpstreamAppInfo {
      */
     public int port() {
         return containerPort;
+    }
+
+    public void setPort(int port) {
+        containerPort = port;
     }
 }

@@ -56,12 +56,15 @@ public class UpstreamUtil {
     }
 
     private static void setupUpstreamShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> ContainerUtil.shutdownContainer(UPSTREAM_NAME)));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            ContainerUtil.logContainerOutput(UPSTREAM_NAME);
+            ContainerUtil.shutdownContainer(UPSTREAM_NAME);
+        }));
     }
 
     public static int addUpstream(int instance, String clusterName, String matchingPaths, int httpResponseCode,
-                           Map<String, String> headers, boolean useHttps) {
-        StringEntity json = buildJsonBody(instance, clusterName, matchingPaths, httpResponseCode, headers, useHttps);
+                                  Map<String, String> headers, boolean useHttps, int port) {
+        StringEntity json = buildJsonBody(instance, clusterName, matchingPaths, httpResponseCode, headers, useHttps, port);
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPost httpPost = buildRequest(json);
         try {
@@ -104,7 +107,9 @@ public class UpstreamUtil {
         }
     }
 
-    private static StringEntity buildJsonBody(int instance, String clusterName, String matchingPaths, int httpResponseCode, Map<String, String> headers, boolean useHttps) {
+    private static StringEntity buildJsonBody(int instance, String clusterName, String matchingPaths,
+                                              int httpResponseCode, Map<String, String> headers, boolean useHttps,
+                                              int port) {
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("instanceNumber", instance);
         requestMap.put("clusterName", clusterName);
@@ -112,6 +117,7 @@ public class UpstreamUtil {
         requestMap.put("responseCode", httpResponseCode);
         requestMap.put("runHTTPS", useHttps);
         requestMap.put("responseHeaders", headers);
+        requestMap.put("port", port);
         try {
             return new StringEntity(new ObjectMapper().writeValueAsString(requestMap));
         } catch (Exception e) {
@@ -124,7 +130,7 @@ public class UpstreamUtil {
         try {
             String[] command = {"docker", "run", "-p", UPSTREAM_SERVICE_PORT + ":3000", "--network=" + props.getDockerNetworkName(),
                     "--name", UPSTREAM_NAME, "--detach", props.getUpstreamBounceImage()};
-            if(props.logContainerOutput()) {
+            if (props.logContainerOutput()) {
                 ContainerUtil.runCommandWithLogs(command);
             } else {
                 ContainerUtil.runCommand(command);
@@ -135,16 +141,17 @@ public class UpstreamUtil {
             // container. This can happen with multiple parallel forks.
             try {
                 Thread.sleep(200);
-            } catch (InterruptedException ignored) { }
-            if(!upstreamRunning()) {
+            } catch (InterruptedException ignored) {
+            }
+            if (!upstreamRunning()) {
                 throw new RuntimeException(e);
             }
         }
     }
 
     private static void waitForUpstreamToStart() throws InterruptedException {
-        for(int i = 0; i < 25; i++) {
-            if(upstreamRunning()) {
+        for (int i = 0; i < 25; i++) {
+            if (upstreamRunning()) {
                 return;
             }
             Thread.sleep(200);
@@ -168,11 +175,9 @@ public class UpstreamUtil {
 
     public static void initializeUpstreamInstances(AppServiceCluster[] clusters) {
         Arrays.stream(clusters).forEach(cluster -> {
-            IntStream.range(0, cluster.getInstances()).forEach(i -> {
-                int port = UpstreamUtil.addUpstream(i, cluster.getClusterName(), cluster.getMatchingPaths(),
-                        cluster.getHttpResponseCode(), cluster.getResponseHeaders(), cluster.isUseHttps());
-                cluster.assignPort(port);
-            });
+            UpstreamUtil.addUpstream(0, cluster.getClusterName(), cluster.getMatchingPaths(),
+                    cluster.getHttpResponseCode(), cluster.getResponseHeaders(), cluster.isUseHttps(),
+                    cluster.getPort());
         });
     }
 

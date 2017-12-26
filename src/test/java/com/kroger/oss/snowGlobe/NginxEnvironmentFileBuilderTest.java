@@ -51,9 +51,9 @@ public class NginxEnvironmentFileBuilderTest {
         String clusterFileContents = fileBuilder.buildClusterFileContents();
 
         String expectedContents = fileBuilder.buildUpstreamServerEntry(cluster1,
-                singletonList(new UpstreamAppInfo("127.0.0.1", 65534))) +
-                        fileBuilder.buildUpstreamServerEntry(cluster2,
-                                singletonList(new UpstreamAppInfo("127.0.0.1", 65534)));
+                new UpstreamAppInfo("upstream", 65534)) +
+                fileBuilder.buildUpstreamServerEntry(cluster2,
+                        new UpstreamAppInfo("upstream", 65534));
 
         assertThat(expectedContents, is(clusterFileContents));
     }
@@ -91,13 +91,36 @@ public class NginxEnvironmentFileBuilderTest {
     }
 
     @Test
-    public void shouldHandleUpstreamLinesWithDollarSign() {
+    public void shouldHandleUpstreamLinesWithDollarSignAtEnd() {
         String cluster1 = "cluster1";
         final String upstreamLine = "proxy_pass http://" + cluster1 + "$";
         fileBuilder.addEmptyCluster(upstreamLine);
         assertThat(fileBuilder.upstreamServers, not(hasKey(cluster1)));
     }
 
+    @Test
+    public void shouldHandleUpstreamLinesWithDollarSignAtBeginning() {
+        String cluster1 = "$cluster1";
+        final String upstreamLine = "proxy_pass http://" + cluster1;
+        fileBuilder.addEmptyCluster(upstreamLine);
+        assertThat(fileBuilder.upstreamServers, not(hasKey(cluster1)));
+    }
+
+    @Test
+    public void shouldHandleUpstreamLinesWithDollarSignInMiddle() {
+        String cluster1 = "cluster1$env";
+        final String upstreamLine = "proxy_pass http://" + cluster1;
+        fileBuilder.addEmptyCluster(upstreamLine);
+        assertThat(fileBuilder.upstreamServers, not(hasKey(cluster1)));
+    }
+
+    @Test
+    public void shouldHandleUpstreamLinesWithDollarSignAfterClusterName() {
+        String cluster1 = "cluster1";
+        final String upstreamLine = "proxy_pass http://" + cluster1 + "/q=$1";
+        fileBuilder.addEmptyCluster(upstreamLine);
+        assertThat(fileBuilder.upstreamServers, hasKey(cluster1));
+    }
     @Test
     public void shouldHandleUpstreamLinesWithSemiColon() {
         String cluster1 = "cluster1";
@@ -112,7 +135,7 @@ public class NginxEnvironmentFileBuilderTest {
         AppServiceCluster serviceCluster = mock(AppServiceCluster.class);
         when(serviceCluster.getClusterName()).thenReturn(cluster);
         fileBuilder.addUpstreamServer(serviceCluster);
-        assertThat(fileBuilder.upstreamServers, hasEntry(cluster, new ArrayList<UpstreamAppInfo>()));
+        assertThat(fileBuilder.upstreamServers, hasEntry(cluster, null));
     }
 
     @Test
@@ -122,7 +145,7 @@ public class NginxEnvironmentFileBuilderTest {
         String containerName = "containerName";
         int containerPort = 42;
         UpstreamAppInfo appInfo = new UpstreamAppInfo(containerName, containerPort);
-        String actualEntry = fileBuilder.buildUpstreamServerEntry(serverName, singletonList(appInfo));
+        String actualEntry = fileBuilder.buildUpstreamServerEntry(serverName, appInfo);
 
         assertThat(actualEntry, is("\n  upstream " + serverName + " { \n" +
                 "    zone " + serverName + " 64k;\n" +

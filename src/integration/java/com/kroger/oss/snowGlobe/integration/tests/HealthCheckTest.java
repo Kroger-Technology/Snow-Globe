@@ -34,7 +34,7 @@ import static com.kroger.oss.snowGlobe.call.TestRequest.getRequest;
 public class HealthCheckTest {
 
     public static NginxRpBuilder nginxReverseProxy;
-    public static AppServiceCluster contentCluster = makeHttpWebService("Content_Cluster", 1);
+    public static AppServiceCluster contentCluster = makeHttpWebService("Content_Cluster");
 
     @BeforeClass
     public static void setup() {

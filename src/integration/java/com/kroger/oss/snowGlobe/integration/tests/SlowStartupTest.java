@@ -22,7 +22,7 @@ public class SlowStartupTest {
 
     @BeforeClass
     public static void setup() {
-        loginUpstreamApp = makeHttpsWebService("Login_Cluster", 1);
+        loginUpstreamApp = makeHttpsWebService("Login_Cluster");
         nginxReverseProxy = runNginxWithUpstreams("src/integration/resources/snow-globe-slow-start.yml", loginUpstreamApp);
     }
 

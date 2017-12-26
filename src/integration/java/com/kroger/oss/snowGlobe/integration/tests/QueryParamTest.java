@@ -38,17 +38,13 @@ import static com.kroger.oss.snowGlobe.call.TestRequest.getRequest;
 public class QueryParamTest {
 
     public static NginxRpBuilder nginxReverseProxy;
-    public static AppServiceCluster searchCluster = makeHttpWebService("Search_Cluster", 1);
+    public static AppServiceCluster searchCluster = makeHttpWebService("Search_Cluster");
 
     @BeforeClass
     public static void setup() {
         nginxReverseProxy = runNginxWithUpstreams(searchCluster);
     }
 
-    @AfterClass
-    public static void teardown() {
-        nginxReverseProxy.outputNginxLogs();
-    }
 
     @Test
     public void should_convert_path_to_query_param() {
