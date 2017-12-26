@@ -44,7 +44,6 @@ public class ComposeUtility {
         writeComposeFile(fileContents, testFrameworkProperties);
         String containerId = nginxRpBuilder.buildRpContainerId();
         if(ContainerUtil.isContainerRunning(containerId)) {
-            ContainerUtil.restartNginx(containerId, testFrameworkProperties.getReloadWait());
             nginxRpBuilder.assignPortFormRunningContainer(ContainerUtil.getMappedPorts(containerId));
         } else {
             startReverseProxy();

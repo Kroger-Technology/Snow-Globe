@@ -57,7 +57,6 @@ public class UpstreamUtil {
 
     private static void setupUpstreamShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            ContainerUtil.logContainerOutput(UPSTREAM_NAME);
             ContainerUtil.shutdownContainer(UPSTREAM_NAME);
         }));
     }
@@ -74,20 +73,6 @@ public class UpstreamUtil {
             return upstreamPort;
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    public static void stopUpstream(int port) {
-        try {
-            StringEntity body = new StringEntity(Integer.toString(port));
-            CloseableHttpClient client = HttpClients.createDefault();
-            HttpPost httpPost = new HttpPost("http://localhost:" + UPSTREAM_SERVICE_PORT);
-            httpPost.setHeader("Content-type", "application/json");
-            httpPost.setEntity(body);
-            client.execute(httpPost);
-            client.close();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
