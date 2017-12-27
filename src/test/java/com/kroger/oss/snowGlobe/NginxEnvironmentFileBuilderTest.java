@@ -22,9 +22,6 @@ import com.kroger.oss.snowGlobe.environment.UpstreamAppInfo;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-
-import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasKey;
@@ -50,10 +47,8 @@ public class NginxEnvironmentFileBuilderTest {
         fileBuilder.addEmptyCluster("http://" + cluster2);
         String clusterFileContents = fileBuilder.buildClusterFileContents();
 
-        String expectedContents = fileBuilder.buildUpstreamServerEntry(cluster1,
-                new UpstreamAppInfo("upstream", 65534)) +
-                fileBuilder.buildUpstreamServerEntry(cluster2,
-                        new UpstreamAppInfo("upstream", 65534));
+        String expectedContents = fileBuilder.buildUpstreamServerEntry(cluster1, new UpstreamAppInfo()) +
+                fileBuilder.buildUpstreamServerEntry(cluster2, new UpstreamAppInfo());
 
         assertThat(expectedContents, is(clusterFileContents));
     }
@@ -141,10 +136,10 @@ public class NginxEnvironmentFileBuilderTest {
     @Test
     public void shouldBuildUpstreamEntryWithZone() {
         fileBuilder.getPropertiesForTest().setPropertyForTesting("nginx.define.upstream.zones", "true");
-        String serverName = "serverName";
+        String serverName = "upstream";
         String containerName = "containerName";
         int containerPort = 42;
-        UpstreamAppInfo appInfo = new UpstreamAppInfo(containerName, containerPort);
+        UpstreamAppInfo appInfo = new UpstreamAppInfo();
         String actualEntry = fileBuilder.buildUpstreamServerEntry(serverName, appInfo);
 
         assertThat(actualEntry, is("\n  upstream " + serverName + " { \n" +

@@ -133,6 +133,7 @@ public class NginxRpBuilder {
     private void analyzeNginxConfig() {
         NginxEnvironmentFileBuilder builder = new NginxEnvironmentFileBuilder();
         determineUpstreamClusters(builder);
+        builder.registerUpstreams(clusters);
         builder.computeUpstreamPorts();
         upstreamFileContents = builder.buildClusterFileContents();
         configurationHash = builder.computeConfigurationHash();

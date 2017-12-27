@@ -159,11 +159,10 @@ public class UpstreamUtil {
     }
 
     public static void initializeUpstreamInstances(AppServiceCluster[] clusters) {
-        Arrays.stream(clusters).forEach(cluster -> {
-            UpstreamUtil.addUpstream(0, cluster.getClusterName(), cluster.getMatchingPaths(),
-                    cluster.getHttpResponseCode(), cluster.getResponseHeaders(), cluster.isUseHttps(),
-                    cluster.getPort());
-        });
+        Arrays.stream(clusters).forEach(cluster ->
+                UpstreamUtil.addUpstream(0, cluster.getClusterName(), cluster.getMatchingPaths(),
+                cluster.getHttpResponseCode(), cluster.getResponseHeaders(), cluster.isUseHttps(),
+                cluster.getPort()));
     }
 
     public static void resetUpstreams() {

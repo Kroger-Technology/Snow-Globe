@@ -26,22 +26,8 @@ package com.kroger.oss.snowGlobe.environment;
  */
 public class UpstreamAppInfo {
 
-    private final String containerName;
+    private final String containerName = "upstream";
     private int containerPort;
-
-    /**
-     * Constructor to build the POJO.
-     *
-     * @param containerName
-     *      The name of the container used in the Docker Compose file to identify the upstream
-     *      instance.
-     * @param containerPort
-     *      The named port that the traffic should be routed to.
-     */
-    public UpstreamAppInfo(String containerName, int containerPort) {
-        this.containerName = containerName;
-        this.containerPort = containerPort;
-    }
 
     /**
      * The name of the container used in the Docker Compose file to identify the upstream

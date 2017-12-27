@@ -146,10 +146,6 @@ public class AppServiceCluster {
         return environmentVariables;
     }
 
-    public UpstreamAppInfo getAppInstanceInfo() {
-        return new UpstreamAppInfo("upstream", 1);
-    }
-
     public int getHttpResponseCode() {
         return httpResponseCode;
     }

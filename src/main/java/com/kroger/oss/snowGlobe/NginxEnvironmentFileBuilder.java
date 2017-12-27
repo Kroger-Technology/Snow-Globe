@@ -33,14 +33,14 @@ import static java.util.stream.Collectors.toList;
 
 public class NginxEnvironmentFileBuilder {
 
-    MessageDigest md5;
+    MessageDigest configurationMD5;
     String contentsHash = null;
     TestFrameworkProperties testFrameworkProperties;
 
     public NginxEnvironmentFileBuilder() {
         testFrameworkProperties = new TestFrameworkProperties();
         try {
-            md5 = MessageDigest.getInstance("MD5");
+            configurationMD5 = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
@@ -48,8 +48,8 @@ public class NginxEnvironmentFileBuilder {
 
     Map<String, UpstreamAppInfo> upstreamServers = new HashMap<>();
 
-    public void addUpstreamServer(String clusterName, UpstreamAppInfo appInfo) {
-        upstreamServers.put(clusterName.trim(), appInfo);
+    public void addUpstreamServer(String clusterName) {
+        upstreamServers.put(clusterName.trim(), new UpstreamAppInfo());
     }
 
     public String buildClusterFileContents() {
@@ -75,7 +75,7 @@ public class NginxEnvironmentFileBuilder {
             BufferedReader reader = new BufferedReader(fileReader);
             while (reader.ready()) {
                 String line = reader.readLine();
-                md5.update(line.getBytes());
+                configurationMD5.update(line.getBytes());
                 parseNginxFileLine(prefix, line);
             }
             fileReader.close();
@@ -131,7 +131,7 @@ public class NginxEnvironmentFileBuilder {
         if(clusterName.contains("$")) {
             return;
         }
-        addUpstreamServer(clusterName, new UpstreamAppInfo("upstream", 65534));
+        addUpstreamServer(clusterName);
     }
 
     private String handleClusterNameChar(String prefixRemoved, String clusterName, String character) {
@@ -140,7 +140,7 @@ public class NginxEnvironmentFileBuilder {
     }
 
     public void addUpstreamServer(AppServiceCluster appServiceCluster) {
-        this.addUpstreamServer(appServiceCluster.getClusterName(), appServiceCluster.getAppInstanceInfo());
+        this.addUpstreamServer(appServiceCluster.getClusterName());
     }
 
     public void readEnvConfig(String envConfig) {
@@ -192,11 +192,26 @@ public class NginxEnvironmentFileBuilder {
         return testFrameworkProperties;
     }
 
+    private byte[] computeUpstreamHash() {
+        try {
+            MessageDigest upstreamHash = MessageDigest.getInstance("MD5");
+            upstreamHash.update(this.buildClusterFileContents().getBytes());
+            return upstreamHash.digest();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public String computeConfigurationHash() {
-        byte[] digest = md5.digest();
-        BigInteger bigInt = new BigInteger(1, digest);
-        contentsHash = bigInt.toString(16);
-        return contentsHash;
+        try {
+            MessageDigest totalHash = MessageDigest.getInstance("MD5");
+            totalHash.update(configurationMD5.digest());
+            totalHash.update(computeUpstreamHash());
+            return new BigInteger(1, totalHash.digest()).toString(16);
+        }
+        catch(NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void setUpstreamPorts(AppServiceCluster[] upstreamInstance) {
@@ -205,6 +220,12 @@ public class NginxEnvironmentFileBuilder {
             if(upstreamAppInfo != null) {
                 upstream.assignPort(upstreamAppInfo.port());
             }
+        });
+    }
+
+    public void registerUpstreams(AppServiceCluster[] clusters) {
+        Arrays.stream(clusters).forEach(cluster -> {
+                addUpstreamServer(cluster.getClusterName());
         });
     }
 }
