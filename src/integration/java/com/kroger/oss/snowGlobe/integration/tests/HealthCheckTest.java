@@ -22,6 +22,7 @@ package com.kroger.oss.snowGlobe.integration.tests;
 import com.kroger.oss.snowGlobe.AppServiceCluster;
 import com.kroger.oss.snowGlobe.NginxRpBuilder;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -33,17 +34,12 @@ import static com.kroger.oss.snowGlobe.call.TestRequest.getRequest;
 
 public class HealthCheckTest {
 
-    public static NginxRpBuilder nginxReverseProxy;
-    public static AppServiceCluster contentCluster = makeHttpWebService("Content_Cluster");
+    public NginxRpBuilder nginxReverseProxy;
+    public AppServiceCluster contentCluster = makeHttpWebService("Content_Cluster");
 
-    @BeforeClass
-    public static void setup() {
+    @Before
+    public void setup() {
         nginxReverseProxy = runNginxWithUpstreams(contentCluster);
-    }
-
-    @AfterClass
-    public static void teardown() {
-        nginxReverseProxy.outputNginxLogs();
     }
 
     @Test

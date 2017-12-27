@@ -20,6 +20,7 @@ package com.kroger.oss.snowGlobe.integration.tests;
 
 import com.kroger.oss.snowGlobe.NginxRpBuilder;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -34,16 +35,11 @@ import static com.kroger.oss.snowGlobe.call.TestRequest.getRequest;
  */
 public class FileResponseTest {
 
-    public static NginxRpBuilder nginxReverseProxy;
+    public NginxRpBuilder nginxReverseProxy;
 
-    @BeforeClass
-    public static void setup() {
+    @Before
+    public void setup() {
         nginxReverseProxy = runNginxWithUpstreams();
-    }
-
-    @AfterClass
-    public static void teardown() {
-        nginxReverseProxy.outputNginxLogs();
     }
 
     @Test

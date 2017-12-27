@@ -1,12 +1,10 @@
 package com.kroger.oss.snowGlobe.integration.tests;
 
 import com.kroger.oss.snowGlobe.NginxRpBuilder;
-import com.kroger.oss.snowGlobe.TestFrameworkProperties;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
-import static com.kroger.oss.snowGlobe.AppServiceCluster.makeHttpsWebService;
 import static com.kroger.oss.snowGlobe.NginxRpBuilder.runNginxWithUpstreams;
 import static com.kroger.oss.snowGlobe.call.CallUtility.make;
 import static com.kroger.oss.snowGlobe.call.TestRequest.getRequest;
@@ -16,16 +14,11 @@ import static com.kroger.oss.snowGlobe.call.TestRequest.getRequest;
  */
 public class BasicConfigTest {
 
-    public static NginxRpBuilder nginxReverseProxy;
+    public NginxRpBuilder nginxReverseProxy;
 
-    @BeforeClass
-    public static void setup() {
+    @Before
+    public void setup() {
         nginxReverseProxy = runNginxWithUpstreams("src/integration/resources/snow-globe-basic.yml");
-    }
-
-    @AfterClass
-    public static void teardown() {
-        nginxReverseProxy.outputNginxLogs();
     }
 
     @Test
