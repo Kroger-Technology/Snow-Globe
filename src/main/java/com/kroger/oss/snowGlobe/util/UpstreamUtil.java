@@ -21,7 +21,7 @@ package com.kroger.oss.snowGlobe.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kroger.oss.snowGlobe.AppServiceCluster;
-import com.kroger.oss.snowGlobe.TestFrameworkProperties;
+import com.kroger.oss.snowGlobe.FrameworkProperties;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -36,9 +36,6 @@ import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.IntStream;
-
-import static com.kroger.oss.snowGlobe.util.DockerNetworking.SNOW_GLOBE_NETWORK;
 
 public class UpstreamUtil {
 
@@ -111,7 +108,7 @@ public class UpstreamUtil {
     }
 
     private static void startUpstream() {
-        TestFrameworkProperties props = new TestFrameworkProperties();
+        FrameworkProperties props = new FrameworkProperties();
         try {
             String[] command = {"docker", "run", "-p", UPSTREAM_SERVICE_PORT + ":3000", "--network=" + props.getDockerNetworkName(),
                     "--name", UPSTREAM_NAME, "--detach", props.getUpstreamBounceImage()};
@@ -161,8 +158,8 @@ public class UpstreamUtil {
     public static void initializeUpstreamInstances(AppServiceCluster[] clusters) {
         Arrays.stream(clusters).forEach(cluster ->
                 UpstreamUtil.addUpstream(0, cluster.getClusterName(), cluster.getMatchingPaths(),
-                cluster.getHttpResponseCode(), cluster.getResponseHeaders(), cluster.isUseHttps(),
-                cluster.getPort()));
+                        cluster.getHttpResponseCode(), cluster.getResponseHeaders(), cluster.isUseHttps(),
+                        cluster.getPort()));
     }
 
     public static void resetUpstreams() {

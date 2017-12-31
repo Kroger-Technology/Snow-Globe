@@ -1,7 +1,6 @@
 package com.kroger.oss.snowGlobe.integration.tests;
 
 import com.kroger.oss.snowGlobe.NginxRpBuilder;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,8 +21,13 @@ public class BasicConfigTest {
     }
 
     @Test
-    public void should_work_even_if_nginx_is_slow_to_start() {
-        make(getRequest("http://www.nginx-test.com/static.html").to(nginxReverseProxy))
-                .andExpectResponseCode(200);
+    public void should_fetcch_basic_static_content() {
+        try {
+
+            make(getRequest("http://www.nginx-test.com/static.html").to(nginxReverseProxy))
+                    .andExpectResponseCode(200);
+        } finally {
+            nginxReverseProxy.outputNginxLogs();
+        }
     }
 }

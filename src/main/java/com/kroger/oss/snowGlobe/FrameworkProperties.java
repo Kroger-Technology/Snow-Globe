@@ -23,28 +23,20 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
 import static java.util.stream.Collectors.joining;
 
-public class TestFrameworkProperties {
-
-    public Map<String, Object> properties;
+public class FrameworkProperties {
 
     private static String overrideYmlConfigurationFile;
+    public Map<String, Object> properties;
 
-    public static void setConfigFile(String configFile) {
-        overrideYmlConfigurationFile = configFile;
-    }
-
-    public TestFrameworkProperties(String configurationFile) {
+    public FrameworkProperties(String configurationFile) {
         if (overrideYmlConfigurationFile != null) {
             loadFile(overrideYmlConfigurationFile);
         } else {
@@ -53,8 +45,12 @@ public class TestFrameworkProperties {
         handleLoggingSettings();
     }
 
-    public TestFrameworkProperties() {
+    public FrameworkProperties() {
         this("snow-globe.yml");
+    }
+
+    public static void setConfigFile(String configFile) {
+        overrideYmlConfigurationFile = configFile;
     }
 
     private void handleLoggingSettings() {
@@ -76,13 +72,6 @@ public class TestFrameworkProperties {
     private boolean getBooleanValue(String key) {
         return properties.get(key) != null &&
                 properties.get(key).toString().equalsIgnoreCase("true");
-    }
-
-    private boolean getBooleanValue(String key, boolean defaultValue) {
-        if (properties.get(key) == null) {
-            return defaultValue;
-        }
-        return properties.get(key).toString().equalsIgnoreCase("true");
     }
 
     private String getStringValue(String key) {
@@ -124,13 +113,13 @@ public class TestFrameworkProperties {
         return getStringValue("nginx.container", "nginx");
     }
 
-    String getUpstreamLocation(String environment) {
-        return getEnvironmentString(environment, "nginx.upstream.file.path", "/tmp/emptyUpstream.conf");
+    String getUpstreamLocation() {
+        return getString("nginx.upstream.file.path", "/tmp/emptyUpstream.conf");
     }
 
     @SuppressWarnings("unchecked")
-    List<String> getNginxVolumes(String environment) {
-        return getEnvironmentList(environment, "nginx.volume.mounts");
+    List<String> getNginxVolumes() {
+        return getList("nginx.volume.mounts");
     }
 
     @SuppressWarnings("unchecked")
@@ -154,32 +143,22 @@ public class TestFrameworkProperties {
     }
 
 
-    public List<String> getFilesToScan(String environment) {
-        return getEnvironmentList(environment, "nginx.env.config.files");
+    public List<String> getFilesToScan() {
+        return getList("nginx.env.config.files");
     }
 
     @SuppressWarnings("unchecked")
-    private List<String> getEnvironmentList(String environment, String key) {
+    private List<String> getList(String key) {
         try {
-            Map<String, Object> configMap = (Map<String, Object>) properties.get(key);
-            return (configMap.containsKey(environment)) ?
-                    (List<String>) configMap.get(environment) :
-                    (List<String>) configMap.get("default");
+            return (List<String>) properties.get(key);
         } catch (Exception e) {
             return null;
         }
     }
 
-    private String getEnvironmentString(String environment, String key, String defaultValue) {
+    private String getString(String key, String defaultValue) {
         try {
-            Map<String, Object> configMap = (Map<String, Object>) properties.get(key);
-            if (configMap.containsKey(environment)) {
-                return valueOf(configMap.get(environment));
-            } else if (configMap.containsKey("default")) {
-                return valueOf(configMap.get("default"));
-            } else {
-                return defaultValue;
-            }
+            return valueOf(properties.get(key));
         } catch (Exception e) {
             return defaultValue;
         }
@@ -194,20 +173,17 @@ public class TestFrameworkProperties {
     }
 
     @SuppressWarnings("unchecked")
-    public String getStartCommand(String environment) {
+    public String getStartCommand() {
         try {
-            Map<String, List<String>> startCommands = (Map<String, List<String>>) properties.get("nginx.start.command");
-            if (!startCommands.containsKey(environment)) {
-                environment = "default";
-            }
-            return startCommands.get(environment).stream().collect(joining(" "));
+            List<String> startCommands = (List<String>) properties.get("nginx.start.command");
+            return startCommands.stream().collect(joining(" "));
         } catch (Exception e) {
             return defaultStartCommand();
         }
     }
 
     private String defaultStartCommand() {
-        return "nginx, -g, 'daemon off;'";
+        return "nginx -g 'daemon off;'";
     }
 
 
@@ -235,16 +211,12 @@ public class TestFrameworkProperties {
         String rawResolvedIpEnvVariable = getStringValue("snowGlobe.localhost.resolvedIpEnvVariable");
         try {
             String resolvedIp = System.getenv(rawResolvedIpEnvVariable);
-            if(resolvedIp.contains(":")) {
+            if (resolvedIp.contains(":")) {
                 resolvedIp = resolvedIp.substring(0, resolvedIp.indexOf(":"));
             }
             return InetAddress.getByName(resolvedIp).getAddress();
         } catch (Exception e) {
-            return new byte[] {127, 0, 0, 1};
+            return new byte[]{127, 0, 0, 1};
         }
-    }
-
-    public int getReloadWait() {
-        return getIntValue("nginx.reload.waitTimeMs", 100);
     }
 }

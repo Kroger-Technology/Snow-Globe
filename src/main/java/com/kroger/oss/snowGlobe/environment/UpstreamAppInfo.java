@@ -22,7 +22,6 @@ package com.kroger.oss.snowGlobe.environment;
  * A POJO that is used to hold the container name and port of a "fake" upstream service that
  * will be injected into the Nginx RP configuration.  This is mainly used with the
  * <code>NginxEnvironmentFileBuilder</code> class to build the new upstream file
- *
  */
 public class UpstreamAppInfo {
 
@@ -32,8 +31,8 @@ public class UpstreamAppInfo {
     /**
      * The name of the container used in the Docker Compose file to identify the upstream
      * instance.
-     * @return
-     *      The name of the container that is identified in the docker compose file.
+     *
+     * @return The name of the container that is identified in the docker compose file.
      */
     public String containerName() {
         return containerName;
@@ -41,8 +40,8 @@ public class UpstreamAppInfo {
 
     /**
      * The named port that traffic should be routed to.
-     * @return
-     *      The port number to use when communicating with the container.
+     *
+     * @return The port number to use when communicating with the container.
      */
     public int port() {
         return containerPort;

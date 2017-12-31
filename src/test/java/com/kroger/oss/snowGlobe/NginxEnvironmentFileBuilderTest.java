@@ -130,15 +130,15 @@ public class NginxEnvironmentFileBuilderTest {
         AppServiceCluster serviceCluster = mock(AppServiceCluster.class);
         when(serviceCluster.getClusterName()).thenReturn(cluster);
         fileBuilder.addUpstreamServer(serviceCluster);
-        assertThat(fileBuilder.upstreamServers, hasEntry(cluster, null));
+        assertThat(fileBuilder.upstreamServers, hasKey(cluster));
     }
 
     @Test
     public void shouldBuildUpstreamEntryWithZone() {
         fileBuilder.getPropertiesForTest().setPropertyForTesting("nginx.define.upstream.zones", "true");
-        String serverName = "upstream";
-        String containerName = "containerName";
-        int containerPort = 42;
+        String serverName = "server";
+        String containerName = "upstream";
+        int containerPort = 0;
         UpstreamAppInfo appInfo = new UpstreamAppInfo();
         String actualEntry = fileBuilder.buildUpstreamServerEntry(serverName, appInfo);
 

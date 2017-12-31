@@ -1,9 +1,7 @@
 nginx.volume.mounts:
-  default:
     - "src/nginx/nginx.conf:/etc/nginx/nginx.conf"
     - "src/nginx/dev/*:/etc/nginx/dev/"
-nginx.upstream.file.path:
-  default: "/etc/nginx/upstreams.conf"
+nginx.upstream.file.path:  "/etc/nginx/upstreams.conf"
 nginx.container: "docker.kroger.com/library/nginx:1.11.3"
 nginx.url.port.mapping:
   - subdomain:
@@ -18,19 +16,10 @@ nginx.url.port.mapping:
   - lowerOrderDomain:
       pattern: "http://lower\\..*"
       port: 10080
-nginx.start.command:
-  default: ["nginx", "-g", "'daemon off;'"]
+nginx.start.command: ["nginx", "-g", "'daemon off;'"]
 nginx.source.base.directory: "src/nginx/"
 nginx.deploy.base.directory: "/etc/nginx/"
-nginx.env.config.files:
-  default:
-    - "/src/nginx/nginx.conf"
-  test:
-    - "/src/nginx/nginx.conf"
-    - "/src/nginx/test-routing.conf"
-  dev:
-    - "/src/nginx/nginx.conf"
-    - "/src/nginx/dev/"
+nginx.env.config.files: [ "/src/nginx/nginx.conf" ]
 upstream.bounce.image: "krogersnowglobe/upstream-bounce-app:latest"
 snowglobe.log.output:  true
 snowglobe.preserve.temp.files: false

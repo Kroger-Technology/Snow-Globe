@@ -19,9 +19,7 @@
 package com.kroger.oss.snowGlobe.integration.tests;
 
 import com.kroger.oss.snowGlobe.NginxRpBuilder;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static com.kroger.oss.snowGlobe.NginxRpBuilder.runNginxWithUpstreams;

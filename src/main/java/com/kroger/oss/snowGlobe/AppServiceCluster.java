@@ -19,10 +19,12 @@
 package com.kroger.oss.snowGlobe;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kroger.oss.snowGlobe.environment.UpstreamAppInfo;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Arrays.stream;
 
@@ -34,55 +36,24 @@ import static java.util.Arrays.stream;
 public class AppServiceCluster {
 
     private final String clusterName;
+    private final boolean useHttps;
     private int httpResponseCode = 200;
     private String matchingPaths = "*";
     private Map<String, String> responseHeaders = new HashMap<>();
     private int port;
-    private final boolean useHttps;
-
-    /**
-     * Helper method that will build a single cluster instance that accepts http traffic.
-     *
-     * @param clusterName
-     *      The name of the cluster that matches the Nginx Cluster Name.
-     * @return
-     *      The appServiceCluster object that can be used with the <code>NginxRpBuilder</code> to run as part of the
-     *      test.
-     */
-    public static AppServiceCluster makeHttpWebService(String clusterName) {
-        return new AppServiceCluster(clusterName, false);
-    }
-
-
-
-    /**
-     * Helper method that will build a single cluster instance that accepts https traffic.
-     *
-     * @param clusterName
-     *      The name of the cluster that matches the Nginx Cluster Name.
-     * @return
-     *      The appServiceCluster object that can be used with the <code>NginxRpBuilder</code> to run as part of the
-     *      test.
-     */
-    public static AppServiceCluster makeHttpsWebService(String clusterName) {
-        return new AppServiceCluster(clusterName, true);
-    }
-
-
 
     /**
      * The constructor that stores the basic state of the service.
      *
-     * @param clusterName
-     *      The name of the cluster that matches the Nginx Cluster Name.
-     * @param useHttps
-     *      if true, then this cluster should accept https traffic, otherwise if false, then it will only accept http
-     *      traffic
+     * @param clusterName The name of the cluster that matches the Nginx Cluster Name.
+     * @param useHttps    if true, then this cluster should accept https traffic, otherwise if false, then it will only accept http
+     *                    traffic
      */
     public AppServiceCluster(String clusterName, boolean useHttps) {
         this.clusterName = clusterName;
         this.useHttps = useHttps;
     }
+
 
     protected AppServiceCluster(String clusterName, int httpResponseCode, String matchingPaths,
                                 Map<String, String> responseHeaders, boolean useHttps) {
@@ -93,11 +64,32 @@ public class AppServiceCluster {
     }
 
     /**
+     * Helper method that will build a single cluster instance that accepts http traffic.
+     *
+     * @param clusterName The name of the cluster that matches the Nginx Cluster Name.
+     * @return The appServiceCluster object that can be used with the <code>NginxRpBuilder</code> to run as part of the
+     * test.
+     */
+    public static AppServiceCluster makeHttpWebService(String clusterName) {
+        return new AppServiceCluster(clusterName, false);
+    }
+
+    /**
+     * Helper method that will build a single cluster instance that accepts https traffic.
+     *
+     * @param clusterName The name of the cluster that matches the Nginx Cluster Name.
+     * @return The appServiceCluster object that can be used with the <code>NginxRpBuilder</code> to run as part of the
+     * test.
+     */
+    public static AppServiceCluster makeHttpsWebService(String clusterName) {
+        return new AppServiceCluster(clusterName, true);
+    }
+
+    /**
      * A builder method that defines the default http response code.
-     * @param httpResponseCode
-     *      the default http response code.
-     * @return
-     *      the <code>AppServiceCluster</code> object.
+     *
+     * @param httpResponseCode the default http response code.
+     * @return the <code>AppServiceCluster</code> object.
      */
     public AppServiceCluster withHttpResponses(int httpResponseCode) {
         this.httpResponseCode = httpResponseCode;

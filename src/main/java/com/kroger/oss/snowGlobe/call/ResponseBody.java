@@ -35,6 +35,10 @@ public class ResponseBody {
         request = new RequestToService();
     }
 
+    public static ResponseBody buildDirectResponseFromRp(String body) {
+        return new ResponseBody(body);
+    }
+
     public String getCluster() {
         return cluster;
     }
@@ -61,9 +65,5 @@ public class ResponseBody {
 
     public String getRawResponse() {
         return rawResponse;
-    }
-
-    public static ResponseBody buildDirectResponseFromRp(String body) {
-        return new ResponseBody(body);
     }
 }

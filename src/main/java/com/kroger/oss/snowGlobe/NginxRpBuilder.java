@@ -25,7 +25,10 @@ import com.kroger.oss.snowGlobe.util.UpstreamUtil;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
@@ -34,33 +37,30 @@ import static java.util.stream.Collectors.toList;
  * This is the "main" class to define the nginx setup.  This is typically used with <code>AppServiceCluster</code> to
  * define an nginx instance with the fake upstream servers.  This setup will allow a user to define a little world so
  * that they can test requests being sent into it.
- *
  */
 public class NginxRpBuilder {
 
     final AppServiceCluster[] clusters;
-    String environmentOverride = "default";
     ComposeUtility composeUtility;
     PortMapper portMapper = new PortMapper();
-    TestFrameworkProperties testFrameworkProperties;
-    private String upstreamFileContents;
+    FrameworkProperties frameworkProperties;
     String configurationHash = null;
+    private String upstreamFileContents;
 
 
     /**
      * The constructor that will define the upstream servers file.  This will be populated later once the setup has been
      * defined and the cluster started.
      *
-     * @param clusters
-     *      Zero or more upstream clusters that will be used. These represent one or more instances in an upstream.
+     * @param clusters Zero or more upstream clusters that will be used. These represent one or more instances in an upstream.
      */
     public NginxRpBuilder(String snowGlobeConfig, AppServiceCluster[] clusters) {
-        if(clusters != null && clusters.length > 0) {
+        if (clusters != null && clusters.length > 0) {
             this.clusters = stream(clusters).map(AppServiceCluster::clone).collect(toList()).toArray(clusters);
         } else {
             this.clusters = new AppServiceCluster[0];
         }
-        testFrameworkProperties = new TestFrameworkProperties(snowGlobeConfig);
+        frameworkProperties = new FrameworkProperties(snowGlobeConfig);
     }
 
 
@@ -86,20 +86,20 @@ public class NginxRpBuilder {
         analyzeNginxConfig();
         initializeUpstreamInstances();
         buildEnvironmentFile();
-        composeUtility = new ComposeUtility(this, testFrameworkProperties);
+        composeUtility = new ComposeUtility(this, frameworkProperties);
         composeUtility.start();
         return this;
     }
 
     private void initializeUpstreamInstances() {
-        portMapper.initMapping(testFrameworkProperties);
+        portMapper.initMapping(frameworkProperties);
         UpstreamUtil.setupUpstreamService();
         UpstreamUtil.initializeUpstreamInstances(clusters);
     }
 
 
     public String getHashedPrefix() {
-        if(configurationHash == null) {
+        if (configurationHash == null) {
             analyzeNginxConfig();
         }
         return configurationHash;
@@ -112,12 +112,12 @@ public class NginxRpBuilder {
     private File getEnvironmentFile() {
         final String buildDirectory = System.getProperty("user.dir") + File.separator + "build";
         new File(buildDirectory).mkdirs();
-        return  new File(new File(buildDirectory), "NGINX_ENV-"+ getHashedPrefix() + ".conf");
+        return new File(new File(buildDirectory), "NGINX_ENV-" + getHashedPrefix() + ".conf");
     }
 
     private void buildEnvironmentFile() {
         File environmentFile = getEnvironmentFile();
-        if(!testFrameworkProperties.preserveTempFiles()) {
+        if (!frameworkProperties.preserveTempFiles()) {
             environmentFile.deleteOnExit();
         }
         try {
@@ -125,7 +125,7 @@ public class NginxRpBuilder {
             PrintWriter pw = new PrintWriter(environmentFile);
             pw.write(contents);
             pw.close();
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -142,15 +142,15 @@ public class NginxRpBuilder {
 
 
     private void determineUpstreamClusters(NginxEnvironmentFileBuilder builder) {
-        if(hasFilesToScan()) {
-            testFrameworkProperties.getFilesToScan(environmentOverride).stream()
+        if (hasFilesToScan()) {
+            frameworkProperties.getFilesToScan().stream()
                     .forEach(additionalFile ->
                             builder.readEnvConfig(System.getProperty("user.dir") + additionalFile));
         }
     }
 
     private boolean hasFilesToScan() {
-        return testFrameworkProperties.getFilesToScan(environmentOverride) != null;
+        return frameworkProperties.getFilesToScan() != null;
     }
 
     public void outputNginxLogs() {
@@ -163,7 +163,7 @@ public class NginxRpBuilder {
         Map<String, Object> argsMap = new HashMap<>();
         composeMap.put(buildRpContainerId(), argsMap);
         argsMap.put("container_name", buildRpContainerId());
-        argsMap.put("image", testFrameworkProperties.getNginxImage());
+        argsMap.put("image", frameworkProperties.getNginxImage());
         argsMap.put("volumes", buildComposeVolumes());
         argsMap.put("restart", "always");
         argsMap.put("ports", buildComposePorts());
@@ -181,8 +181,8 @@ public class NginxRpBuilder {
 
     private List<String> buildNginxVolumeMounts() {
         List<String> allVolumeMounts = new ArrayList<>();
-        allVolumeMounts.addAll(testFrameworkProperties.getNginxVolumes(environmentOverride).stream().filter(s -> !s.contains("*")).collect(toList()));
-        testFrameworkProperties.getNginxVolumes(environmentOverride).stream()
+        allVolumeMounts.addAll(frameworkProperties.getNginxVolumes().stream().filter(s -> !s.contains("*")).collect(toList()));
+        frameworkProperties.getNginxVolumes().stream()
                 .filter(s -> s.contains("*"))
                 .map(this::processMountWildCard)
                 .forEach(allVolumeMounts::addAll);
@@ -198,7 +198,7 @@ public class NginxRpBuilder {
                     .map(file -> file.getPath())
                     .map(filePath -> buildDynamicVolumeMount(destinationDirectoy, filePath))
                     .collect(toList());
-        } catch(Exception e) {
+        } catch (Exception e) {
             return new ArrayList<>();
         }
     }
@@ -209,7 +209,7 @@ public class NginxRpBuilder {
     }
 
     private String buildEnvironmentFileMapping() {
-        return "./" + getEnvironmentFile().getName() + ":" + testFrameworkProperties.getUpstreamLocation(environmentOverride);
+        return "./" + getEnvironmentFile().getName() + ":" + frameworkProperties.getUpstreamLocation();
     }
 
     private List<String> buildComposePorts() {
@@ -221,7 +221,7 @@ public class NginxRpBuilder {
     }
 
     public String getStartCommand() {
-        return testFrameworkProperties.getStartCommand(environmentOverride);
+        return frameworkProperties.getStartCommand();
     }
 
     public void assignPortFormRunningContainer(Map<Integer, Integer> existingPorts) {

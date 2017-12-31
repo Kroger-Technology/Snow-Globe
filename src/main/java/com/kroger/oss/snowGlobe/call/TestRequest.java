@@ -35,6 +35,11 @@ public class TestRequest {
     private String userAgent;
     private String healthCheckUrl;
 
+    public TestRequest(String method, String url) {
+        this.method = method;
+        this.url = url;
+    }
+
     public static TestRequest getRequest(String url) {
         return new TestRequest("GET", url);
     }
@@ -53,11 +58,6 @@ public class TestRequest {
 
     public static TestRequest headRequest(String url) {
         return new TestRequest("HEAD", url);
-    }
-
-    public TestRequest(String method, String url) {
-        this.method = method;
-        this.url = url;
     }
 
     public TestRequest withHeader(String key, String value) {

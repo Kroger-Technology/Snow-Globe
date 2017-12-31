@@ -110,7 +110,7 @@ public class ContainerUtil {
             Thread.sleep(reloadWaitMs);
             List<String> postReloadWorkerThreads = getNginxWorkerThreads(containerId);
             // We are going to wait until all original worker threads are retired.
-            while(hasOriginalWorkerPidsRunning(originalWorkerThreads, postReloadWorkerThreads)) {
+            while (hasOriginalWorkerPidsRunning(originalWorkerThreads, postReloadWorkerThreads)) {
                 postReloadWorkerThreads = getNginxWorkerThreads(containerId);
                 Thread.sleep(reloadWaitMs);
             }

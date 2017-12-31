@@ -33,6 +33,17 @@ class PortMapper {
     private Map<Integer, Integer> nginxToDockerPortMap = new HashMap<>();
     private Map<String, Integer> urlRegexToNginxPortMap = new HashMap<>();
 
+    public static int getAvailablePort() {
+        try {
+            ServerSocket serverSocket = new ServerSocket(0);
+            int localPort = serverSocket.getLocalPort();
+            serverSocket.close();
+            return localPort;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     Integer getMappedPortForUrl(String url) {
         return nginxToDockerPortMap.get(getNginxPort(url));
     }
@@ -43,8 +54,8 @@ class PortMapper {
                 .collect(toList());
     }
 
-    void initMapping(TestFrameworkProperties testFrameworkProperties) {
-        List<Map<String, Object>> yamlMapping = testFrameworkProperties.getNginxPortMapping();
+    void initMapping(FrameworkProperties frameworkProperties) {
+        List<Map<String, Object>> yamlMapping = frameworkProperties.getNginxPortMapping();
         yamlMapping.forEach(mapping -> mappingOrder.add(valueOf(getActualMappingForPort(mapping).get("pattern"))));
         urlRegexToNginxPortMap = yamlMapping.stream()
                 .collect(toMap(mapping -> valueOf(getActualMappingForPort(mapping).get("pattern")),
@@ -65,8 +76,7 @@ class PortMapper {
      * urls and finds the matching ones and then chooses the first one defined in the yaml file.
      *
      * @param url The url to test
-     * @return
-     *      The first matching url in the list of urls to test.
+     * @return The first matching url in the list of urls to test.
      */
     private Integer getNginxPort(String url) {
         return urlRegexToNginxPortMap.entrySet().stream()
@@ -75,17 +85,6 @@ class PortMapper {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Unable to map url request: \"" + url + "\" to known port in the yaml configuration."))
                 .getValue();
-    }
-
-    public static int getAvailablePort() {
-        try {
-            ServerSocket serverSocket = new ServerSocket(0);
-            int localPort = serverSocket.getLocalPort();
-            serverSocket.close();
-            return localPort;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public void useExistingPorts(Map<Integer, Integer> existingPorts) {

@@ -24,18 +24,17 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.hamcrest.collection.IsIn.in;
-import static org.hamcrest.collection.IsIn.isIn;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 public class AppServiceClusterTest {
 
-    TestFrameworkProperties testFrameworkProperties;
+    FrameworkProperties frameworkProperties;
 
     @Before
     public void init() {
-        testFrameworkProperties = new TestFrameworkProperties();
+        frameworkProperties = new FrameworkProperties();
     }
 
     @Test

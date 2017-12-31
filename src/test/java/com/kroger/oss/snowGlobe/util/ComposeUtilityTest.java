@@ -1,8 +1,8 @@
 package com.kroger.oss.snowGlobe.util;
 
 import com.kroger.oss.snowGlobe.AppServiceCluster;
+import com.kroger.oss.snowGlobe.FrameworkProperties;
 import com.kroger.oss.snowGlobe.NginxRpBuilder;
-import com.kroger.oss.snowGlobe.TestFrameworkProperties;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -21,7 +21,7 @@ public class ComposeUtilityTest {
 
     private final String upstreamBounceApp = "UPSTREAM_BOUNCE_IMAGE";
     @Mock
-    TestFrameworkProperties testFrameworkProperties;
+    FrameworkProperties frameworkProperties;
     NginxRpBuilder nginxRpBuilder;
     AppServiceCluster[] appClusters;
 
@@ -34,8 +34,8 @@ public class ComposeUtilityTest {
         clusters.add(new AppServiceCluster("cluster1", false));
         appClusters = clusters.toArray(new AppServiceCluster[1]);
         nginxRpBuilder = new NginxRpBuilder("snow-globe.yml", appClusters);
-        composeUtility = new ComposeUtility(nginxRpBuilder, testFrameworkProperties);
-        when(testFrameworkProperties.getUpstreamBounceImage()).thenReturn(upstreamBounceApp);
+        composeUtility = new ComposeUtility(nginxRpBuilder, frameworkProperties);
+        when(frameworkProperties.getUpstreamBounceImage()).thenReturn(upstreamBounceApp);
     }
 
     @Test

@@ -20,9 +20,7 @@ package com.kroger.oss.snowGlobe.integration.tests;
 
 import com.kroger.oss.snowGlobe.AppServiceCluster;
 import com.kroger.oss.snowGlobe.NginxRpBuilder;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static com.kroger.oss.snowGlobe.AppServiceCluster.makeHttpsWebService;
@@ -41,7 +39,7 @@ public class ResponseHeaderTest {
     public AppServiceCluster cartUpstreamApp = makeHttpsWebService("Cart_Cluster")
             .withResponseHeader("got-cart", "success")
             .withResponseHeader("internal-secret-key", "42");
-    
+
     @Before
     public void setup() {
         nginxReverseProxy = runNginxWithUpstreams(cartUpstreamApp);

@@ -1,10 +1,8 @@
 nginx.volume.mounts:
-  default:
     - "src/integration/resources/nginx.conf:/etc/nginx/nginx.conf"
     - "src/integration/resources/static/*:/etc/nginx/static/"
     - "src/integration/resources/dev/*:/etc/nginx/dev/"
-nginx.upstream.file.path:
-  default: "/etc/nginx/upstreams.conf"
+nginx.upstream.file.path: "/etc/nginx/upstreams.conf"
 nginx.container: "nginx"
 nginx.url.port.mapping:
   - https:
@@ -13,23 +11,14 @@ nginx.url.port.mapping:
   - http:
       pattern: "http:.*"
       port: 80
-nginx.start.command:
-  default: ["nginx", "-g", "'daemon off;'"]
+nginx.start.command: ["nginx", "-g", "'daemon off;'"]
 nginx.source.base.directory: "src/integration/resources/"
 nginx.deploy.base.directory: "/etc/nginx/"
-nginx.env.config.files:
-  default:
-    - "/src/integration/resources/nginx.conf"
-  test:
-    - "/src/integration/resources/nginx.conf"
-    - "/src/integration/resources/test-routing.conf"
-  dev:
-    - "/src/integration/resources/nginx.conf"
-    - "/src/nginxIntegrationConfig/dev/"
-upstream.bounce.image: "krogersnowglobe/upstream-bounce-app:latest"
+nginx.env.config.files: [ "/src/integration/resources/nginx.conf" ]
+nginx.define.upstream.zones: false
 snowglobe.log.output: true
 snowglobe.preserve.temp.files: false
 snowglobe.disable.commons.logging: true
-nginx.define.upstream.zones: false
-upstream.preserveForPerformance: true
 snowGlobe.outputStartupLogs: true
+upstream.preserveForPerformance: true
+upstream.bounce.image: "krogersnowglobe/upstream-bounce-app:latest"

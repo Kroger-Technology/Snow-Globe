@@ -34,19 +34,17 @@ import static java.util.stream.Collectors.toList;
 public class NginxEnvironmentFileBuilder {
 
     MessageDigest configurationMD5;
-    String contentsHash = null;
-    TestFrameworkProperties testFrameworkProperties;
+    FrameworkProperties frameworkProperties;
+    Map<String, UpstreamAppInfo> upstreamServers = new HashMap<>();
 
     public NginxEnvironmentFileBuilder() {
-        testFrameworkProperties = new TestFrameworkProperties();
+        frameworkProperties = new FrameworkProperties();
         try {
             configurationMD5 = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
     }
-
-    Map<String, UpstreamAppInfo> upstreamServers = new HashMap<>();
 
     public void addUpstreamServer(String clusterName) {
         upstreamServers.put(clusterName.trim(), new UpstreamAppInfo());
@@ -97,9 +95,9 @@ public class NginxEnvironmentFileBuilder {
     }
 
     protected String correctFilePath(String filePath) {
-        return (filePath.contains(testFrameworkProperties.getDeployedDirectory())) ?
-                filePath.replace(testFrameworkProperties.getDeployedDirectory(), testFrameworkProperties.getSourceDirectory()) :
-                testFrameworkProperties.getSourceDirectory() + File.separator + filePath;
+        return (filePath.contains(frameworkProperties.getDeployedDirectory())) ?
+                filePath.replace(frameworkProperties.getDeployedDirectory(), frameworkProperties.getSourceDirectory()) :
+                frameworkProperties.getSourceDirectory() + File.separator + filePath;
     }
 
     public void computeUpstreamPorts() {
@@ -128,7 +126,7 @@ public class NginxEnvironmentFileBuilder {
         clusterName = handleClusterNameChar(prefixRemoved, clusterName, "/");
         clusterName = handleClusterNameChar(prefixRemoved, clusterName, ";");
         clusterName = handleClusterNameChar(prefixRemoved, clusterName, "/");
-        if(clusterName.contains("$")) {
+        if (clusterName.contains("$")) {
             return;
         }
         addUpstreamServer(clusterName);
@@ -160,7 +158,7 @@ public class NginxEnvironmentFileBuilder {
         StringBuilder sb = new StringBuilder();
         sb.append("\n")
                 .append("  upstream ").append(serverName).append(" { \n");
-        if (testFrameworkProperties.defineUpstreamZones()) {
+        if (frameworkProperties.defineUpstreamZones()) {
             sb.append("    zone " + serverName + " 64k;\n");
         }
         sb.append("    server ")
@@ -188,8 +186,8 @@ public class NginxEnvironmentFileBuilder {
         }
     }
 
-    TestFrameworkProperties getPropertiesForTest() {
-        return testFrameworkProperties;
+    FrameworkProperties getPropertiesForTest() {
+        return frameworkProperties;
     }
 
     private byte[] computeUpstreamHash() {
@@ -208,8 +206,7 @@ public class NginxEnvironmentFileBuilder {
             totalHash.update(configurationMD5.digest());
             totalHash.update(computeUpstreamHash());
             return new BigInteger(1, totalHash.digest()).toString(16);
-        }
-        catch(NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
     }
@@ -217,7 +214,7 @@ public class NginxEnvironmentFileBuilder {
     public void setUpstreamPorts(AppServiceCluster[] upstreamInstance) {
         Arrays.stream(upstreamInstance).forEach(upstream -> {
             UpstreamAppInfo upstreamAppInfo = upstreamServers.get(upstream.getClusterName());
-            if(upstreamAppInfo != null) {
+            if (upstreamAppInfo != null) {
                 upstream.assignPort(upstreamAppInfo.port());
             }
         });
@@ -225,7 +222,7 @@ public class NginxEnvironmentFileBuilder {
 
     public void registerUpstreams(AppServiceCluster[] clusters) {
         Arrays.stream(clusters).forEach(cluster -> {
-                addUpstreamServer(cluster.getClusterName());
+            addUpstreamServer(cluster.getClusterName());
         });
     }
 }

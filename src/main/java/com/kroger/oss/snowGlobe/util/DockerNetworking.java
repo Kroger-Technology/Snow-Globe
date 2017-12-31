@@ -18,7 +18,8 @@
 
 package com.kroger.oss.snowGlobe.util;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 public class DockerNetworking {
 

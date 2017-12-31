@@ -69,7 +69,7 @@ public class ResponseVerification {
     }
 
     private Map<String, String> buildHeaders(Header[] allHeaders) {
-        if(allHeaders == null) {
+        if (allHeaders == null) {
             allHeaders = new Header[]{};
         }
         return stream(allHeaders).collect(toMap(Header::getName, Header::getValue));
@@ -82,12 +82,12 @@ public class ResponseVerification {
         } else {
             fail("No health check url has been defined");
         }
-        assertThat("The response code for: "  + this.testRequest.getHealthCheckUrl() + " did not match what we expected.", code, is(200));
+        assertThat("The response code for: " + this.testRequest.getHealthCheckUrl() + " did not match what we expected.", code, is(200));
         return this;
     }
 
     public ResponseVerification expectResponseCode(int responseCode) {
-        assertThat("The response code for: "  + this.testRequest.getPrettyUrl() + " did not match what we expected.", this.responseCode, is(responseCode));
+        assertThat("The response code for: " + this.testRequest.getPrettyUrl() + " did not match what we expected.", this.responseCode, is(responseCode));
         return this;
     }
 
@@ -96,7 +96,7 @@ public class ResponseVerification {
     }
 
     public ResponseVerification expectClusterName(String clusterName) {
-        assertThat("The request:"  + this.testRequest.getPrettyUrl() + " was routed to the wrong upstream cluster!",
+        assertThat("The request:" + this.testRequest.getPrettyUrl() + " was routed to the wrong upstream cluster!",
                 this.clusterName, is(clusterName));
         return this;
     }
@@ -115,7 +115,7 @@ public class ResponseVerification {
     }
 
     public ResponseVerification expectAppPath(String appPath) {
-        assertThat("The path for: "   + this.testRequest.getPrettyUrl() +  " that was sent to the service did not match what we expected.",
+        assertThat("The path for: " + this.testRequest.getPrettyUrl() + " that was sent to the service did not match what we expected.",
                 this.appPath, is(appPath));
         return this;
     }
@@ -129,7 +129,7 @@ public class ResponseVerification {
     }
 
     public ResponseVerification expectAppUrl(String url) {
-        assertThat("The url for: "   + this.testRequest.getPrettyUrl() +  " that was sent to the service did not match what we expected.",
+        assertThat("The url for: " + this.testRequest.getPrettyUrl() + " that was sent to the service did not match what we expected.",
                 this.urlToApplication, is(url));
         return this;
     }
@@ -146,7 +146,7 @@ public class ResponseVerification {
 
 
     public ResponseVerification expectResponseHeader(String headerKey) {
-        assertThat("Call from Reverse Proxy to: " +  this.serviceResponseBody.getRequest().getUrlToApplication()
+        assertThat("Call from Reverse Proxy to: " + this.serviceResponseBody.getRequest().getUrlToApplication()
                         + " originating from: " + this.testRequest.getPrettyUrl()
                         + " did not contain the header in the response sent from the application.",
                 this.responseHeaders, hasKey(headerKey));
@@ -163,7 +163,7 @@ public class ResponseVerification {
     }
 
     public ResponseVerification expectRequestHeaderToApplication(String headerKey) {
-        assertThat("Call from Reverse Proxy to: " +  this.serviceResponseBody.getRequest().getUrlToApplication()
+        assertThat("Call from Reverse Proxy to: " + this.serviceResponseBody.getRequest().getUrlToApplication()
                         + " originating from: " + this.testRequest.getPrettyUrl()
                         + " did not contain the header in the request sent to the application.",
                 this.serviceResponseBody.getRequest().getHeaders(), hasKey(headerKey));
@@ -182,7 +182,7 @@ public class ResponseVerification {
 
     public ResponseVerification expectRequestHeaderToApplicationMatching(String headerKey, String matchingRegex) {
         andExpectRequestHeaderToApplication(headerKey);
-        assertThat("Call from Reverse Proxy to: " +  this.serviceResponseBody.getRequest().getUrlToApplication()
+        assertThat("Call from Reverse Proxy to: " + this.serviceResponseBody.getRequest().getUrlToApplication()
                         + " originating from: " + this.testRequest.getPrettyUrl()
                         + " has a value '" + this.serviceResponseBody.getRequest().getHeaders().get(headerKey)
                         + "' that does not match " + matchingRegex,
@@ -191,7 +191,7 @@ public class ResponseVerification {
     }
 
     public ResponseVerification andExpectRequestHeaderToApplicationMatching(String headerKey, String matchingRegex) {
-       return this.expectRequestHeaderToApplicationMatching(headerKey, matchingRegex);
+        return this.expectRequestHeaderToApplicationMatching(headerKey, matchingRegex);
     }
 
     @Deprecated
@@ -201,9 +201,9 @@ public class ResponseVerification {
 
     @Deprecated
     public ResponseVerification hasRequestHeaderToApplication(String headerKey, String headerValue) {
-        assertThat("Call from Reverse Proxy to: " +  this.serviceResponseBody.getRequest().getUrlToApplication()
-                 + " originating from: " + this.testRequest.getPrettyUrl()
-                + " did not contain the header in the request sent to the application.",
+        assertThat("Call from Reverse Proxy to: " + this.serviceResponseBody.getRequest().getUrlToApplication()
+                        + " originating from: " + this.testRequest.getPrettyUrl()
+                        + " did not contain the header in the request sent to the application.",
                 this.serviceResponseBody.getRequest().getHeaders(), hasEntry(headerKey, headerValue));
         return this;
     }
@@ -214,7 +214,7 @@ public class ResponseVerification {
     }
 
     public ResponseVerification andDoesNotHaveRequestHeaderToApplication(String headerKey) {
-        assertThat("Call from Reverse Proxy to: " +  this.serviceResponseBody.getRequest().getUrlToApplication()
+        assertThat("Call from Reverse Proxy to: " + this.serviceResponseBody.getRequest().getUrlToApplication()
                         + " originating from: " + this.testRequest.getPrettyUrl()
                         + " does have the header + " + headerKey + " in the request sent to the application.",
                 this.serviceResponseBody.getRequest().getHeaders(), not(hasKey(headerKey)));
@@ -231,7 +231,7 @@ public class ResponseVerification {
     }
 
     public ResponseVerification andExpectResponseHeaderMatches(String key, String matchingValue) {
-        assertThat("Call from Reverse Proxy to: " +  this.serviceResponseBody.getRequest().getUrlToApplication()
+        assertThat("Call from Reverse Proxy to: " + this.serviceResponseBody.getRequest().getUrlToApplication()
                         + " originating from: " + this.testRequest.getPrettyUrl()
                         + " does have the header : '" + key + "' with a matching value: '" + matchingValue + "' in the " +
                         "  response sent from the upstream application.",

@@ -18,32 +18,38 @@
 
 package com.kroger.oss.snowGlobe.util;
 
+import com.kroger.oss.snowGlobe.FrameworkProperties;
 import com.kroger.oss.snowGlobe.NginxRpBuilder;
-import com.kroger.oss.snowGlobe.TestFrameworkProperties;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Collections.singletonMap;
 
 public class ComposeUtility {
 
-    private final NginxRpBuilder nginxRpBuilder;
-    private TestFrameworkProperties testFrameworkProperties;
     private static List<String> containersWithShutDownHooks = new ArrayList<>();
+    private final NginxRpBuilder nginxRpBuilder;
+    private FrameworkProperties frameworkProperties;
 
-    public ComposeUtility(NginxRpBuilder nginxRpBuilder, TestFrameworkProperties testFrameworkProperties) {
+    public ComposeUtility(NginxRpBuilder nginxRpBuilder, FrameworkProperties frameworkProperties) {
         this.nginxRpBuilder = nginxRpBuilder;
-        this.testFrameworkProperties = testFrameworkProperties;
+        this.frameworkProperties = frameworkProperties;
     }
 
     public void start() {
         String fileContents = buildComposeFileContents();
-        writeComposeFile(fileContents, testFrameworkProperties);
+        writeComposeFile(fileContents, frameworkProperties);
         String containerId = nginxRpBuilder.buildRpContainerId();
-        if(ContainerUtil.isContainerRunning(containerId)) {
+        if (ContainerUtil.isContainerRunning(containerId)) {
             nginxRpBuilder.assignPortFormRunningContainer(ContainerUtil.getMappedPorts(containerId));
         } else {
             startReverseProxy();
@@ -55,9 +61,9 @@ public class ComposeUtility {
         return "./build/" + nginxRpBuilder.buildRpContainerId() + "-compose.yml";
     }
 
-    private void writeComposeFile(String fileContents, TestFrameworkProperties testFrameworkProperties) {
+    private void writeComposeFile(String fileContents, FrameworkProperties frameworkProperties) {
         File composeFile = new File(getComposeFileName());
-        if (!testFrameworkProperties.preserveTempFiles()) {
+        if (!frameworkProperties.preserveTempFiles()) {
             composeFile.deleteOnExit();
         }
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(getComposeFileName()))) {
@@ -68,11 +74,11 @@ public class ComposeUtility {
     }
 
     private void addNginxShutDownHook(String runningContainer) {
-        final boolean logShutdown = testFrameworkProperties.logContainerOutput();
-        if(!containersWithShutDownHooks.contains(runningContainer)) {
+        final boolean logShutdown = frameworkProperties.logContainerOutput();
+        if (!containersWithShutDownHooks.contains(runningContainer)) {
             containersWithShutDownHooks.add(runningContainer);
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                if(logShutdown) {
+                if (logShutdown) {
                     ContainerUtil.shutdownContainerWithLogs(runningContainer);
                 } else {
                     ContainerUtil.shutdownContainer(runningContainer);
@@ -84,7 +90,7 @@ public class ComposeUtility {
     private void startReverseProxy() {
         String[] command = {"docker-compose", "--file", getComposeFileName(), "up", "-d",
                 nginxRpBuilder.buildRpContainerId()};
-        if (testFrameworkProperties.logContainerOutput()) {
+        if (frameworkProperties.logContainerOutput()) {
             ContainerUtil.runCommandWithLogs(command);
         } else {
             ContainerUtil.runCommand(command);
@@ -101,7 +107,7 @@ public class ComposeUtility {
     }
 
     private Map<String, Object> buildNetworks() {
-        return singletonMap("default", singletonMap("external", singletonMap("name", testFrameworkProperties.getDockerNetworkName())));
+        return singletonMap("default", singletonMap("external", singletonMap("name", frameworkProperties.getDockerNetworkName())));
     }
 
     protected Map<String, Object> buildServicesMap() {

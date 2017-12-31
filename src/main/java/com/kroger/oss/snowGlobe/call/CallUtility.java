@@ -20,16 +20,14 @@ package com.kroger.oss.snowGlobe.call;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kroger.oss.snowGlobe.TestFrameworkProperties;
+import com.kroger.oss.snowGlobe.FrameworkProperties;
 import org.apache.http.HttpEntity;
-import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.*;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -43,7 +41,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
-import java.net.SocketException;
 
 /**
  * This is a collections of functions that allows the user to make a call based on the <code>TestRequest</code> class.
@@ -51,8 +48,8 @@ import java.net.SocketException;
 public class CallUtility {
 
 
-    private static TestFrameworkProperties getProperties() {
-        return new TestFrameworkProperties();
+    private static FrameworkProperties getProperties() {
+        return new FrameworkProperties();
     }
 
     /**
@@ -61,20 +58,16 @@ public class CallUtility {
      * the response and response body, returning it in a <code>ResponseVerification</code> class, allowing assertions
      * to be made to it.
      *
-     * @param testRequest
-     *      This is the test request that has all of the information about the call, headers, and body of the request.
-     *      This object should change the protocol to http and properly add in the port number to match to the correct
-     *      port that was setup by the <code>NginxRpBuilder</code> object.
-     *
-     * @return
-     *      The response object wrapped in the <code>ResponseVerification</code> object.  This will be used by the
-     *      com.kroger.snowGlobe.integration.tests.tests to assert specific things about the request translation, and the response translation.
-     *
+     * @param testRequest This is the test request that has all of the information about the call, headers, and body of the request.
+     *                    This object should change the protocol to http and properly add in the port number to match to the correct
+     *                    port that was setup by the <code>NginxRpBuilder</code> object.
+     * @return The response object wrapped in the <code>ResponseVerification</code> object.  This will be used by the
+     * com.kroger.snowGlobe.integration.tests.tests to assert specific things about the request translation, and the response translation.
      */
     public static ResponseVerification make(TestRequest testRequest) {
         CloseableHttpResponse rawResponse = makeRequest(testRequest, buildHttpClient());
         CloseableHttpResponse healthCheckResponse = null;
-        if (null != testRequest.getHealthCheckUrl() ) {
+        if (null != testRequest.getHealthCheckUrl()) {
             healthCheckResponse = makeGetRequest(testRequest, buildHttpClient());
         }
         String jsonResponse = getResponseBody(rawResponse.getEntity());
@@ -86,25 +79,24 @@ public class CallUtility {
      * Builds a custom Http client with custom DNS resolution, disabling persistent cookie stores and with custom
      * timeout values.
      *
-     * @return
-     *      An http client to be used to execute test requests to nginx.
+     * @return An http client to be used to execute test requests to nginx.
      */
     static CloseableHttpClient buildHttpClient() {
         return HttpClients.custom()
-                    .setConnectionManager(buildConnectionManager())
-                    .setDefaultRequestConfig(RequestConfig.custom()
-                            // Waiting for a connection from connection manager
-                            .setConnectionRequestTimeout(100)
-                            // Waiting for connection to establish
-                            .setConnectTimeout(100)
-                            .setExpectContinueEnabled(false)
-                            // Waiting for data
-                            .setSocketTimeout(200)
-                            // Do not allow cookies to be stored between calls.
-                            .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
-                            .build())
-                    .setRetryHandler(buildRetryHandler())
-                    .disableRedirectHandling().build();
+                .setConnectionManager(buildConnectionManager())
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        // Waiting for a connection from connection manager
+                        .setConnectionRequestTimeout(100)
+                        // Waiting for connection to establish
+                        .setConnectTimeout(100)
+                        .setExpectContinueEnabled(false)
+                        // Waiting for data
+                        .setSocketTimeout(200)
+                        // Do not allow cookies to be stored between calls.
+                        .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
+                        .build())
+                .setRetryHandler(buildRetryHandler())
+                .disableRedirectHandling().build();
     }
 
     /**
@@ -112,12 +104,11 @@ public class CallUtility {
      * conjunction with the random ports for the docker compose RP entry allow for all traffic to be properly
      * routed.
      *
-     * @return
-     *      A connection manager that resolves all DNS names to 127.0.0.1
+     * @return A connection manager that resolves all DNS names to 127.0.0.1
      */
     static BasicHttpClientConnectionManager buildConnectionManager() {
         return new BasicHttpClientConnectionManager(getDefaultRegistry(), null,
-                    null, host -> new InetAddress[] { InetAddress.getByAddress(getResolvedIpAddress()) });
+                null, host -> new InetAddress[]{InetAddress.getByAddress(getResolvedIpAddress())});
     }
 
     private static byte[] getResolvedIpAddress() {
@@ -129,8 +120,7 @@ public class CallUtility {
      * manager.  The implementation in the BasicHttpClientConnectionManager is private and can't be used so we
      * made a copy of it.
      *
-     * @return
-     *      the default registry for creating sockets based on the protocol.
+     * @return the default registry for creating sockets based on the protocol.
      */
     static Registry<ConnectionSocketFactory> getDefaultRegistry() {
         return RegistryBuilder.<ConnectionSocketFactory>create()
@@ -142,18 +132,15 @@ public class CallUtility {
     /**
      * Maps expected JSON formatted response from fake upstream server to the ResponseBody class.
      *
-     * @param body
-     *      String representation of the JSON response.
-     *
-     * @return
-     *      The ResponseBody object representing the JSON response.
+     * @param body String representation of the JSON response.
+     * @return The ResponseBody object representing the JSON response.
      */
     static ResponseBody buildResponseBody(String body) {
         ObjectMapper mapper = new ObjectMapper();
         ResponseBody res;
         try {
             res = mapper.readValue(body, ResponseBody.class);
-        }catch(JsonParseException jpe) {
+        } catch (JsonParseException jpe) {
             res = ResponseBody.buildDirectResponseFromRp(body);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -164,15 +151,12 @@ public class CallUtility {
     /**
      * Maps out to make the call based on the request HTTP method.
      *
-     * @param testRequest
-     *      The request to make.
-     * @param httpclient
-     *      The http client to use to execute that action.
-     * @return
-     *      The response that was given from the http client.
+     * @param testRequest The request to make.
+     * @param httpclient  The http client to use to execute that action.
+     * @return The response that was given from the http client.
      */
     static CloseableHttpResponse makeRequest(TestRequest testRequest, CloseableHttpClient httpclient) {
-        switch(testRequest.getMethod()) {
+        switch (testRequest.getMethod()) {
             case "POST":
                 return makePostRequest(testRequest, httpclient);
             case "GET":
@@ -190,13 +174,10 @@ public class CallUtility {
      * Makes a delete request to the client based on the input from the testRequest object though the custom connection
      * setup for the call.
      *
-     * @param testRequest
-     *      The request information used to make the request.
-     * @param httpclient
-     *      The calling object to invoke.
-     * @return
-     *      A response object that we will receive.  In this framework, this is the response that is given back from
-     *      the Nginx Reverse Proxy.
+     * @param testRequest The request information used to make the request.
+     * @param httpclient  The calling object to invoke.
+     * @return A response object that we will receive.  In this framework, this is the response that is given back from
+     * the Nginx Reverse Proxy.
      */
     static CloseableHttpResponse makeDeleteRequest(TestRequest testRequest, CloseableHttpClient httpclient) {
         HttpDelete delete = new HttpDelete(testRequest.getUrl());
@@ -208,13 +189,10 @@ public class CallUtility {
      * Makes a put request to the client based on the input from the testRequest object though the custom connection
      * setup for the call.
      *
-     * @param testRequest
-     *      The request information used to make the request.
-     * @param httpclient
-     *      The calling object to invoke.
-     * @return
-     *      A response object that we will receive.  In this framework, this is the response that is given back from
-     *      the Nginx Reverse Proxy.
+     * @param testRequest The request information used to make the request.
+     * @param httpclient  The calling object to invoke.
+     * @return A response object that we will receive.  In this framework, this is the response that is given back from
+     * the Nginx Reverse Proxy.
      */
     static CloseableHttpResponse makePutRequest(TestRequest testRequest, CloseableHttpClient httpclient) {
         HttpPut put = new HttpPut(testRequest.getUrl());
@@ -226,13 +204,10 @@ public class CallUtility {
      * Makes a get request to the client based on the input from the testRequest object though the custom connection
      * setup for the call.
      *
-     * @param testRequest
-     *      The request information used to make the request.
-     * @param httpclient
-     *      The calling object to invoke.
-     * @return
-     *      A response object that we will receive.  In this framework, this is the response that is given back from
-     *      the Nginx Reverse Proxy.
+     * @param testRequest The request information used to make the request.
+     * @param httpclient  The calling object to invoke.
+     * @return A response object that we will receive.  In this framework, this is the response that is given back from
+     * the Nginx Reverse Proxy.
      */
     static CloseableHttpResponse makeGetRequest(TestRequest testRequest, CloseableHttpClient httpclient) {
         HttpGet httpGet = new HttpGet(testRequest.getUrl());
@@ -244,18 +219,15 @@ public class CallUtility {
      * Makes a post request to the client based on the input from the testRequest object though the custom connection
      * setup for the call.
      *
-     * @param testRequest
-     *      The request information used to make the request.
-     * @param httpclient
-     *      The calling object to invoke.
-     * @return
-     *      A response object that we will receive.  In this framework, this is the response that is given back from
-     *      the Nginx Reverse Proxy.
+     * @param testRequest The request information used to make the request.
+     * @param httpclient  The calling object to invoke.
+     * @return A response object that we will receive.  In this framework, this is the response that is given back from
+     * the Nginx Reverse Proxy.
      */
     static CloseableHttpResponse makePostRequest(TestRequest testRequest, CloseableHttpClient httpclient) {
         HttpPost httpPost = new HttpPost(testRequest.getUrl());
         setHeaders(httpPost, testRequest);
-        if(testRequest.getBody() != null) {
+        if (testRequest.getBody() != null) {
             httpPost.setEntity(getHttpEntity(testRequest));
         }
         return execute(httpclient, httpPost);
@@ -264,13 +236,11 @@ public class CallUtility {
     /**
      * Sets incoming headers on the call.
      *
-     * @param httpMethod
-     *      The call object to modify.
-     * @param testRequest
-     *      The request that contains the information on the headers that we should use to populate the request.
+     * @param httpMethod  The call object to modify.
+     * @param testRequest The request that contains the information on the headers that we should use to populate the request.
      */
     static void setHeaders(HttpRequestBase httpMethod, TestRequest testRequest) {
-        if(testRequest.hasUserAgent()) {
+        if (testRequest.hasUserAgent()) {
             httpMethod.setHeader("User-Agent", testRequest.getUserAgent());
         }
     }
@@ -280,8 +250,7 @@ public class CallUtility {
      * destination.  This is used since startup of nginx and other upstream servers are asynchronous.  This smooths
      * over the "bumpiness" of getting everything started up before we make a call.
      *
-     * @return
-     *      The retry handler that will be used by the custom http client.
+     * @return The retry handler that will be used by the custom http client.
      */
     static HttpRequestRetryHandler buildRetryHandler() {
         final int maxRetries = calcMaxRetries();
@@ -292,7 +261,8 @@ public class CallUtility {
             }
             try {
                 Thread.sleep(getProperties().getMaxNginxStartupPollingTimeMs());
-            } catch (InterruptedException e) { }
+            } catch (InterruptedException e) {
+            }
             // Retry if the server dropped connection on us
             return true;
         };
@@ -305,10 +275,8 @@ public class CallUtility {
     /**
      * Gets the UTF-8 body from the request object.  This is used to set the body of the request for POSTs.
      *
-     * @param testRequest
-     *      The incoming request.
-     * @return
-     *      The HttpEntity that is properly encoded for the call that is made.
+     * @param testRequest The incoming request.
+     * @return The HttpEntity that is properly encoded for the call that is made.
      */
     static HttpEntity getHttpEntity(TestRequest testRequest) {
         HttpEntity entity = null;
@@ -323,12 +291,9 @@ public class CallUtility {
     /**
      * Executes the call and handling any IO exception.
      *
-     * @param client
-     *      The client to use to make the call.
-     * @param action
-     *      The action to invoke on the client.
-     * @return
-     *      The response from action.  All errors will bubble up as a runtime exception.
+     * @param client The client to use to make the call.
+     * @param action The action to invoke on the client.
+     * @return The response from action.  All errors will bubble up as a runtime exception.
      */
     static CloseableHttpResponse execute(CloseableHttpClient client, HttpUriRequest action) {
         try {
@@ -343,10 +308,8 @@ public class CallUtility {
     /**
      * This gets the response body out of the entity object.
      *
-     * @param entity
-     *      the entity contained in the response.
-     * @return
-     *      A string value of the response body.
+     * @param entity the entity contained in the response.
+     * @return A string value of the response body.
      */
     static String getResponseBody(HttpEntity entity) {
         StringBuilder sb = new StringBuilder();
@@ -356,8 +319,7 @@ public class CallUtility {
             while ((line = reader.readLine()) != null) {
                 sb.append(line);
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return sb.toString();
