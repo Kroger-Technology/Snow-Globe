@@ -114,7 +114,7 @@ public class FrameworkProperties {
     }
 
     String getUpstreamLocation() {
-        return getString("nginx.upstream.file.path", "/tmp/emptyUpstream.conf");
+        return getString("upstream.file.path", "/tmp/emptyUpstream.conf");
     }
 
     @SuppressWarnings("unchecked")

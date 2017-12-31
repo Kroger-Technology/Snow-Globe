@@ -1,7 +1,6 @@
 nginx.volume.mounts:
     - "src/test/resources/nginx/nginx.conf:/etc/nginx/nginx.conf"
     - "src/test/resources/nginx/dev/*:/etc/nginx/dev/"
-nginx.upstream.file.path: "/etc/nginx/upstreams.conf"
 nginx.container: "bogus.com/library/nginx:999"
 nginx.url.port.mapping:
   - https:
@@ -15,8 +14,9 @@ nginx.source.base.directory: "src/test/resources/nginx/"
 nginx.deploy.base.directory: "/etc/nginx/"
 nginx.env.config.files:
     - "src/test/resources/nginx/nginx.conf"
-upstream.bounce.image: "bogus.com/nginx/upstream-bounce-service:999"
+nginx.define.upstream.zones: true
 snowglobe.log.output:  true
 snowglobe.preserve.temp.files: false
 snowglobe.disable.commons.logging: true
-nginx.define.upstream.zones: true
+upstream.bounce.image: "bogus.com/nginx/upstream-bounce-service:999"
+upstream.file.path: "/etc/nginx/upstreams.conf"

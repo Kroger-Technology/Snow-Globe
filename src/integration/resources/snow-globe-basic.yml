@@ -1,7 +1,6 @@
 nginx.volume.mounts:
     - "src/integration/resources/nginx-basic.conf:/etc/nginx/nginx.conf"
     - "src/integration/resources/static/*:/etc/nginx/static/"
-nginx.upstream.file.path: "/etc/nginx/upstreams.conf"
 nginx.container: "nginx"
 nginx.url.port.mapping:
   - https:
@@ -14,9 +13,10 @@ nginx.start.command: ["nginx", "-g", "'daemon off;'"]
 nginx.source.base.directory: "src/integration/resources/"
 nginx.deploy.base.directory: "/etc/nginx/"
 nginx.env.config.files: [ "/src/integration/resources/nginx-basic.conf" ]
-upstream.bounce.image: "krogersnowglobe/upstream-bounce-app:latest"
+nginx.define.upstream.zones: false
+nginx.max.startupTime: 5
 snowglobe.log.output:  false
 snowglobe.preserve.temp.files: false
 snowglobe.disable.commons.logging: true
-nginx.define.upstream.zones: false
-nginx.max.startupTime: 5
+upstream.bounce.image: "krogersnowglobe/upstream-bounce-app:latest"
+upstream.file.path: "/etc/nginx/upstreams.conf"

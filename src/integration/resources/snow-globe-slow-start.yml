@@ -16,9 +16,9 @@ nginx.source.base.directory: "src/integration/resources/"
 nginx.deploy.base.directory: "/etc/nginx/"
 nginx.env.config.files:
     - "/src/integration/resources/nginx.conf"
-upstream.bounce.image: "krogersnowglobe/upstream-bounce-app:latest"
+nginx.define.upstream.zones: false
+nginx.max.startupTime: 5
 snowglobe.log.output:  false
 snowglobe.preserve.temp.files: false
 snowglobe.disable.commons.logging: true
-nginx.define.upstream.zones: false
-nginx.max.startupTime: 5
+upstream.bounce.image: "krogersnowglobe/upstream-bounce-app:latest"
