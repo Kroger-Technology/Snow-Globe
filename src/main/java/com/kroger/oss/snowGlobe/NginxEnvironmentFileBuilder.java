@@ -173,13 +173,12 @@ public class NginxEnvironmentFileBuilder {
     }
 
     public List<String> getWildCardFiles(String wildcardInclude) {
-        String beforeStar = wildcardInclude.split("\\*")[0];
-        String afterStar = wildcardInclude.split("\\*")[1];
-        String baseDirectory = beforeStar.contains("/") ? beforeStar.substring(0, beforeStar.lastIndexOf("/")) : "";
+        String baseDirectory = wildcardInclude.contains("/") ? wildcardInclude.substring(0, wildcardInclude.lastIndexOf("/")) : "";
+        String wildCard = wildcardInclude.substring(baseDirectory.length() + 1).replaceAll("\\*", "\\.\\*");
         try {
             return stream(new File(baseDirectory).list())
-                    .filter(s -> s.matches(".*" + afterStar))
-                    .map(s -> beforeStar + s)
+                    .filter(s -> s.matches(".*" + wildCard))
+                    .map(s -> baseDirectory  + "/" + s)
                     .collect(toList());
         } catch (Exception e) {
             return new ArrayList<>();
