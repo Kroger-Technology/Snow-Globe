@@ -154,7 +154,7 @@ public class NginxEnvironmentFileBuilderTest {
     @Test
     public void shouldFetchWildcardIncludesForExtensionWildcard() {
         List<String> wildCardFiles = fileBuilder.getWildCardFiles("src/test/resources/wildCardTests/*.html");
-        assertThat(wildCardFiles, contains("src/test/resources/wildCardTests/index.html",
+        assertThat(wildCardFiles, containsInAnyOrder("src/test/resources/wildCardTests/index.html",
                 "src/test/resources/wildCardTests/open.html",
                 "src/test/resources/wildCardTests/test.html"));
     }
@@ -162,14 +162,14 @@ public class NginxEnvironmentFileBuilderTest {
     @Test
     public void shouldFetchWildcardIncludesForPrefixWildcard() {
         List<String> wildCardFiles = fileBuilder.getWildCardFiles("src/test/resources/wildCardTests/index.*");
-        assertThat(wildCardFiles, contains("src/test/resources/wildCardTests/index.html",
+        assertThat(wildCardFiles, containsInAnyOrder("src/test/resources/wildCardTests/index.html",
                 "src/test/resources/wildCardTests/index.txt"));
     }
 
     @Test
     public void shouldFetchWildcardIncludesForAllMatchingWildCard() {
         List<String> wildCardFiles = fileBuilder.getWildCardFiles("src/test/resources/wildCardTests/*");
-        assertThat(wildCardFiles, contains("src/test/resources/wildCardTests/index.html",
+        assertThat(wildCardFiles, containsInAnyOrder("src/test/resources/wildCardTests/index.html",
                 "src/test/resources/wildCardTests/index.txt",
                 "src/test/resources/wildCardTests/open.html",
                 "src/test/resources/wildCardTests/readme.txt",
