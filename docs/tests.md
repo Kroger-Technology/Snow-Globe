@@ -1,6 +1,8 @@
 
 # Test Examples
 
+
+## Setup Pattern
 Tests are setup by starting the Nginx environment.  You need to declare your upstream servers and then
 start the nginx configuration.
 
