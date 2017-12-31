@@ -14,6 +14,17 @@ jobs:
           command: ./gradlew test
 
       - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/junit/
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+          when: always
+      - store_test_results:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/junit
+
+      - run:
           name: Integration Tests
           command: ./gradlew integrationTest
 
@@ -49,10 +60,7 @@ jobs:
               docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
               docker push krogersnowglobe/upstream-bounce-app:latest
             fi
-
-      - store_artifacts:
-          path: build/reports
-          destination: reports
+            
       - store_artifacts:
           path: build/libs
           destination: libs
