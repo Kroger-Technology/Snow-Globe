@@ -25,8 +25,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -155,29 +154,26 @@ public class NginxEnvironmentFileBuilderTest {
     @Test
     public void shouldFetchWildcardIncludesForExtensionWildcard() {
         List<String> wildCardFiles = fileBuilder.getWildCardFiles("src/test/resources/wildCardTests/*.html");
-        assertThat(wildCardFiles.toArray(), is(new String[]
-                {"src/test/resources/wildCardTests/index.html",
-                        "src/test/resources/wildCardTests/open.html",
-                        "src/test/resources/wildCardTests/test.html"}));
+        assertThat(wildCardFiles, contains("src/test/resources/wildCardTests/index.html",
+                "src/test/resources/wildCardTests/open.html",
+                "src/test/resources/wildCardTests/test.html"));
     }
 
     @Test
     public void shouldFetchWildcardIncludesForPrefixWildcard() {
         List<String> wildCardFiles = fileBuilder.getWildCardFiles("src/test/resources/wildCardTests/index.*");
-        assertThat(wildCardFiles.toArray(), is(new String[]
-                {"src/test/resources/wildCardTests/index.html",
-                        "src/test/resources/wildCardTests/index.txt"}));
+        assertThat(wildCardFiles, contains("src/test/resources/wildCardTests/index.html",
+                "src/test/resources/wildCardTests/index.txt"));
     }
 
     @Test
     public void shouldFetchWildcardIncludesForAllMatchingWildCard() {
         List<String> wildCardFiles = fileBuilder.getWildCardFiles("src/test/resources/wildCardTests/*");
-        assertThat(wildCardFiles.toArray(), is(new String[]
-                {"src/test/resources/wildCardTests/index.html",
-                        "src/test/resources/wildCardTests/index.txt",
-                        "src/test/resources/wildCardTests/open.html",
-                        "src/test/resources/wildCardTests/readme.txt",
-                        "src/test/resources/wildCardTests/test.html"}));
+        assertThat(wildCardFiles, contains("src/test/resources/wildCardTests/index.html",
+                "src/test/resources/wildCardTests/index.txt",
+                "src/test/resources/wildCardTests/open.html",
+                "src/test/resources/wildCardTests/readme.txt",
+                "src/test/resources/wildCardTests/test.html"));
     }
 
 }
