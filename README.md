@@ -2,7 +2,7 @@
 
 An integration testing framework for Nginx that will test your configuration.  Every test involves verifying that a request will correctly flow through Nginx, to an upstream cluster and properly handles the response.
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.kroger.oss/snow-globe/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.kroger.oss/snow-globe) [![Build Status Image](https://circleci.com/gh/Kroger-Technology/Snow-Globe.svg?style=shield&circe-token=bb34e5439f189eb33ad7591f59f768bd257aa0b8)](https://circleci.com/gh/Kroger-Technology/Snow-Globe) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Maven Central with version prefix filter](https://img.shields.io/maven-central/v/com.kroger.oss/snow-globe/2.svg)](https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.kroger.oss%22%20AND%20a%3A%22snow-globe%22) [![Build Status Image](https://circleci.com/gh/Kroger-Technology/Snow-Globe.svg?style=shield&circe-token=bb34e5439f189eb33ad7591f59f768bd257aa0b8)](https://circleci.com/gh/Kroger-Technology/Snow-Globe) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 
 Snow-Globe completes an integration test by parsing the configuration, dynamically building an upstream file, and with Docker, it starts up Nginx with the configuration and verifies an actual request/response flow matches the test specifications.  Snow-Globe stubs the upstreams so that the entire environment can be fully controlled.
@@ -43,7 +43,7 @@ These tests are written in Java.  To properly use this, we recommend that you se
 If you are confident about setting up your own project, then you want to add in the snow-globe library as part
 of your tests dependency.  The latest version is here:
 
- [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.kroger.oss/snow-globe/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.kroger.oss/snow-globe)
+[![Maven Central with version prefix filter](https://img.shields.io/maven-central/v/com.kroger.oss/snow-globe/2.svg)](https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.kroger.oss%22%20AND%20a%3A%22snow-globe%22)
 
 You can click on the link for specific information on how to integrate.
 
