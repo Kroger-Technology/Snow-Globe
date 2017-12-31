@@ -1,6 +1,7 @@
 
 # Test Examples
 
+Below are example tests and assertions that can be made for an Nginx configuration.
 
 ## Setup Pattern
 Tests are setup by starting the Nginx environment.  You need to declare your upstream servers and then
@@ -15,7 +16,7 @@ snippet comes from `src/test/java/com/kroger/snowGlobe/integration/tests/AppUrlT
 
     @Before
     public void setup() {
-        nginxReverseProxy = startNginxRpWithCluster(loginUpstreamApp);
+        nginxReverseProxy = NginxRpBuilder.runNginxWithUpstreams(loginUpstreamApp);
     }
 ```
 
@@ -53,7 +54,7 @@ Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/
 
 ---
 
-***HTTP -> HTTPS redirect Example***
+## HTTP -> HTTPS redirect Example
 
 This is an example that an http call will return a HTTP `301` and have a location header to use HTTPS
 
