@@ -5,14 +5,14 @@ Below are example tests and assertions that can be made for an Nginx configurati
 
 ## Setup Pattern
 Tests are setup by starting the Nginx environment.  You need to declare your upstream servers and then
-start the nginx configuration.
+start the Nginx configuration.
 
 The code snipped below shows a common pattern of starting and stopping the nginx cluster for tests.  This
-snippet comes from `src/test/java/com/kroger/snowGlobe/integration/tests/AppUrlTest`
+snippet comes from [src/test/java/com/kroger/snowGlobe/integration/tests/AppUrlTest](https://github.com/Kroger-Technology/Snow-Globe/blob/master/src/integration/java/com/kroger/oss/snowGlobe/integration/tests/AppUrlTest.java#L38)
 
 ```java
     public NginxRpBuilder nginxReverseProxy;
-    public AppServiceCluster loginUpstreamApp = makeHttpsWebService("Login_Cluster", 1);
+    public AppServiceCluster loginUpstreamApp = makeHttpsWebService("Login_Cluster");
 
     @Before
     public void setup() {
@@ -34,7 +34,7 @@ it is set in Nginx or the upstream server.
 
 This is an example that verifies that the upstream server that sends a 200 will return back to the client with a 200.
 
-Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
+Example Nginx code snippet (from [src/integrationTestNginxConfig/nginx.conf](https://github.com/Kroger-Technology/Snow-Globe/blob/master/src/integration/resources/nginx.conf#L23)):
 ```
    location /login {
        proxy_set_header X-Forwarded-Proto https;
@@ -43,7 +43,7 @@ Example Nginx code snippet (from `src/integrationTestNginxConfig/nginx.conf`):
    }
 ```
 
-Example test code snippet (from `src/test/java/com/kroger/snowGlobe/integration/tests/StatusCodeTest.java`)
+Example test code snippet (from [src/test/java/com/kroger/snowGlobe/integration/tests/StatusCodeTest.java](https://github.com/Kroger-Technology/Snow-Globe/blob/master/src/integration/java/com/kroger/oss/snowGlobe/integration/tests/StatusCodeTest.java#L46))
 ```java
     @Test
     public void should_return_200_for_login() {
