@@ -133,12 +133,16 @@ public class FrameworkProperties {
 
     public List<Map<String, Object>> getDefaultPortMapping() {
         Map<String, Object> https = new HashMap<>();
-        https.put("pattern", "https:.*");
-        https.put("port", 443);
+        Map<String, Object> httpsInner = new HashMap<>();
+        httpsInner.put("pattern", "https:.*");
+        httpsInner.put("port", 443);
+        https.put("https", httpsInner);
 
         Map<String, Object> http = new HashMap<>();
-        http.put("pattern", "http:.*");
-        http.put("port", 80);
+        Map<String, Object> httpInner = new HashMap<>();
+        httpInner.put("pattern", "http:.*");
+        httpInner.put("port", 80);
+        http.put("http", httpInner);
         return Arrays.asList(https, http);
     }
 

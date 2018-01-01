@@ -21,7 +21,14 @@ public class BasicConfigTest {
     }
 
     @Test
-    public void should_fetcch_basic_static_content() {
+    public void should_handle_call_with_default_port_mapping() {
+        // the snow-globe-basic.yml file doesn't use a default port mapping.
+        make(getRequest("http://www.nginx-test.com").to(nginxReverseProxy))
+                .andExpectResponseCode(200);
+    }
+
+    @Test
+    public void should_fetch_basic_static_content() {
         try {
 
             make(getRequest("http://www.nginx-test.com/static.html").to(nginxReverseProxy))
