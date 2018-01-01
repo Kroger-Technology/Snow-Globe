@@ -39,7 +39,7 @@ public class ExampleTest {
 
     @BeforeClass
     public static void setup() {
-        nginxReverseProxy = NginxRpBuilder.startNginxRpWithCluster(loginUpstreamApp, contentUpstreamApp, cartUpstreamApp);
+        nginxReverseProxy = runNginxWithUpstreams(loginUpstreamApp, contentUpstreamApp, cartUpstreamApp);
     }
 
     @AfterClass
