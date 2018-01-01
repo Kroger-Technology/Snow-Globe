@@ -27,25 +27,16 @@ import org.junit.Test;
 
 import static com.kroger.oss.snowGlobe.AppServiceCluster.makeHttpWebService;
 import static com.kroger.oss.snowGlobe.AppServiceCluster.makeHttpsWebService;
+import static com.kroger.oss.snowGlobe.NginxRpBuilder.runNginxWithUpstreams;
 import static com.kroger.oss.snowGlobe.call.CallUtility.make;
 import static com.kroger.oss.snowGlobe.call.TestRequest.getRequest;
 
 public class ExampleTest {
 
-    public static NginxRpBuilder nginxReverseProxy;
-    public static AppServiceCluster loginUpstreamApp = makeHttpsWebService("Login_Cluster", 1);
-    public static AppServiceCluster contentUpstreamApp = makeHttpWebService("Content_Cluster", 1);
-    public static AppServiceCluster cartUpstreamApp = makeHttpsWebService("Cart_Cluster", 1);
-
-    @BeforeClass
-    public static void setup() {
-        nginxReverseProxy = runNginxWithUpstreams(loginUpstreamApp, contentUpstreamApp, cartUpstreamApp);
-    }
-
-    @AfterClass
-    public static void teardown() {
-        nginxReverseProxy.stop();
-    }
+    public AppServiceCluster loginUpstreamApp = makeHttpsWebService("Login_Cluster");
+    public AppServiceCluster contentUpstreamApp = makeHttpWebService("Content_Cluster");
+    public AppServiceCluster cartUpstreamApp = makeHttpsWebService("Cart_Cluster");
+    public NginxRpBuilder nginxReverseProxy = runNginxWithUpstreams(loginUpstreamApp, contentUpstreamApp, cartUpstreamApp);
 
     @Test
     public void should_301_http_to_https() {
