@@ -9,8 +9,6 @@ SnowGlobe will crawl your configuration for each test and build the temporary up
 You can see an example Nginx setup in the [exampleUsage](https://github.com/Kroger-Technology/Snow-Globe/blob/master/exampleUsage/snow-globe.yml) directory.
 
 
-The yaml file has several entries that need to be completed.  Below is the documentation on this.
-
 The first part of the configuration is how we map your configuration files into the docker container.  We use `nginx.volume.mounts` to map your local
 files into the path on the docker image.  Here is an example:
 
