@@ -77,7 +77,7 @@ framework to assert on all parts of the request and response.
 This is optional and below is the default:
 
 ```yaml
-upstream.bounce.image: "krogersnowglobe/upstream-bounce-service:latest"
+upstream.bounce.image: "krogersnowglobe/upstream-bounce-app2:latest"
 ```
 
 This next field defines how to start nginx.   You may have a custom script that you

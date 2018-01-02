@@ -21,4 +21,4 @@ snowglobe.disable.commons.logging: true
 snowGlobe.outputStartupLogs: true
 upstream.file.path: "/etc/nginx/upstreams.conf"
 upstream.preserveForPerformance: true
-upstream.bounce.image: "krogersnowglobe/upstream-bounce-app:latest"
+upstream.bounce.image: "krogersnowglobe/upstream-bounce-app2:latest"

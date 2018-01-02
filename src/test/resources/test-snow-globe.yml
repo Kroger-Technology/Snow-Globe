@@ -24,4 +24,4 @@ snowglobe.log.output:  true
 snowglobe.preserve.temp.files: false
 snowglobe.disable.commons.logging: true
 upstream.file.path:  "/etc/nginx/upstreams.conf"
-upstream.bounce.image: "krogersnowglobe/upstream-bounce-app:latest"
+upstream.bounce.image: "krogersnowglobe/upstream-bounce-app2:latest"

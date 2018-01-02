@@ -13,7 +13,7 @@ nginx.env.config.files:
     - "/src/nginx/nginx.conf"
 nginx.source.base.directory: "src/nginx/"
 nginx.deploy.base.directory: "/etc/nginx/"
-upstream.bounce.image: "krogersnowglobe/upstream-bounce-app:latest"
+upstream.bounce.image: "krogersnowglobe/upstream-bounce-app2:latest"
 snowglobe.log.output:  true
 snowglobe.preserve.temp.files: false
 snowglobe.disable.commons.logging: true

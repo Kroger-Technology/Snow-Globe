@@ -58,7 +58,7 @@ jobs:
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-              docker push krogersnowglobe/upstream-bounce-app:latest
+              docker push krogersnowglobe/upstream-bounce-app2:latest
             fi
             
       - store_artifacts:
