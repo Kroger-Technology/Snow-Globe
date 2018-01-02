@@ -97,7 +97,7 @@ public class TestFrameworkProperties {
 
 
     public String getUpstreamBounceImage() {
-        return getStringValue("upstream.bounce.image", "krogersnowglobe/upstream-bounce-service:latest");
+        return getStringValue("upstream.bounce.image", "krogersnowglobe/upstream-bounce-app:latest");
     }
 
     public boolean logContainerOutput() {
