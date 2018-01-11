@@ -34,10 +34,10 @@ fi
 
 DOCKER_COMPOSE_VERSION=$(docker-compose --version 2>&1 | awk -F "[, ]" '{print $3}')
 echo -n "Docker Compose: "
-if [[ "$DOCKER_COMPOSE_VERSION" > "1.6" ]]; then
+if [[ "$DOCKER_COMPOSE_VERSION" > "1.10" ]]; then
     echo "'${DOCKER_COMPOSE_VERSION}' (CHECK)"
 else
-    echo "'${DOCKER_COMPOSE_VERSION}' (FAIL: This needs to be 1.7.0 or greater.)"
+    echo "'${DOCKER_COMPOSE_VERSION}' (FAIL: This needs to be 1.10.0 or greater.)"
     exit 1
 fi
 
