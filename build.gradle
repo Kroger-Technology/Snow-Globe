@@ -56,7 +56,7 @@ configurations {
 }
 
 task integrationTest(type: Test) {
-    testClassesDir = sourceSets.integrationTest.output.classesDir
+    testClassesDirs = sourceSets.integrationTest.output
     classpath = sourceSets.integrationTest.runtimeClasspath
     outputs.upToDateWhen { false }
     testLogging {
@@ -95,9 +95,11 @@ artifacts {
     archives jar, javadocJar, sourcesJar
 }
 
-task prepSigning << {
-    project.ext."signing.password" = System.getenv("SIGNING_PASSWORD")
-    project.ext."signing.secretKeyRingFile" = System.getenv("HOME") + "/.gnupg/secring.gpg"
+task prepSigning  {
+    doLast {
+        project.ext."signing.password" = System.getenv("SIGNING_PASSWORD")
+        project.ext."signing.secretKeyRingFile" = System.getenv("HOME") + "/.gnupg/secring.gpg"
+    }
 }
 
 signing {
