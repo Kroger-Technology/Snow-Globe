@@ -145,7 +145,7 @@ public class NginxEnvironmentFileBuilderTest {
 
         assertThat(actualEntry, is("\n  upstream " + serverName + " { \n" +
                 "    zone " + serverName + " 64k;\n" +
-                "    server " + containerName + ":" + containerPort + ";\n" +
+                "    server " + containerName + ":" + containerPort + " max_fails=0;\n" +
                 "  }" +
                 "\n" +
                 "\n"));

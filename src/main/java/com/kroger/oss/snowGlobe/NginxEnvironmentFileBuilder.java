@@ -165,6 +165,7 @@ public class NginxEnvironmentFileBuilder {
                 .append(info.containerName())
                 .append(":")
                 .append(info.port())
+                .append(" max_fails=0")
                 .append(";\n")
                 .append("  }")
                 .append("\n")
