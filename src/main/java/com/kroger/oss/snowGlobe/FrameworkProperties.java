@@ -223,4 +223,8 @@ public class FrameworkProperties {
             return new byte[]{127, 0, 0, 1};
         }
     }
+
+    public boolean getShouldRestartNginxOnEachRun() {
+        return getBooleanValue("nginx.restart.onEachRun");
+    }
 }

@@ -39,6 +39,7 @@ public class ComposeUtility {
     private static List<String> containersWithShutDownHooks = new ArrayList<>();
     private final NginxRpBuilder nginxRpBuilder;
     private FrameworkProperties frameworkProperties;
+    private boolean isStarted = false;
 
     public ComposeUtility(NginxRpBuilder nginxRpBuilder, FrameworkProperties frameworkProperties) {
         this.nginxRpBuilder = nginxRpBuilder;
@@ -50,11 +51,23 @@ public class ComposeUtility {
         writeComposeFile(fileContents, frameworkProperties);
         String containerId = nginxRpBuilder.buildRpContainerId();
         if (ContainerUtil.isContainerRunning(containerId)) {
+            if(frameworkProperties.getShouldRestartNginxOnEachRun()) {
+                ContainerUtil.restartNginx(containerId, 100);
+            }
             nginxRpBuilder.assignPortFormRunningContainer(ContainerUtil.getMappedPorts(containerId));
         } else {
             startReverseProxy();
             addNginxShutDownHook(containerId);
         }
+        isStarted = true;
+    }
+
+    public void reload() {
+        if(!isStarted) {
+            throw new IllegalStateException("Cannot reload Nginx if is not started");
+        }
+        String containerId = nginxRpBuilder.buildRpContainerId();
+        ContainerUtil.restartNginx(containerId, 100);
     }
 
     protected String getComposeFileName() {

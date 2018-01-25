@@ -112,12 +112,21 @@ This is optional and below is the default value:
 snowglobe.preserve.temp.files: false
 ```
 
-This last field will add upstream zones if you are using Nginx Plus.
+This field will add upstream zones if you are using Nginx Plus and need a shared memory zone.
  
 This is optional and below is the default value:
 
 ```yaml
 nginx.define.upstream.zones: false
+```
+
+This field will reload Nginx for each run. This can be useful if there active health checks that
+would take a upstream out of the pool if they are not configured for each test.
+
+This is optional and below is the default value:
+
+```yaml
+nginx.restart.onEachRun: false
 ```
 
 ### [Next: Write the Tests](https://kroger-technology.github.io/Snow-Globe/tests)

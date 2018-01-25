@@ -236,4 +236,14 @@ public class NginxRpBuilder {
     public void assignPortFormRunningContainer(Map<Integer, Integer> existingPorts) {
         portMapper.useExistingPorts(existingPorts);
     }
+
+    /**
+     * Causes the Nginx process to reload by issuing a "nginx -s reload" command on the container.
+     * This is a synchronous call that will only return when the existing worker threads have stopped
+     * and the new ones are running.
+     */
+    public void reloadNginx() {
+        composeUtility.reload();
+    }
+
 }
