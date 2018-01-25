@@ -180,9 +180,18 @@ public class NginxRpBuilder {
     }
 
     private List<String> buildNginxVolumeMounts() {
+        List<String> nginxVolumes = frameworkProperties.getNginxVolumes();
+        return calculateVolumeMounts(nginxVolumes);
+    }
+
+    protected List<String> calculateVolumeMounts(List<String> nginxVolumes) {
         List<String> allVolumeMounts = new ArrayList<>();
-        allVolumeMounts.addAll(frameworkProperties.getNginxVolumes().stream().filter(s -> !s.contains("*")).collect(toList()));
-        frameworkProperties.getNginxVolumes().stream()
+        allVolumeMounts.addAll(nginxVolumes
+                .stream()
+                .filter(s -> !s.contains("*"))
+                .filter(s -> new File(s.substring(0, s.indexOf(":"))).exists())
+                .collect(toList()));
+        nginxVolumes.stream()
                 .filter(s -> s.contains("*"))
                 .map(this::processMountWildCard)
                 .forEach(allVolumeMounts::addAll);

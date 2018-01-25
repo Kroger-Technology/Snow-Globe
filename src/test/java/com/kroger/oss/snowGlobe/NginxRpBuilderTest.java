@@ -21,10 +21,16 @@ package com.kroger.oss.snowGlobe;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.contains;
 
 public class NginxRpBuilderTest {
 
@@ -39,5 +45,34 @@ public class NginxRpBuilderTest {
         assertThat(argsMap, hasKey("volumes"));
         assertThat(argsMap, hasKey("ports"));
         assertThat(argsMap, hasKey("command"));
+    }
+
+    @Test
+    public void shouldFilterVolumeMountsThatDontExist() {
+        List<String> volumeMounts = new ArrayList<>();
+        volumeMounts.add("src/integration/resources/nginx.conf:/etc/nginx/nginx.conf");
+        volumeMounts.add("totally/doesnt/exist:/etc/nginx/not/there/");
+        volumeMounts.add("totally/doesnt/exist/with/wildcard:/etc/nginx/not/there/");
+
+        List<String> mounts = new NginxRpBuilder("snow-globe.yml", null)
+                .calculateVolumeMounts(volumeMounts);
+
+        assertThat(mounts, hasItem("src/integration/resources/nginx.conf:/etc/nginx/nginx.conf"));
+        assertThat(mounts, not(hasItem("totally/doesnt/exist:/etc/nginx/not/there/")));
+        assertThat(mounts, not(hasItem("totally/doesnt/exist/with/wildcard:/etc/nginx/not/there/")));
+    }
+
+
+    @Test
+    public void shouldFilterVolumeMountsThatDontExistWithWildcard() {
+        List<String> volumeMounts = new ArrayList<>();
+        volumeMounts.add("src/integration/resources/nginx.conf:/etc/nginx/nginx.conf");
+        volumeMounts.add("totally/doesnt/exist/with/wildcard/*:/etc/nginx/not/there/");
+
+        List<String> mounts = new NginxRpBuilder("snow-globe.yml", null)
+                .calculateVolumeMounts(volumeMounts);
+
+        assertThat(mounts, hasItem("src/integration/resources/nginx.conf:/etc/nginx/nginx.conf"));
+        assertThat(mounts, not(hasItems(contains("totally/doesnt/exist/with/wildcard"))));
     }
 }
