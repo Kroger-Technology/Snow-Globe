@@ -39,7 +39,6 @@ public class ComposeUtility {
     private static List<String> containersWithShutDownHooks = new ArrayList<>();
     private final NginxRpBuilder nginxRpBuilder;
     private FrameworkProperties frameworkProperties;
-    private boolean isStarted = false;
 
     public ComposeUtility(NginxRpBuilder nginxRpBuilder, FrameworkProperties frameworkProperties) {
         this.nginxRpBuilder = nginxRpBuilder;
@@ -52,22 +51,22 @@ public class ComposeUtility {
         String containerId = nginxRpBuilder.buildRpContainerId();
         if (ContainerUtil.isContainerRunning(containerId)) {
             if(frameworkProperties.getShouldRestartNginxOnEachRun()) {
-                ContainerUtil.restartNginx(containerId, 100);
+                reload();
             }
             nginxRpBuilder.assignPortFormRunningContainer(ContainerUtil.getMappedPorts(containerId));
         } else {
             startReverseProxy();
             addNginxShutDownHook(containerId);
         }
-        isStarted = true;
     }
 
+    /**
+     * Causes the Nginx process to reload.  If a custom command is provided by the framework properties,
+     * then it will be passed in, otherwise the default of "nginx", "-s", "reload" will be supplied.
+     */
     public void reload() {
-        if(!isStarted) {
-            throw new IllegalStateException("Cannot reload Nginx if is not started");
-        }
         String containerId = nginxRpBuilder.buildRpContainerId();
-        ContainerUtil.restartNginx(containerId, 100);
+        ContainerUtil.restartNginx(containerId, 100, frameworkProperties.getNginxReloadCommand());
     }
 
     protected String getComposeFileName() {

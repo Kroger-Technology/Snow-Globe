@@ -103,10 +103,10 @@ public class ContainerUtil {
         }
     }
 
-    public static void restartNginx(String containerId, int reloadWaitMs) {
+    public static void restartNginx(String containerId, int reloadWaitMs, String[] restartCmd) {
         try {
             List<String> originalWorkerThreads = getNginxWorkerThreads(containerId);
-            runCommandWithLogs("docker", "exec", containerId, "nginx", "-s", "reload");
+            runCommandWithLogs(buildReloadCommand(containerId, restartCmd));
             Thread.sleep(reloadWaitMs);
             List<String> postReloadWorkerThreads = getNginxWorkerThreads(containerId);
             // We are going to wait until all original worker threads are retired.
@@ -117,6 +117,13 @@ public class ContainerUtil {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static String[] buildReloadCommand(String containerId, String[] customRestartCmd) {
+        String[] commandPrefix = {"docker", "exec", containerId};
+        ArrayList<String> command = new ArrayList<>(Arrays.asList(commandPrefix));
+        command.addAll(Arrays.asList(customRestartCmd));
+        return command.toArray(new String[1]);
     }
 
     private static boolean hasOriginalWorkerPidsRunning(List<String> originalWorkerPids, List<String> postReloadWorkerPids) {

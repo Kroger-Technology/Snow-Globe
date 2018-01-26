@@ -29,7 +29,8 @@ import static com.kroger.oss.snowGlobe.call.CallUtility.make;
 import static com.kroger.oss.snowGlobe.call.TestRequest.getRequest;
 
 /**
- * This integration test verifies that Nginx will function before and after reloading
+ * This integration test verifies that Nginx will function before and after reloading.  It also uses a custom reload
+ * configuration set to reload after each run.
  */
 public class ReloadTest {
 
@@ -38,14 +39,20 @@ public class ReloadTest {
 
     @Before
     public void setup() {
-        nginxReverseProxy = runNginxWithUpstreams(loginUpstreamApp);
+        nginxReverseProxy = runNginxWithUpstreams("src/integration/resources/snow-globe-reload.yml", loginUpstreamApp);
     }
 
     @Test
-    public void should_route_login_request_to_login_path() {
+    public void should_route_before_and_after_reload() {
         make(getRequest("https://www.nginx-test.com/login").to(nginxReverseProxy))
                 .andExpectAppPath("/login-path");
         nginxReverseProxy.reloadNginx();
+        make(getRequest("https://www.nginx-test.com/login").to(nginxReverseProxy))
+                .andExpectAppPath("/login-path");
+    }
+
+    @Test
+    public void should_route_new_run_with_reload() {
         make(getRequest("https://www.nginx-test.com/login").to(nginxReverseProxy))
                 .andExpectAppPath("/login-path");
     }

@@ -225,6 +225,14 @@ public class FrameworkProperties {
     }
 
     public boolean getShouldRestartNginxOnEachRun() {
-        return getBooleanValue("nginx.restart.onEachRun");
+        return getBooleanValue("nginx.reload.onEachRun");
+    }
+
+    public String[] getNginxReloadCommand() {
+        List<String> list = getList("nginx.reload.customCommand");
+        if(list != null && list.size() > 0) {
+            return list.toArray(new String[0]);
+        }
+        return new String[]{"nginx", "-s", "reload"};
     }
 }

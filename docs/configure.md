@@ -126,7 +126,16 @@ would take a upstream out of the pool if they are not configured for each test.
 This is optional and below is the default value:
 
 ```yaml
-nginx.restart.onEachRun: false
+nginx.reload.onEachRun: false
+```
+
+This field allows the user to have a custom reload command.  This can be useful when there is a custom file or
+other situations where the default "nginx -s reload" is not sufficient.
+
+This is optional and below is the default value:
+
+```yaml
+nginx.reload.customCommand: ["nginx", "-s", "reload"]
 ```
 
 ### [Next: Write the Tests](https://kroger-technology.github.io/Snow-Globe/tests)

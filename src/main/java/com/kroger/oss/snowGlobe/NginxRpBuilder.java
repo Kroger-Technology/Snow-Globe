@@ -238,12 +238,10 @@ public class NginxRpBuilder {
     }
 
     /**
-     * Causes the Nginx process to reload by issuing a "nginx -s reload" command on the container.
-     * This is a synchronous call that will only return when the existing worker threads have stopped
-     * and the new ones are running.
+     * Causes the nginx instance running to reload.  This can be useful for when Nginx holds state for calls
+     * or upstreams like active health checks.
      */
     public void reloadNginx() {
         composeUtility.reload();
     }
-
 }
