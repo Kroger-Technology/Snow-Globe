@@ -31,8 +31,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -74,7 +73,7 @@ public class UpstreamUtil {
     }
 
     private static HttpPost buildRequest(StringEntity json) {
-        HttpPost httpPost = new HttpPost("http://localhost:" + UPSTREAM_SERVICE_PORT + "/startServer");
+        HttpPost httpPost = new HttpPost("http://" + getUpstreamHost(System.getenv("DOCKER_HOST")) + ":" + UPSTREAM_SERVICE_PORT + "/startServer");
         httpPost.setHeader("Content-type", "application/json");
         httpPost.setEntity(json);
         return httpPost;
@@ -144,7 +143,7 @@ public class UpstreamUtil {
 
     private static boolean upstreamRunning() {
         try {
-            URL url = new URL("http://localhost:" + UPSTREAM_SERVICE_PORT + "/health");
+            URL url = new URL("http://" + getUpstreamHost(System.getenv("DOCKER_HOST")) + ":" + UPSTREAM_SERVICE_PORT + "/health");
             URLConnection uc = url.openConnection();
             uc.connect();
             String status = uc.getHeaderField(0);
@@ -165,11 +164,28 @@ public class UpstreamUtil {
     public static void resetUpstreams() {
         try {
             CloseableHttpClient client = HttpClients.createDefault();
-            HttpPost httpPost = new HttpPost("http://localhost:" + UPSTREAM_SERVICE_PORT + "/reset");
+            HttpPost httpPost = new HttpPost("http://" + getUpstreamHost(System.getenv("DOCKER_HOST")) + ":" + UPSTREAM_SERVICE_PORT + "/reset");
             client.execute(httpPost);
             client.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static String getUpstreamHost(String dockerHost) {
+        if (dockerHost.equals("")) {
+            return "localhost";
+        }
+        if (dockerHost.startsWith("unix://")) {
+            return "localhost";
+        }
+
+        try {
+            URI parsed = new URI(dockerHost);
+            return parsed.getHost();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        return "localhost";
     }
 }
