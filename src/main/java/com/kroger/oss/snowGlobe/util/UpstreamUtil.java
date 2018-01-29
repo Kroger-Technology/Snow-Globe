@@ -173,7 +173,7 @@ public class UpstreamUtil {
     }
 
     public static String getUpstreamHost(String dockerHost) {
-        if (dockerHost.equals("")) {
+        if (dockerHost == null || dockerHost.equals("")) {
             return "localhost";
         }
         if (dockerHost.startsWith("unix://")) {
