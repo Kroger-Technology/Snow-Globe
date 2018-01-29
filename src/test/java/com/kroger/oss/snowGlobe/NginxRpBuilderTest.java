@@ -73,6 +73,6 @@ public class NginxRpBuilderTest {
                 .calculateVolumeMounts(volumeMounts);
 
         assertThat(mounts, hasItem("src/integration/resources/nginx.conf:/etc/nginx/nginx.conf"));
-        assertThat(mounts, not(hasItems(contains("totally/doesnt/exist/with/wildcard"))));
+        assertThat(mounts, not(hasItem("totally/doesnt/exist/with/wildcard")));
     }
 }
