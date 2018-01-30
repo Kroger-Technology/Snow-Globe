@@ -47,7 +47,7 @@ jobs:
       - deploy:
           name: Publish Jar to Maven Central
           command: |
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+            if [[ "${CIRCLE_BRANCH}" == "master" ]] || [[ "${CIRCLE_BRANCH}" == "v1.0" ]]; then
               ./gradlew uploadArchives
               sleep 120
               ./gradlew closeAndReleaseRepository
@@ -56,7 +56,7 @@ jobs:
       - deploy:
           name: Publish Upstream Bounce Container
           command: |
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+            if [[ "${CIRCLE_BRANCH}" == "master" ]] || [[ "${CIRCLE_BRANCH}" == "v1.0" ]]; then
               docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
               docker push krogersnowglobe/upstream-bounce-app2:latest
             fi
