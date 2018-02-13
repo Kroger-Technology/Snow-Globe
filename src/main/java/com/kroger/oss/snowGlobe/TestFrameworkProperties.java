@@ -239,4 +239,12 @@ public class TestFrameworkProperties {
             return new byte[] {127, 0, 0, 1};
         }
     }
+
+    public int getMaxUpstreamStartupTime() {
+        return getIntValue("upstream.max.startupTime", 10);
+    }
+
+    public int getUpstreamStartupPollingTimeMs() {
+        return getIntValue("upstream.startup.PollingTimeMs", 200);
+    }
 }

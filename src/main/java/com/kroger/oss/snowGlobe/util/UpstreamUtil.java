@@ -44,6 +44,10 @@ public class UpstreamUtil {
     private static final String UPSTREAM_SERVICE_PORT = "30010";
     private static final String UPSTREAM_NAME = "upstream";
 
+    private static TestFrameworkProperties getProperties() {
+        return new TestFrameworkProperties();
+    }
+
     public static void setupUpstreamService() {
         DockerNetworking.createNetwork();
         if (!upstreamRunning()) {
@@ -140,14 +144,20 @@ public class UpstreamUtil {
     }
 
     private static void waitForUpstreamToStart() throws InterruptedException {
-        for(int i = 0; i < 25; i++) {
+        int pollingTime = getProperties().getUpstreamStartupPollingTimeMs();
+        int maxRetries = getMaxRetries();
+        for(int i = 0; i < maxRetries; i++) {
             if(upstreamRunning()) {
                 return;
             }
-            Thread.sleep(200);
+            Thread.sleep(pollingTime);
         }
         System.out.println("Timed out waiting on upstream container to start.");
         ContainerUtil.logContainerOutput(UPSTREAM_NAME);
+    }
+
+    private static int getMaxRetries() {
+        return getProperties().getMaxUpstreamStartupTime() * 1000 / getProperties().getUpstreamStartupPollingTimeMs();
     }
 
     private static boolean upstreamRunning() {
