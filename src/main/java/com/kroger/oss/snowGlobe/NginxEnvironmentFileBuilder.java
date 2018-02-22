@@ -37,8 +37,8 @@ public class NginxEnvironmentFileBuilder {
     FrameworkProperties frameworkProperties;
     Map<String, UpstreamAppInfo> upstreamServers = new HashMap<>();
 
-    public NginxEnvironmentFileBuilder() {
-        frameworkProperties = new FrameworkProperties();
+    public NginxEnvironmentFileBuilder(FrameworkProperties frameworkProperties) {
+        this.frameworkProperties = frameworkProperties;
         try {
             configurationMD5 = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {

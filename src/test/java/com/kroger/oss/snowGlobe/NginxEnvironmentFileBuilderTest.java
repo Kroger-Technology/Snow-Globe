@@ -36,7 +36,7 @@ public class NginxEnvironmentFileBuilderTest {
 
     @Before
     public void setup() {
-        fileBuilder = new NginxEnvironmentFileBuilder();
+        fileBuilder = new NginxEnvironmentFileBuilder(new FrameworkProperties());
     }
 
     @Test

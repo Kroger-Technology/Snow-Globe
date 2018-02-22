@@ -131,7 +131,7 @@ public class NginxRpBuilder {
     }
 
     private void analyzeNginxConfig() {
-        NginxEnvironmentFileBuilder builder = new NginxEnvironmentFileBuilder();
+        NginxEnvironmentFileBuilder builder = new NginxEnvironmentFileBuilder(frameworkProperties);
         determineUpstreamClusters(builder);
         builder.registerUpstreams(clusters);
         builder.computeUpstreamPorts();
