@@ -162,7 +162,11 @@ public class FrameworkProperties {
 
     private String getString(String key, String defaultValue) {
         try {
-            return valueOf(properties.get(key));
+            if(properties.containsKey(key)) {
+                return valueOf(properties.get(key));
+            } else {
+                return defaultValue;
+            }
         } catch (Exception e) {
             return defaultValue;
         }
@@ -234,5 +238,28 @@ public class FrameworkProperties {
             return list.toArray(new String[0]);
         }
         return new String[]{"nginx", "-s", "reload"};
+    }
+
+    /**
+     * Defines the name on the docker network that should be used when the nginx configuration references an
+     * upstream.  We make this configurable if there are multiple nginx instances running and there is the
+     * need to separate each upstream with it's running instance.
+     *
+     * @return
+     *      The name of the upstream alias to use on the docker network.
+     */
+    public String getUpstreamName() {
+        return getString("upstream.alias", "upstream");
+    }
+
+    /**
+     * Defines the service port for the upstream instance.  The service port is used by the nginx testing framework
+     * to configure how the upstreams work.
+     *
+     * @return
+     *      The port value that Snow-Globe will use.  The default is 30010.
+     */
+    public String getUpstreamServicePort() {
+        return getString("upstream.servicePort", "30010");
     }
 }

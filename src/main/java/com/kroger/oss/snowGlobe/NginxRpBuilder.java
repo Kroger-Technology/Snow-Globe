@@ -93,8 +93,8 @@ public class NginxRpBuilder {
 
     private void initializeUpstreamInstances() {
         portMapper.initMapping(frameworkProperties);
-        UpstreamUtil.setupUpstreamService();
-        UpstreamUtil.initializeUpstreamInstances(clusters);
+        UpstreamUtil.setupUpstreamService(frameworkProperties);
+        UpstreamUtil.initializeUpstreamInstances(clusters, frameworkProperties);
     }
 
 

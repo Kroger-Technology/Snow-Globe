@@ -38,30 +38,32 @@ import java.util.Map;
 
 public class UpstreamUtil {
 
-    private static final String UPSTREAM_SERVICE_PORT = "30010";
-    private static final String UPSTREAM_NAME = "upstream";
-
-    public static void setupUpstreamService() {
+    public static void setupUpstreamService(FrameworkProperties props) {
         DockerNetworking.createNetwork();
-        if (!upstreamRunning()) {
-            startUpstream();
-            setupUpstreamShutdownHook();
+        if (!upstreamRunning(props.getUpstreamServicePort())) {
+            startUpstream(props);
+            setupUpstreamShutdownHook(props.getUpstreamName());
         } else {
-            resetUpstreams();
+            resetUpstreams(props.getUpstreamServicePort());
         }
     }
 
-    private static void setupUpstreamShutdownHook() {
+    private static void setupUpstreamShutdownHook(String upstreamName) {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            ContainerUtil.shutdownContainer(UPSTREAM_NAME);
+            ContainerUtil.shutdownContainer(upstreamName);
         }));
     }
 
-    public static int addUpstream(int instance, String clusterName, String matchingPaths, int httpResponseCode,
-                                  Map<String, String> headers, boolean useHttps, int port) {
+    public static int addUpstream(int instance, AppServiceCluster cluster, FrameworkProperties props) {
+        String clusterName = cluster.getClusterName();
+        String matchingPaths = cluster.getMatchingPaths();
+        int httpResponseCode = cluster.getHttpResponseCode();
+        Map<String, String> headers = cluster.getResponseHeaders();
+        boolean useHttps = cluster.isUseHttps();
+        int port = cluster.getPort();
         StringEntity json = buildJsonBody(instance, clusterName, matchingPaths, httpResponseCode, headers, useHttps, port);
         CloseableHttpClient client = HttpClients.createDefault();
-        HttpPost httpPost = buildRequest(json);
+        HttpPost httpPost = buildRequest(json, props.getUpstreamServicePort());
         try {
             CloseableHttpResponse res = client.execute(httpPost);
             int upstreamPort = getUpstreamPort(res);
@@ -72,8 +74,8 @@ public class UpstreamUtil {
         }
     }
 
-    private static HttpPost buildRequest(StringEntity json) {
-        HttpPost httpPost = new HttpPost("http://" + getUpstreamHost(System.getenv("DOCKER_HOST")) + ":" + UPSTREAM_SERVICE_PORT + "/startServer");
+    private static HttpPost buildRequest(StringEntity json, String upstreamServicePort) {
+        HttpPost httpPost = new HttpPost("http://" + getUpstreamHost(System.getenv("DOCKER_HOST")) + ":" + upstreamServicePort + "/startServer");
         httpPost.setHeader("Content-type", "application/json");
         httpPost.setEntity(json);
         return httpPost;
@@ -106,17 +108,16 @@ public class UpstreamUtil {
         }
     }
 
-    private static void startUpstream() {
-        FrameworkProperties props = new FrameworkProperties();
+    private static void startUpstream(FrameworkProperties props) {
         try {
-            String[] command = {"docker", "run", "-p", UPSTREAM_SERVICE_PORT + ":3000", "--network=" + props.getDockerNetworkName(),
-                    "--name", UPSTREAM_NAME, "--detach", props.getUpstreamBounceImage()};
+            String[] command = {"docker", "run", "-p", props.getUpstreamServicePort() + ":3000", "--network=" + props.getDockerNetworkName(),
+                    "--name", props.getUpstreamName(), "--detach", props.getUpstreamBounceImage()};
             if (props.logContainerOutput()) {
                 ContainerUtil.runCommandWithLogs(command);
             } else {
                 ContainerUtil.runCommand(command);
             }
-            waitForUpstreamToStart();
+            waitForUpstreamToStart(props.getUpstreamName(), props.getUpstreamServicePort());
         } catch (Exception e) {
             // if we have gotten an exception, there is the possibility that another process was setting up this
             // container. This can happen with multiple parallel forks.
@@ -124,26 +125,26 @@ public class UpstreamUtil {
                 Thread.sleep(200);
             } catch (InterruptedException ignored) {
             }
-            if (!upstreamRunning()) {
+            if (!upstreamRunning(props.getUpstreamServicePort())) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    private static void waitForUpstreamToStart() throws InterruptedException {
+    private static void waitForUpstreamToStart(String upstreamName, String upstreamServicePort) throws InterruptedException {
         for (int i = 0; i < 25; i++) {
-            if (upstreamRunning()) {
+            if (upstreamRunning(upstreamServicePort)) {
                 return;
             }
             Thread.sleep(200);
         }
         System.out.println("Timed out waiting on upstream container to start.");
-        ContainerUtil.logContainerOutput(UPSTREAM_NAME);
+        ContainerUtil.logContainerOutput(upstreamName);
     }
 
-    private static boolean upstreamRunning() {
+    private static boolean upstreamRunning(String port) {
         try {
-            URL url = new URL("http://" + getUpstreamHost(System.getenv("DOCKER_HOST")) + ":" + UPSTREAM_SERVICE_PORT + "/health");
+            URL url = new URL("http://" + getUpstreamHost(System.getenv("DOCKER_HOST")) + ":" + port + "/health");
             URLConnection uc = url.openConnection();
             uc.connect();
             String status = uc.getHeaderField(0);
@@ -154,17 +155,15 @@ public class UpstreamUtil {
         }
     }
 
-    public static void initializeUpstreamInstances(AppServiceCluster[] clusters) {
+    public static void initializeUpstreamInstances(AppServiceCluster[] clusters, FrameworkProperties frameworkProperties) {
         Arrays.stream(clusters).forEach(cluster ->
-                UpstreamUtil.addUpstream(0, cluster.getClusterName(), cluster.getMatchingPaths(),
-                        cluster.getHttpResponseCode(), cluster.getResponseHeaders(), cluster.isUseHttps(),
-                        cluster.getPort()));
+                UpstreamUtil.addUpstream(0, cluster, frameworkProperties));
     }
 
-    public static void resetUpstreams() {
+    public static void resetUpstreams(String upstreamServicePort) {
         try {
             CloseableHttpClient client = HttpClients.createDefault();
-            HttpPost httpPost = new HttpPost("http://" + getUpstreamHost(System.getenv("DOCKER_HOST")) + ":" + UPSTREAM_SERVICE_PORT + "/reset");
+            HttpPost httpPost = new HttpPost("http://" + getUpstreamHost(System.getenv("DOCKER_HOST")) + ":" + upstreamServicePort + "/reset");
             client.execute(httpPost);
             client.close();
         } catch (Exception e) {

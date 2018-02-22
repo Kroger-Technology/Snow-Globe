@@ -162,7 +162,7 @@ public class NginxEnvironmentFileBuilder {
             sb.append("    zone " + serverName + " 64k;\n");
         }
         sb.append("    server ")
-                .append(info.containerName())
+                .append(frameworkProperties.getUpstreamName())
                 .append(":")
                 .append(info.port())
                 .append(" max_fails=0")

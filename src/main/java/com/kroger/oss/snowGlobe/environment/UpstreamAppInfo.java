@@ -25,18 +25,7 @@ package com.kroger.oss.snowGlobe.environment;
  */
 public class UpstreamAppInfo {
 
-    private final String containerName = "upstream";
     private int containerPort;
-
-    /**
-     * The name of the container used in the Docker Compose file to identify the upstream
-     * instance.
-     *
-     * @return The name of the container that is identified in the docker compose file.
-     */
-    public String containerName() {
-        return containerName;
-    }
 
     /**
      * The named port that traffic should be routed to.

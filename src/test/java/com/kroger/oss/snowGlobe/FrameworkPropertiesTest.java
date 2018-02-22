@@ -145,4 +145,9 @@ public class FrameworkPropertiesTest {
         assertTrue(frameworkProperties.defineUpstreamZones());
         FrameworkProperties.setConfigFile(null);
     }
+
+    @Test
+    public void shouldBeAbleToGetDefaultUpsteamName() {
+        assertThat(frameworkProperties.getUpstreamName(), is("upstream"));
+    }
 }
