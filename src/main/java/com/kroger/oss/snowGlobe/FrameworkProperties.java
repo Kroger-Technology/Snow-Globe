@@ -228,7 +228,7 @@ public class FrameworkProperties {
         }
     }
 
-    public boolean getShouldRestartNginxOnEachRun() {
+    public boolean getShouldReloadNginxOnEachRun() {
         return getBooleanValue("nginx.reload.onEachRun");
     }
 
@@ -246,10 +246,10 @@ public class FrameworkProperties {
      * need to separate each upstream with it's running instance.
      *
      * @return
-     *      The name of the upstream alias to use on the docker network.
+     *      The name of the upstream alias to use on the docker network. The default is 'upstream'.
      */
     public String getUpstreamName() {
-        return getString("upstream.alias", "upstream");
+        return getString("upstream.aliasAndPort", "upstream:30010").split(":")[0];
     }
 
     /**
@@ -260,6 +260,6 @@ public class FrameworkProperties {
      *      The port value that Snow-Globe will use.  The default is 30010.
      */
     public String getUpstreamServicePort() {
-        return getString("upstream.servicePort", "30010");
+        return getString("upstream.aliasAndPort", "upstream:30010").split(":")[1];
     }
 }

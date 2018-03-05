@@ -50,7 +50,7 @@ public class ComposeUtility {
         writeComposeFile(fileContents, frameworkProperties);
         String containerId = nginxRpBuilder.buildRpContainerId();
         if (ContainerUtil.isContainerRunning(containerId)) {
-            if(frameworkProperties.getShouldRestartNginxOnEachRun()) {
+            if(frameworkProperties.getShouldReloadNginxOnEachRun()) {
                 reload();
             }
             nginxRpBuilder.assignPortFormRunningContainer(ContainerUtil.getMappedPorts(containerId));
